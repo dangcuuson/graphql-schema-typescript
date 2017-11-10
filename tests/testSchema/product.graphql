@@ -1,0 +1,16 @@
+interface IProduct {
+    id: String!
+    name: String!
+}
+
+type ProductA implements IProduct {
+    id: String!
+    name: String!
+    productAThing: [Int]
+}
+
+type ProductB implements IProduct {
+    id: String!
+    name: String!
+    productBThing: Float!
+}

@@ -1,0 +1,16 @@
+{
+    "include": [
+        "src/**/*.ts",
+        "tests/**/*.ts"
+    ],
+    "compilerOptions": {
+        "target": "es5",
+        "lib": [
+            "es6"
+        ],
+        "module": "commonjs",
+        "declaration": true,
+        "outDir": "./lib",
+        "noImplicitAny": false
+    }
+}

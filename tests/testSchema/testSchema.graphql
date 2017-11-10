@@ -1,0 +1,31 @@
+schema {
+    query: RootQuery
+    mutation: RootMutation
+}
+
+type RootQuery {
+    Users(input: UserFilter): [User!]!
+    User: User
+
+    Products: [IProduct!]
+    Search(key: String): SearchResult
+}
+
+type RootMutation {
+    createUser(input: CreateUserInput): User
+}
+
+input UserFilter {
+    username: [String]
+}
+
+union SearchResult = User | ProductA | ProductB
+
+input CreateUserInput {
+    username: String!
+    email: String!
+    password: String!
+    createdAt: DateEnAU!
+}
+
+scalar DateEnAU
