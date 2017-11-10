@@ -1,7 +1,7 @@
 {
   "name": "graphql-schema-typescript",
   "version": "1.0.0",
-  "description": "Generate Typescript from Graphql's schema type defenitions",
+  "description": "Generate TypeScript from GraphQL's schema type definitions",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

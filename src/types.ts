@@ -9,8 +9,3 @@ export interface GenerateTypescriptOptions {
     /** Tab format, default to 2 */
     tabSpaces?: number;
 }
-
-export const defaultGenerateTypescriptOptions: GenerateTypescriptOptions = {
-    customScalarType: {},
-    tabSpaces: 2
-};
