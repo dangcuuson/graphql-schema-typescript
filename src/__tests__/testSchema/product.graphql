@@ -1,0 +1,79 @@
+interface IProduct {
+    id: String!
+    name: String!
+
+    # Customers who buy this will also buy these
+    relatedProducts: [IProduct!]!
+}
+
+# Try to cover List/Non-null List/Non-null list of non-null items
+type ProductA implements IProduct {
+    id: String!
+    name: String!
+
+    # Customers who buy this will also buy these
+    relatedProducts: [IProduct!]!
+
+    ProductA1: ProductScalar
+    ProductA2: ProductScalar!
+    ProductA3: [ProductScalar]
+    ProductA4: [ProductScalar]!
+    ProductA5: [ProductScalar!]
+    ProductA6: [ProductScalar!]!
+}
+
+# Test with all scalar field
+type ProductScalar {
+    scalarString1: String
+    scalarString2: String!
+    scalarInt1: Int
+    scalarInt2: Int!
+    scalarFloat1: Float
+    scalarFloat2: Float!
+    scalarID1: ID
+    scalarID2: ID!
+    scalarBoolean1: Boolean
+    scalarBoolean2: Boolean!
+}
+
+type ProductB implements IProduct {
+    id: String!
+    name: String!
+
+    # Customers who buy this will also buy these
+    relatedProducts: [IProduct!]!
+
+    ProductB1: ProductListSclar
+    ProductB2: ProductListSclar!
+    ProductB3: [ProductListSclar]
+    ProductB4: [ProductListSclar]!
+    ProductB5: [ProductListSclar!]
+    ProductB6: [ProductListSclar!]!
+}
+
+type ProductListSclar {
+    listString1: [String]
+    listString2: [String]!
+    listString3: [String!]
+    listString4: [String!]!
+
+    listInt1: [Int]
+    listInt2: [Int]!
+    listInt3: [Int!]
+    listInt4: [Int!]!
+
+    listFloat1: [Float]
+    listFloat2: [Float]!
+    listFloat3: [Float!]
+    listFloat4: [Float!]!
+
+    listID1: [ID]
+    listID2: [ID]!
+    listID3: [ID!]
+    listID4: [ID!]!
+
+    listBoolean1: [Boolean]
+    listBoolean2: [Boolean]!
+    listBoolean3: [Boolean!]
+    listBoolean4: [Boolean!]!
+}

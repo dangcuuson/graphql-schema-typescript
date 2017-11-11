@@ -1,10 +1,13 @@
 {
   "name": "graphql-schema-typescript",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Generate TypeScript from GraphQL's schema type definitions",
-  "main": "index.js",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --bail",
+    "build": "rm -rf ./lib && tsc",
+    "prepack": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -30,5 +33,18 @@
   "peerDependencies": {
     "graphql": "*",
     "typescript": "*"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "/__tests__/.*\\.test\\.ts$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "json"
+    ]
   }
 }

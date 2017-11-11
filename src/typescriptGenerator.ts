@@ -1,5 +1,5 @@
 import { version } from 'typescript';
-import { defaultGenerateTypescriptOptions, GenerateTypescriptOptions, CustomScalarOption } from './types';
+import { GenerateTypescriptOptions } from './types';
 import * as compareVersions from 'compare-versions';
 import { version as TSVersion } from 'typescript';
 import { introspectSchema, isBuiltinType, descriptionToJSDoc, getFieldType } from './utils';
@@ -25,8 +25,10 @@ export class TypeScriptGenerator {
         const { __schema } = await introspectSchema(schema);
         const gqlTypes = __schema.types.filter(type => !isBuiltinType(type));
 
-        return gqlTypes.reduce<string[]>((typeScriptDefs, gqlType) => {
-            typeScriptDefs = typeScriptDefs.concat(descriptionToJSDoc({ description: gqlType.description }));
+        return gqlTypes.reduce<string[]>((prevTypescriptDefs, gqlType) => {
+
+            const jsDoc = descriptionToJSDoc({ description: gqlType.description });
+            let typeScriptDefs: string[] = [].concat(jsDoc);
 
             switch (gqlType.kind) {
                 case 'SCALAR': {
@@ -50,7 +52,7 @@ export class TypeScriptGenerator {
                     typeScriptDefs = typeScriptDefs.concat(this.generateUnionType(gqlType));
                     break;
                 }
-                
+
                 default: {
                     throw new Error(`Unknown type kind ${(gqlType as any).kind}`);
                 }
@@ -58,7 +60,7 @@ export class TypeScriptGenerator {
 
             typeScriptDefs.push('');
 
-            return typeScriptDefs;
+            return prevTypescriptDefs.concat(typeScriptDefs);
 
         }, []).join('\n');
 
@@ -67,10 +69,10 @@ export class TypeScriptGenerator {
     private generateCustomScalarType(scalarType: IntrospectionScalarType): string[] {
         const customScalarType = this.options.customScalarType || {};
         if (customScalarType[scalarType.name]) {
-            return [`export type ${scalarType.name} = ${customScalarType[scalarType.name]};`];
+            return [`export type ${this.options.typePrefix}${scalarType.name} = ${customScalarType[scalarType.name]};`];
         }
 
-        return [`export type ${scalarType.name} = any;`];
+        return [`export type ${this.options.typePrefix}${scalarType.name} = any;`];
     }
 
     private generateEnumType(enumType: IntrospectionEnumType): string[] {
@@ -80,27 +82,28 @@ export class TypeScriptGenerator {
             return this.createUnionType(enumType.name, enumType.enumValues.map(v => `'${v.name}'`));
         }
 
-        let enumBody = enumType.enumValues.reduce<string[]>((typescriptDefs, enumValue, index) => {
-            const jsDoc = descriptionToJSDoc(enumValue);
+        let enumBody = enumType.enumValues.reduce<string[]>((prevTypescriptDefs, enumValue, index) => {
+            let typescriptDefs: string[] = [];
+            const enumValueJsDoc = descriptionToJSDoc(enumValue);
 
             const isLastEnum = index === enumType.enumValues.length - 1;
 
             if (!isLastEnum) {
-                typescriptDefs = typescriptDefs.concat(jsDoc, `${enumValue.name} = "${enumValue.name}",`);
+                typescriptDefs = [...enumValueJsDoc, `${enumValue.name} = "${enumValue.name}",`];
             } else {
-                typescriptDefs = typescriptDefs.concat(jsDoc, `${enumValue.name} = "${enumValue.name}"`);
+                typescriptDefs = [...enumValueJsDoc, `${enumValue.name} = "${enumValue.name}"`];
             }
 
-            if (jsDoc.length > 0) {
-                typescriptDefs.push('');
+            if (enumValueJsDoc.length > 0) {
+                typescriptDefs = ['', ...typescriptDefs, ''];
             }
 
-            return typescriptDefs;
+            return prevTypescriptDefs.concat(typescriptDefs);
 
         }, []);
 
         return [
-            `export enum ${enumType.name} {`,
+            `export enum ${this.options.typePrefix}${enumType.name} {`,
             ...enumBody.map(line => ' '.repeat(this.options.tabSpaces) + line),
             '}'
         ];
@@ -111,14 +114,17 @@ export class TypeScriptGenerator {
 
         let fields = objectType.kind === 'INPUT_OBJECT' ? objectType.inputFields : objectType.fields;
 
-        const objectFields = fields.reduce<string[]>((typescriptDefs, field, index) => {
+        const objectFields = fields.reduce<string[]>((prevTypescriptDefs, field, index) => {
 
             let fieldJsDoc = descriptionToJSDoc(field);
             let fieldNameAndType = '';
 
-            let { refName, isRefScalar, fieldModifier } = getFieldType(field);
-            if (isRefScalar) {
+            let { refKind, refName, fieldModifier } = getFieldType(field);
+
+            if (refKind === 'SCALAR') {
                 refName = this.gqlScalarToTypescript(refName);
+            } else if (!isBuiltinType({ name: refName, kind: refKind })) {
+                refName = this.options.typePrefix + refName;
             }
 
             switch (fieldModifier) {
@@ -153,30 +159,37 @@ export class TypeScriptGenerator {
                 }
 
                 default: {
-                    throw new Error(`We are reach the fieldModifier level that should not be exists: ${fieldModifier}`);
+                    throw new Error(`We are reaching the fieldModifier level that should not exists: ${fieldModifier}`);
                 }
             }
 
-            typescriptDefs = typescriptDefs.concat(fieldJsDoc, fieldNameAndType);
+            let typescriptDefs = [...fieldJsDoc, fieldNameAndType];
 
             if (fieldJsDoc.length > 0) {
-                typescriptDefs.push('');
+                typescriptDefs = ['', ...typescriptDefs, ''];
             }
 
-            return typescriptDefs;
+            return prevTypescriptDefs.concat(typescriptDefs);
 
         }, []);
 
 
         return [
-            `export interface ${objectType.name} {`,
+            `export interface ${this.options.typePrefix}${objectType.name} {`,
             ...objectFields.map(line => ' '.repeat(this.options.tabSpaces) + line),
             '}'
         ];
     }
 
     private generateUnionType(unionType: IntrospectionUnionType): string[] {
-        return this.createUnionType(unionType.name, unionType.possibleTypes.map(t => t.name));
+        const { typePrefix } = this.options;
+        return this.createUnionType(unionType.name, unionType.possibleTypes.map(type => {
+            if (isBuiltinType(type)) {
+                return type.name;
+            } else {
+                return typePrefix + type.name;
+            }
+        }));
     }
 
     private gqlScalarToTypescript = (scalarName: string): string => {
@@ -195,7 +208,7 @@ export class TypeScriptGenerator {
                 return 'boolean';
 
             default:
-                return scalarName;
+                return this.options.typePrefix + scalarName;
         }
     };
 
@@ -208,20 +221,20 @@ export class TypeScriptGenerator {
      *      | ...
      */
     private createUnionType(typeName: string, possibleTypes: string[]): string[] {
-        let result = `export type ${typeName} = ${possibleTypes.join(' | ')};`;
+        let result = `export type ${this.options.typePrefix}${typeName} = ${possibleTypes.join(' | ')};`;
         if (result.length <= 80) {
             return [result];
         }
 
-        return result
-            .replace(new RegExp(' | ', 'g'), ' |\n')
-            .split('\n')
-            .map((line, index) => {
-                if (index === 0) {
-                    return line;
-                }
+        let [firstLine, rest] = result.split('=');
 
-                return ' '.repeat(this.options.tabSpaces) + line;
-            });
+        return [
+            firstLine + '=',
+            ...rest
+                .replace(/ \| /g, ' |\n')
+                .split('\n')
+                .map(line => line.trim())
+                .map(line => ' '.repeat(this.options.tabSpaces) + line)
+        ];
     }
 }

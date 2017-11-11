@@ -1,16 +1,17 @@
 {
     "include": [
-        "src/**/*.ts",
-        "tests/**/*.ts"
+        "src/index.ts",
     ],
     "compilerOptions": {
         "target": "es5",
         "lib": [
-            "es6"
+            "es6",
+            "esnext.asynciterable"
         ],
         "module": "commonjs",
         "declaration": true,
         "outDir": "./lib",
-        "noImplicitAny": false
+        "noImplicitAny": false,
+        "forceConsistentCasingInFileNames": true
     }
 }

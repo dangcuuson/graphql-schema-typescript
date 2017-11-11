@@ -25,10 +25,14 @@ export const introspectSchema = async (schema: GraphQLSchema): Promise<Introspec
     return data as IntrospectionQuery;
 };
 
+export interface SimpleTypeDescription {
+    kind: string;
+    name: string;
+}
 /**
  * Check if type is a built-in graphql type
  */
-export const isBuiltinType = (type: IntrospectionType): boolean => {
+export const isBuiltinType = (type: SimpleTypeDescription): boolean => {
     const builtInScalarNames = ['Int', 'Float', 'String', 'Boolean', 'ID'];
     const builtInEnumNames = ['__TypeKind', '__DirectiveLocation'];
     const builtInObjectNames = ['__Schema', '__Type', '__Field', '__InputValue', '__Directive', '__EnumValue'];
@@ -72,14 +76,14 @@ export const descriptionToJSDoc = (description: GraphqlDescription): string[] =>
 
 export interface FieldType {
     fieldModifier: string;
-    isRefScalar: boolean;
     refName: string;
+    refKind: string;
 }
 export const getFieldType = (field: IntrospectionField | IntrospectionInputValue): FieldType => {
     let fieldModifier: string[] = [];
 
     let typeRef = field.type;
-    
+
     while (typeRef.kind === 'NON_NULL' || typeRef.kind === 'LIST') {
         fieldModifier.push(typeRef.kind);
         typeRef = (typeRef as IntrospectionListTypeRef).ofType!
@@ -87,7 +91,7 @@ export const getFieldType = (field: IntrospectionField | IntrospectionInputValue
 
     return {
         fieldModifier: fieldModifier.join(' '),
-        isRefScalar: (typeRef as IntrospectionNamedTypeRef).kind === 'SCALAR',
+        refKind: (typeRef as IntrospectionNamedTypeRef).kind,
         refName: (typeRef as IntrospectionNamedTypeRef).name
     }
 };

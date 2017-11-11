@@ -10,7 +10,7 @@ types to make it type-safed when developing GraphQL server (mainly resolvers)
 ## Features
 
 ### Generate Typescript from Schema Definition
-### Support [Typescript string enum](https://github.com/Microsoft/TypeScript/wiki/What's-new-in-TypeScript#typescript-25) with fallback to string union
+### Support [Typescript string enum](https://github.com/Microsoft/TypeScript/wiki/What's-new-in-TypeScript#typescript-25) with fallback to string union (fallback not tested yet)
 ### Convert GraphQL description into JSDoc
 ### Also add deprecated field and reason into JSDoc
 

@@ -1,0 +1,35 @@
+# A user of the system
+type User {
+    firstName: String!
+    lastName: String!
+    username: String!@deprecated(reason: "Email will replace username. If you are still using username please change it")
+    email: String!
+    
+    role: UserRole!
+
+    # Url to the image
+    profilePicture: String
+
+    # Account must be activated before using
+    activated: Boolean!
+}
+
+# Different role will have different access to our functionality
+# In the future, this will be changed by having User as interface
+# and implementing multiple User
+enum UserRole {
+    # System Administrator
+    sysAdmin
+
+    # Manager - Have access to manage functions
+    manager
+
+    # General Staff
+    clerk
+
+
+    employee@deprecated(reason: "Use 'clerk' instead")
+}
+
+# Custom scalar type
+scalar Date
