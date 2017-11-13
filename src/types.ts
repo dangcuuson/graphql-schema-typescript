@@ -11,6 +11,12 @@ export interface GenerateTypescriptOptions {
 
     /** A prefix to every generated types. Default to GQL */
     typePrefix?: string;
+
+    /** Generate types as global */
+    global?: boolean;
+
+    /** Add types under a namespace */
+    namespace?: string;
 }
 
 export const defaultOptions: GenerateTypescriptOptions = {

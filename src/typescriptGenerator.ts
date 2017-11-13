@@ -14,7 +14,7 @@ import {
 export class TypeScriptGenerator {
     constructor(protected options: GenerateTypescriptOptions) { }
 
-    public async generate(schema: GraphQLSchema): Promise<string> {
+    public async generate(schema: GraphQLSchema): Promise<string[]> {
 
         const { __schema } = await introspectSchema(schema);
         const gqlTypes = __schema.types.filter(type => !isBuiltinType(type));
@@ -59,7 +59,7 @@ export class TypeScriptGenerator {
 
             },
             []
-        ).join('\n');
+        );
 
     }
 
