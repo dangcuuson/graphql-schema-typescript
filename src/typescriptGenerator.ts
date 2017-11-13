@@ -1,6 +1,7 @@
 import { GenerateTypescriptOptions } from './types';
 import { versionMajorMinor as TSVersion } from 'typescript';
 import { introspectSchema, isBuiltinType, descriptionToJSDoc, getFieldType } from './utils';
+import { TSResolverGenerator } from './typescriptResolverGenerator';
 import {
     GraphQLSchema,
     IntrospectionScalarType,
@@ -12,7 +13,11 @@ import {
 } from 'graphql';
 
 export class TypeScriptGenerator {
-    constructor(protected options: GenerateTypescriptOptions) { }
+    protected resolverGenerator: TSResolverGenerator;
+
+    constructor(protected options: GenerateTypescriptOptions) { 
+        this.resolverGenerator = new TSResolverGenerator(options);
+    }
 
     public async generate(schema: GraphQLSchema): Promise<string[]> {
 
