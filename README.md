@@ -43,3 +43,8 @@ or use something like [ts-node](#https://github.com/TypeStrong/ts-node) to execu
 - [ ] Generate resolver types
 - [ ] More detailed API Documentation
 - [ ] Integrate with Travis CI
+
+## Change log
+* v1.0.1: 
+    * Change default prefix from `GQL_` to `GQL`
+    * Add config options: allow to generate types under a global or namespace declaration
