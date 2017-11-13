@@ -45,6 +45,6 @@ or use something like [ts-node](#https://github.com/TypeStrong/ts-node) to execu
 - [ ] Integrate with Travis CI
 
 ## Change log
-* v1.0.1: 
+* v1.0.2: 
     * Change default prefix from `GQL_` to `GQL`
     * Add config options: allow to generate types under a global or namespace declaration
