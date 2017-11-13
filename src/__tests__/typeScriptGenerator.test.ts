@@ -39,7 +39,6 @@ describe('Typescript Generator', () => {
         });
 
         const generated = fsa.readFileSync(outputPath, 'utf-8');
-        expect(generated).toMatchSnapshot();
         expect(generated).toContain('export type GQLDate = Date;');
 
         await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
@@ -53,7 +52,6 @@ describe('Typescript Generator', () => {
         });
 
         const generated = fsa.readFileSync(outputPath, 'utf-8');
-        expect(generated).toMatchSnapshot();
 
         await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
     });
@@ -66,7 +64,6 @@ describe('Typescript Generator', () => {
         });
 
         const generated = fsa.readFileSync(outputPath, 'utf-8');
-        expect(generated).toMatchSnapshot();
         expect(generated).toContain('export interface MyCustomPrefixRootQuery');
 
         await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
@@ -76,7 +73,7 @@ describe('Typescript Generator', () => {
         // TODO: mock ts version and run generator
     });
 
-    it('should wrap types in global if global is configured', async () => {
+    it('should wrap types in global and use string union if global is configured', async () => {
         const outputPath = path.join(outputFolder, 'global.ts');
 
         await generateTypeScriptTypes(testSchema, outputPath, {
@@ -84,8 +81,8 @@ describe('Typescript Generator', () => {
         });
 
         const generated = fsa.readFileSync(outputPath, 'utf-8');
-        expect(generated).toMatchSnapshot();
         expect(generated).toContain('declare global {');
+        expect(generated).toContain(`export type GQLUserRole = 'sysAdmin' | 'manager' | 'clerk' | 'employee';`);
 
         await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
     });
@@ -98,7 +95,6 @@ describe('Typescript Generator', () => {
         });
 
         const generated = fsa.readFileSync(outputPath, 'utf-8');
-        expect(generated).toMatchSnapshot();
         expect(generated).toContain('namespace MyNamespace {');
 
         await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
@@ -113,7 +109,6 @@ describe('Typescript Generator', () => {
         });
 
         const generated = fsa.readFileSync(outputPath, 'utf-8');
-        expect(generated).toMatchSnapshot();
         expect(generated).toContain('declare global {');
         expect(generated).toContain('namespace MyNamespace {');
 

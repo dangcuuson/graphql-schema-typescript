@@ -48,3 +48,6 @@ or use something like [ts-node](#https://github.com/TypeStrong/ts-node) to execu
 * v1.0.2: 
     * Change default prefix from `GQL_` to `GQL`
     * Add config options: allow to generate types under a global or namespace declaration
+
+* v1.0.4: 
+    * If types is generated under global scope, use string union instead of string enum
