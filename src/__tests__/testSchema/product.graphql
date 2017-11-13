@@ -43,15 +43,15 @@ type ProductB implements IProduct {
     # Customers who buy this will also buy these
     relatedProducts: [IProduct!]!
 
-    ProductB1: ProductListSclar
-    ProductB2: ProductListSclar!
-    ProductB3: [ProductListSclar]
-    ProductB4: [ProductListSclar]!
-    ProductB5: [ProductListSclar!]
-    ProductB6: [ProductListSclar!]!
+    ProductB1: ProductListScalar
+    ProductB2: ProductListScalar!
+    ProductB3: [ProductListScalar]
+    ProductB4: [ProductListScalar]!
+    ProductB5: [ProductListScalar!]
+    ProductB6: [ProductListScalar!]!
 }
 
-type ProductListSclar {
+type ProductListScalar {
     listString1: [String]
     listString2: [String]!
     listString3: [String!]

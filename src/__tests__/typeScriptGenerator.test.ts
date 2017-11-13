@@ -99,7 +99,7 @@ describe('Typescript Generator', () => {
 
         const generated = fsa.readFileSync(outputPath, 'utf-8');
         expect(generated).toMatchSnapshot();
-        expect(generated).toContain('namepsace MyNamespace {');
+        expect(generated).toContain('namespace MyNamespace {');
 
         await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
     });
@@ -115,7 +115,7 @@ describe('Typescript Generator', () => {
         const generated = fsa.readFileSync(outputPath, 'utf-8');
         expect(generated).toMatchSnapshot();
         expect(generated).toContain('declare global {');
-        expect(generated).toContain('namepsace MyNamespace {');
+        expect(generated).toContain('namespace MyNamespace {');
 
         await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
     });

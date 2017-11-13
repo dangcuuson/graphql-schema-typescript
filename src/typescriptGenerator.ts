@@ -162,6 +162,18 @@ export class TypeScriptGenerator {
                         break;
                     }
 
+                    case 'LIST NON_NULL LIST NON_NULL': {
+                        fieldNameAndType = `${field.name}?: ${refName}[][];`;
+                        break;
+                    }
+
+                    case 'NON_NULL LIST NON_NULL LIST NON_NULL': {
+                        fieldNameAndType = `${field.name}: ${refName}[][];`;
+                        break;
+                    }
+
+                    // TODO: make it to handle any generic case
+
                     default: {
                         throw new Error(`We are reaching the fieldModifier level that should not exists: ${fieldModifier}`);
                     }
