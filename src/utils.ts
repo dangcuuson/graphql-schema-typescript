@@ -3,11 +3,8 @@ import {
     introspectionQuery,
     GraphQLSchema,
     IntrospectionQuery,
-    IntrospectionType,
     IntrospectionField,
     IntrospectionInputValue,
-    IntrospectionEnumValue,
-    IntrospectionTypeRef,
     IntrospectionListTypeRef,
     IntrospectionNamedTypeRef
 } from 'graphql';
@@ -39,7 +36,7 @@ export const isBuiltinType = (type: SimpleTypeDescription): boolean => {
 
     return type.kind === 'SCALAR' && builtInScalarNames.indexOf(type.name) !== -1
         || type.kind === 'ENUM' && builtInEnumNames.indexOf(type.name) !== -1
-        || type.kind === 'OBJECT' && builtInObjectNames.indexOf(type.name) !== -1
+        || type.kind === 'OBJECT' && builtInObjectNames.indexOf(type.name) !== -1;
 };
 
 export interface GraphqlDescription {
@@ -66,7 +63,7 @@ export const descriptionToJSDoc = (description: GraphqlDescription): string[] =>
         return [];
     }
 
-    const lines = line.split('\n').map(line => ' * ' + line);
+    const lines = line.split('\n').map(l => ' * ' + l);
     return [
         '/**',
         ...lines,
@@ -86,12 +83,12 @@ export const getFieldType = (field: IntrospectionField | IntrospectionInputValue
 
     while (typeRef.kind === 'NON_NULL' || typeRef.kind === 'LIST') {
         fieldModifier.push(typeRef.kind);
-        typeRef = (typeRef as IntrospectionListTypeRef).ofType!
+        typeRef = (typeRef as IntrospectionListTypeRef).ofType!;
     }
 
     return {
         fieldModifier: fieldModifier.join(' '),
         refKind: (typeRef as IntrospectionNamedTypeRef).kind,
         refName: (typeRef as IntrospectionNamedTypeRef).name
-    }
+    };
 };

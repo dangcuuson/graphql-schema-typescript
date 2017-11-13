@@ -17,9 +17,9 @@ types to make it type-safed when developing GraphQL server (mainly resolvers)
 ## Usage
 
 ```javascript
-import { generateTypeScriptTypes } from 'graphql-schema-typescript'
+import { generateTypeScriptTypes } from 'graphql-schema-typescript';
 
-generateTypeScriptTypes(schema, outputPath, options)
+generateTypeScriptTypes(schema, myGQLSchema, options)
     .then(() => {
         console.log('DONE');
         process.exit(0);
@@ -31,13 +31,15 @@ generateTypeScriptTypes(schema, outputPath, options)
 
 ```
 
+You can then bootstrap this script on your dev server, 
+or use something like [ts-node](#https://github.com/TypeStrong/ts-node) to execute it directly
+
 * `schema`: your graphql schema
 * `outputPath`: where the types is generated
 * `options`: see [GenerateTypescriptOptions](./src/types.ts)
 
 
 ## TODO
-
-- [ ] Write tests
 - [ ] Generate resolver types
-
+- [ ] More detailed API Documentation
+- [ ] Integrate with Travis CI

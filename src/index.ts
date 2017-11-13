@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { GraphQLSchema } from 'graphql'
+import { GraphQLSchema } from 'graphql';
 import { GenerateTypescriptOptions, defaultOptions } from './types';
 import { TypeScriptGenerator } from './typescriptGenerator';
 

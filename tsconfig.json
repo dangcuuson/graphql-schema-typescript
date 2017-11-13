@@ -12,6 +12,7 @@
         "declaration": true,
         "outDir": "./lib",
         "noImplicitAny": false,
-        "forceConsistentCasingInFileNames": true
+        "forceConsistentCasingInFileNames": true,
+        "noUnusedLocals": true
     }
 }

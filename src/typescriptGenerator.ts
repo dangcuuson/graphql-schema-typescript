@@ -1,17 +1,11 @@
-import { version } from 'typescript';
 import { GenerateTypescriptOptions } from './types';
-import * as compareVersions from 'compare-versions';
-import { version as TSVersion } from 'typescript';
+import { versionMajorMinor as TSVersion } from 'typescript';
 import { introspectSchema, isBuiltinType, descriptionToJSDoc, getFieldType } from './utils';
 import {
     GraphQLSchema,
-    GraphQLScalarType,
-    IntrospectionType,
-    IntrospectionSchema,
     IntrospectionScalarType,
     IntrospectionEnumType,
     IntrospectionObjectType,
-    IntrospectionField,
     IntrospectionUnionType,
     IntrospectionInputObjectType,
     IntrospectionInterfaceType
@@ -25,44 +19,47 @@ export class TypeScriptGenerator {
         const { __schema } = await introspectSchema(schema);
         const gqlTypes = __schema.types.filter(type => !isBuiltinType(type));
 
-        return gqlTypes.reduce<string[]>((prevTypescriptDefs, gqlType) => {
+        return gqlTypes.reduce<string[]>(
+            (prevTypescriptDefs, gqlType) => {
 
-            const jsDoc = descriptionToJSDoc({ description: gqlType.description });
-            let typeScriptDefs: string[] = [].concat(jsDoc);
+                const jsDoc = descriptionToJSDoc({ description: gqlType.description });
+                let typeScriptDefs: string[] = [].concat(jsDoc);
 
-            switch (gqlType.kind) {
-                case 'SCALAR': {
-                    typeScriptDefs = typeScriptDefs.concat(this.generateCustomScalarType(gqlType));
-                    break;
+                switch (gqlType.kind) {
+                    case 'SCALAR': {
+                        typeScriptDefs = typeScriptDefs.concat(this.generateCustomScalarType(gqlType));
+                        break;
+                    }
+
+                    case 'ENUM': {
+                        typeScriptDefs = typeScriptDefs.concat(this.generateEnumType(gqlType));
+                        break;
+                    }
+
+                    case 'OBJECT':
+                    case 'INPUT_OBJECT':
+                    case 'INTERFACE': {
+                        typeScriptDefs = typeScriptDefs.concat(this.generateObjectType(gqlType));
+                        break;
+                    }
+
+                    case 'UNION': {
+                        typeScriptDefs = typeScriptDefs.concat(this.generateUnionType(gqlType));
+                        break;
+                    }
+
+                    default: {
+                        throw new Error(`Unknown type kind ${(gqlType as any).kind}`);
+                    }
                 }
 
-                case 'ENUM': {
-                    typeScriptDefs = typeScriptDefs.concat(this.generateEnumType(gqlType));
-                    break;
-                }
+                typeScriptDefs.push('');
 
-                case 'OBJECT':
-                case 'INPUT_OBJECT':
-                case 'INTERFACE': {
-                    typeScriptDefs = typeScriptDefs.concat(this.generateObjectType(gqlType));
-                    break;
-                }
+                return prevTypescriptDefs.concat(typeScriptDefs);
 
-                case 'UNION': {
-                    typeScriptDefs = typeScriptDefs.concat(this.generateUnionType(gqlType));
-                    break;
-                }
-
-                default: {
-                    throw new Error(`Unknown type kind ${(gqlType as any).kind}`);
-                }
-            }
-
-            typeScriptDefs.push('');
-
-            return prevTypescriptDefs.concat(typeScriptDefs);
-
-        }, []).join('\n');
+            },
+            []
+        ).join('\n');
 
     }
 
@@ -75,104 +72,112 @@ export class TypeScriptGenerator {
         return [`export type ${this.options.typePrefix}${scalarType.name} = any;`];
     }
 
+    private isStringEnumSupported(): boolean {
+        const [major, minor] = TSVersion.split('.').map(v => +v);
+        return (major === 2 && minor >= 5) || major > 2;
+    }
+
     private generateEnumType(enumType: IntrospectionEnumType): string[] {
 
         // if using old typescript, which doesn't support string enum: convert enum to string union
-        if (compareVersions(TSVersion, '2.5.2') === -1) {
+        if (!this.isStringEnumSupported()) {
             return this.createUnionType(enumType.name, enumType.enumValues.map(v => `'${v.name}'`));
         }
 
-        let enumBody = enumType.enumValues.reduce<string[]>((prevTypescriptDefs, enumValue, index) => {
-            let typescriptDefs: string[] = [];
-            const enumValueJsDoc = descriptionToJSDoc(enumValue);
+        let enumBody = enumType.enumValues.reduce<string[]>(
+            (prevTypescriptDefs, enumValue, index) => {
+                let typescriptDefs: string[] = [];
+                const enumValueJsDoc = descriptionToJSDoc(enumValue);
 
-            const isLastEnum = index === enumType.enumValues.length - 1;
+                const isLastEnum = index === enumType.enumValues.length - 1;
 
-            if (!isLastEnum) {
-                typescriptDefs = [...enumValueJsDoc, `${enumValue.name} = "${enumValue.name}",`];
-            } else {
-                typescriptDefs = [...enumValueJsDoc, `${enumValue.name} = "${enumValue.name}"`];
-            }
+                if (!isLastEnum) {
+                    typescriptDefs = [...enumValueJsDoc, `${enumValue.name} = '${enumValue.name}',`];
+                } else {
+                    typescriptDefs = [...enumValueJsDoc, `${enumValue.name} = '${enumValue.name}'`];
+                }
 
-            if (enumValueJsDoc.length > 0) {
-                typescriptDefs = ['', ...typescriptDefs, ''];
-            }
+                if (enumValueJsDoc.length > 0) {
+                    typescriptDefs = ['', ...typescriptDefs];
+                }
 
-            return prevTypescriptDefs.concat(typescriptDefs);
+                return prevTypescriptDefs.concat(typescriptDefs);
 
-        }, []);
+            },
+            []
+        );
 
         return [
             `export enum ${this.options.typePrefix}${enumType.name} {`,
             ...enumBody.map(line => ' '.repeat(this.options.tabSpaces) + line),
             '}'
         ];
-    };
+    }
 
     private generateObjectType(objectType: IntrospectionObjectType | IntrospectionInputObjectType | IntrospectionInterfaceType): string[] {
-        const jsDoc = descriptionToJSDoc(objectType);
-
         let fields = objectType.kind === 'INPUT_OBJECT' ? objectType.inputFields : objectType.fields;
 
-        const objectFields = fields.reduce<string[]>((prevTypescriptDefs, field, index) => {
+        const objectFields = fields.reduce<string[]>(
+            (prevTypescriptDefs, field, index) => {
 
-            let fieldJsDoc = descriptionToJSDoc(field);
-            let fieldNameAndType = '';
+                let fieldJsDoc = descriptionToJSDoc(field);
+                let fieldNameAndType = '';
 
-            let { refKind, refName, fieldModifier } = getFieldType(field);
+                let { refKind, refName, fieldModifier } = getFieldType(field);
 
-            if (refKind === 'SCALAR') {
-                refName = this.gqlScalarToTypescript(refName);
-            } else if (!isBuiltinType({ name: refName, kind: refKind })) {
-                refName = this.options.typePrefix + refName;
-            }
-
-            switch (fieldModifier) {
-                case '': {
-                    fieldNameAndType = `${field.name}?: ${refName};`;
-                    break;
+                if (refKind === 'SCALAR') {
+                    refName = this.gqlScalarToTypescript(refName);
+                } else if (!isBuiltinType({ name: refName, kind: refKind })) {
+                    refName = this.options.typePrefix + refName;
                 }
 
-                case 'NON_NULL': {
-                    fieldNameAndType = `${field.name}: ${refName};`;
-                    break;
+                switch (fieldModifier) {
+                    case '': {
+                        fieldNameAndType = `${field.name}?: ${refName};`;
+                        break;
+                    }
+
+                    case 'NON_NULL': {
+                        fieldNameAndType = `${field.name}: ${refName};`;
+                        break;
+                    }
+
+                    case 'LIST': {
+                        fieldNameAndType = `${field.name}?: (${refName} | null)[];`;
+                        break;
+                    }
+
+                    case 'LIST NON_NULL': {
+                        fieldNameAndType = `${field.name}?: ${refName}[];`;
+                        break;
+                    }
+
+                    case 'NON_NULL LIST': {
+                        fieldNameAndType = `${field.name}: (${refName} | null)[];`;
+                        break;
+                    }
+
+                    case 'NON_NULL LIST NON_NULL': {
+                        fieldNameAndType = `${field.name}: ${refName}[];`;
+                        break;
+                    }
+
+                    default: {
+                        throw new Error(`We are reaching the fieldModifier level that should not exists: ${fieldModifier}`);
+                    }
                 }
 
-                case 'LIST': {
-                    fieldNameAndType = `${field.name}?: (${refName} | null)[];`;
-                    break;
+                let typescriptDefs = [...fieldJsDoc, fieldNameAndType];
+
+                if (fieldJsDoc.length > 0) {
+                    typescriptDefs = ['', ...typescriptDefs];
                 }
 
-                case 'LIST NON_NULL': {
-                    fieldNameAndType = `${field.name}?: ${refName}[];`;
-                    break;
-                }
+                return prevTypescriptDefs.concat(typescriptDefs);
 
-                case 'NON_NULL LIST': {
-                    fieldNameAndType = `${field.name}: (${refName} | null)[];`;
-                    break;
-                }
-
-                case 'NON_NULL LIST NON_NULL': {
-                    fieldNameAndType = `${field.name}: ${refName}[];`;
-                    break;
-                }
-
-                default: {
-                    throw new Error(`We are reaching the fieldModifier level that should not exists: ${fieldModifier}`);
-                }
-            }
-
-            let typescriptDefs = [...fieldJsDoc, fieldNameAndType];
-
-            if (fieldJsDoc.length > 0) {
-                typescriptDefs = ['', ...typescriptDefs, ''];
-            }
-
-            return prevTypescriptDefs.concat(typescriptDefs);
-
-        }, []);
-
+            },
+            []
+        );
 
         return [
             `export interface ${this.options.typePrefix}${objectType.name} {`,
@@ -193,8 +198,6 @@ export class TypeScriptGenerator {
     }
 
     private gqlScalarToTypescript = (scalarName: string): string => {
-        const customScalarType = this.options.customScalarType || {};
-
         switch (scalarName) {
             case 'Int':
             case 'Float':
@@ -210,7 +213,7 @@ export class TypeScriptGenerator {
             default:
                 return this.options.typePrefix + scalarName;
         }
-    };
+    }
 
     /**
      * Create a union type e.g: type Color = 'Red' | 'Green' | 'Blue' | ...

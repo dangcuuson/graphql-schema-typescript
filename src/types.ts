@@ -9,11 +9,11 @@ export interface GenerateTypescriptOptions {
     /** Tab format, default to 2 */
     tabSpaces?: number;
 
-    /** A prefix to every generated types. Default to GQL_ */
+    /** A prefix to every generated types. Default to GQL */
     typePrefix?: string;
 }
 
 export const defaultOptions: GenerateTypescriptOptions = {
     tabSpaces: 2,
-    typePrefix: 'GQL_'
+    typePrefix: 'GQL'
 };
