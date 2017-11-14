@@ -15,7 +15,7 @@ import {
 export class TypeScriptGenerator {
     protected resolverGenerator: TSResolverGenerator;
 
-    constructor(protected options: GenerateTypescriptOptions) { 
+    constructor(protected options: GenerateTypescriptOptions) {
         this.resolverGenerator = new TSResolverGenerator(options);
     }
 
@@ -204,22 +204,49 @@ export class TypeScriptGenerator {
             []
         );
 
+        let possibleTypeNames: string[] = [];
+        if (objectType.kind === 'INTERFACE') {
+            possibleTypeNames = [
+                '',
+                `/** Use this to resolve interface type ${objectType.name} */`,
+                ...this.createUnionType(
+                    `Possible${objectType.name}TypeNames`,
+                    objectType.possibleTypes.map(pt => `'${pt.name}'`)
+                )
+            ];
+        }
+
         return [
             `export interface ${this.options.typePrefix}${objectType.name} {`,
             ...objectFields.map(line => ' '.repeat(this.options.tabSpaces) + line),
-            '}'
+            '}',
+            ...possibleTypeNames
         ];
     }
 
     private generateUnionType(unionType: IntrospectionUnionType): string[] {
         const { typePrefix } = this.options;
-        return this.createUnionType(unionType.name, unionType.possibleTypes.map(type => {
+        let possibleTypesNames = [
+            '',
+            `/** Use this to resolve union type ${unionType.name} */`,
+            ...this.createUnionType(
+                `Possible${unionType.name}TypeNames`,
+                unionType.possibleTypes.map(pt => `'${pt.name}'`)
+            )
+        ];
+
+        const unionTypeTSDefs = this.createUnionType(unionType.name, unionType.possibleTypes.map(type => {
             if (isBuiltinType(type)) {
                 return type.name;
             } else {
                 return typePrefix + type.name;
             }
         }));
+
+        return [
+            ...unionTypeTSDefs,
+            ...possibleTypesNames
+        ];
     }
 
     private gqlScalarToTypescript = (scalarName: string): string => {
