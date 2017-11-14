@@ -3,6 +3,7 @@ import * as path from 'path';
 import { GraphQLSchema } from 'graphql';
 import { GenerateTypescriptOptions, defaultOptions } from './types';
 import { TypeScriptGenerator } from './typescriptGenerator';
+import { formatTabSpace } from './utils';
 
 const packageJson = require(path.join(__dirname, '../package.json'));
 
@@ -23,7 +24,7 @@ export const generateTypeScriptTypes = async (schema: GraphQLSchema, outputPath:
     if (mergedOptions.namespace) {
         body = [
             `namespace ${options.namespace} {`,
-            ...body.map(line => ' '.repeat(mergedOptions.tabSpaces) + line),
+            ...body,
             '}'
         ];
     }
@@ -33,10 +34,12 @@ export const generateTypeScriptTypes = async (schema: GraphQLSchema, outputPath:
             'export { };',
             '',
             'declare global {',
-            ...body.map(line => ' '.repeat(mergedOptions.tabSpaces) + line),
+            ...body,
             '}'
         ];
     }
 
-    fs.writeFileSync(outputPath, [jsDoc, ...body].join('\n'), 'utf-8');
+    const formatted = formatTabSpace([jsDoc, ...body], mergedOptions.tabSpaces);
+
+    fs.writeFileSync(outputPath, formatted.join('\n'), 'utf-8');
 };

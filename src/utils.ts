@@ -92,3 +92,27 @@ export const getFieldType = (field: IntrospectionField | IntrospectionInputValue
         refName: (typeRef as IntrospectionNamedTypeRef).name
     };
 };
+
+export const formatTabSpace = (lines: string[], tabSpaces: number): string[] => {
+    let result: string[] = [];
+
+    let indent = 0;
+    for (let line of lines) {
+        const trimmed = line.trim();
+
+        if (trimmed.endsWith('}') || trimmed.endsWith('};')) {
+            indent -= tabSpaces;
+            if (indent < 0) {
+                indent = 0;
+            }
+        }
+
+        result.push(' '.repeat(indent) + line);
+
+        if (trimmed.endsWith('{')) {
+            indent += tabSpaces;
+        }
+    }
+
+    return result;
+};

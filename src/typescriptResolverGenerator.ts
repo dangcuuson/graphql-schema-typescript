@@ -8,14 +8,16 @@ import {
     IntrospectionInterfaceType,
     IntrospectionUnionType
 } from 'graphql';
-import { type } from 'os';
 
 export class TSResolverGenerator {
+
+    constructor(protected options: GenerateTypescriptOptions) {
+
+    }
+
     private importHeader: string[] = [];
     private resolverInterfaces: string[] = [];
     private resolverRootObject: string[] = [];
-
-    constructor(protected options: GenerateTypescriptOptions) { }
 
     public generate(schema: IntrospectionSchema): string[] {
 
@@ -44,6 +46,10 @@ export class TSResolverGenerator {
 
                 case 'INTERFACE':
                 case 'UNION': {
+                    break;
+                }
+
+                default: {
                     break;
                 }
             }
@@ -79,8 +85,8 @@ export class TSResolverGenerator {
         const fields = objectType.kind === 'INPUT_OBJECT' ? objectType.inputFields : objectType.fields;
 
         fields.forEach(field => {
-            const topLevelFieldResolverName = `${options.typePrefix}${type.name}${field.name}TopLevelResolver`;
-            const nestedFieldResolverName = `${options.typePrefix}${type.name}${field.name}NestedResolver`;
+            const topLevelFieldResolverName = `${options.typePrefix}${objectType.name}${field.name}TopLevelResolver`;
+            const nestedFieldResolverName = `${options.typePrefix}${objectType.name}${field.name}NestedResolver`;
         });
 
         this.resolverInterfaces.push(...[
@@ -88,7 +94,7 @@ export class TSResolverGenerator {
         ]);
 
         this.resolverRootObject.push(...[
-            `${this.options.typePrefix}${type.name}?: any`
+            `${this.options.typePrefix}${objectType.name}?: any`
         ]);
     }
 }

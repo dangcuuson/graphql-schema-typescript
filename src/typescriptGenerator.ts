@@ -122,7 +122,7 @@ export class TypeScriptGenerator {
 
         return [
             `export enum ${this.options.typePrefix}${enumType.name} {`,
-            ...enumBody.map(line => ' '.repeat(this.options.tabSpaces) + line),
+            ...enumBody,
             '}'
         ];
     }
@@ -218,7 +218,7 @@ export class TypeScriptGenerator {
 
         return [
             `export interface ${this.options.typePrefix}${objectType.name} {`,
-            ...objectFields.map(line => ' '.repeat(this.options.tabSpaces) + line),
+            ...objectFields,
             '}',
             ...possibleTypeNames
         ];
@@ -289,7 +289,6 @@ export class TypeScriptGenerator {
                 .replace(/ \| /g, ' |\n')
                 .split('\n')
                 .map(line => line.trim())
-                .map(line => ' '.repeat(this.options.tabSpaces) + line)
         ];
     }
 }
