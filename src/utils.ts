@@ -76,7 +76,7 @@ export interface FieldType {
     refName: string;
     refKind: string;
 }
-export const getFieldType = (field: IntrospectionField | IntrospectionInputValue): FieldType => {
+export const getFieldRef = (field: IntrospectionField | IntrospectionInputValue): FieldType => {
     let fieldModifier: string[] = [];
 
     let typeRef = field.type;
@@ -115,4 +115,64 @@ export const formatTabSpace = (lines: string[], tabSpaces: number): string[] => 
     }
 
     return result;
+};
+
+export const createFieldRef = (fieldName: string, refName: string, fieldModifier: string): string => {
+    switch (fieldModifier) {
+        case '': {
+            return `${fieldName}?: ${refName};`;
+        }
+
+        case 'NON_NULL': {
+            return `${fieldName}: ${refName};`;
+        }
+
+        case 'LIST': {
+            return `${fieldName}?: (${refName} | null)[];`;
+        }
+
+        case 'LIST NON_NULL': {
+            return `${fieldName}?: ${refName}[];`;
+        }
+
+        case 'NON_NULL LIST': {
+            return `${fieldName}: (${refName} | null)[];`;
+        }
+
+        case 'NON_NULL LIST NON_NULL': {
+            return `${fieldName}: ${refName}[];`;
+        }
+
+        case 'LIST NON_NULL LIST NON_NULL': {
+            return `${fieldName}?: ${refName}[][];`;
+        }
+
+        case 'NON_NULL LIST NON_NULL LIST NON_NULL': {
+            return `${fieldName}: ${refName}[][];`;
+        }
+
+        // TODO: make it to handle any generic case
+
+        default: {
+            throw new Error(`We are reaching the fieldModifier level that should not exists: ${fieldModifier}`);
+        }
+    }
+};
+
+export const gqlScalarToTS = (scalarName: string, typePrefix: string): string => {
+    switch (scalarName) {
+        case 'Int':
+        case 'Float':
+            return 'number';
+
+        case 'String':
+        case 'ID':
+            return 'string';
+
+        case 'Boolean':
+            return 'boolean';
+
+        default:
+            return typePrefix + scalarName;
+    }
 };

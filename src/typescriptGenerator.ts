@@ -1,7 +1,14 @@
 import { GenerateTypescriptOptions } from './types';
 import { versionMajorMinor as TSVersion } from 'typescript';
-import { introspectSchema, isBuiltinType, descriptionToJSDoc, getFieldType } from './utils';
 import { TSResolverGenerator } from './typescriptResolverGenerator';
+import { 
+    introspectSchema, 
+    isBuiltinType, 
+    descriptionToJSDoc, 
+    getFieldRef, 
+    createFieldRef,
+    gqlScalarToTS
+} from './utils';
 import {
     GraphQLSchema,
     IntrospectionScalarType,
@@ -134,64 +141,16 @@ export class TypeScriptGenerator {
             (prevTypescriptDefs, field, index) => {
 
                 let fieldJsDoc = descriptionToJSDoc(field);
-                let fieldNameAndType = '';
 
-                let { refKind, refName, fieldModifier } = getFieldType(field);
+                let { refKind, refName, fieldModifier } = getFieldRef(field);
 
                 if (refKind === 'SCALAR') {
-                    refName = this.gqlScalarToTypescript(refName);
+                    refName = gqlScalarToTS(refName, this.options.typePrefix);
                 } else if (!isBuiltinType({ name: refName, kind: refKind })) {
                     refName = this.options.typePrefix + refName;
                 }
 
-                switch (fieldModifier) {
-                    case '': {
-                        fieldNameAndType = `${field.name}?: ${refName};`;
-                        break;
-                    }
-
-                    case 'NON_NULL': {
-                        fieldNameAndType = `${field.name}: ${refName};`;
-                        break;
-                    }
-
-                    case 'LIST': {
-                        fieldNameAndType = `${field.name}?: (${refName} | null)[];`;
-                        break;
-                    }
-
-                    case 'LIST NON_NULL': {
-                        fieldNameAndType = `${field.name}?: ${refName}[];`;
-                        break;
-                    }
-
-                    case 'NON_NULL LIST': {
-                        fieldNameAndType = `${field.name}: (${refName} | null)[];`;
-                        break;
-                    }
-
-                    case 'NON_NULL LIST NON_NULL': {
-                        fieldNameAndType = `${field.name}: ${refName}[];`;
-                        break;
-                    }
-
-                    case 'LIST NON_NULL LIST NON_NULL': {
-                        fieldNameAndType = `${field.name}?: ${refName}[][];`;
-                        break;
-                    }
-
-                    case 'NON_NULL LIST NON_NULL LIST NON_NULL': {
-                        fieldNameAndType = `${field.name}: ${refName}[][];`;
-                        break;
-                    }
-
-                    // TODO: make it to handle any generic case
-
-                    default: {
-                        throw new Error(`We are reaching the fieldModifier level that should not exists: ${fieldModifier}`);
-                    }
-                }
-
+                const fieldNameAndType = createFieldRef(field.name, refName, fieldModifier);
                 let typescriptDefs = [...fieldJsDoc, fieldNameAndType];
 
                 if (fieldJsDoc.length > 0) {
@@ -247,24 +206,6 @@ export class TypeScriptGenerator {
             ...unionTypeTSDefs,
             ...possibleTypesNames
         ];
-    }
-
-    private gqlScalarToTypescript = (scalarName: string): string => {
-        switch (scalarName) {
-            case 'Int':
-            case 'Float':
-                return 'number';
-
-            case 'String':
-            case 'ID':
-                return 'string';
-
-            case 'Boolean':
-                return 'boolean';
-
-            default:
-                return this.options.typePrefix + scalarName;
-        }
     }
 
     /**
