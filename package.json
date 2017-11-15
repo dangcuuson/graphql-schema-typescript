@@ -1,6 +1,6 @@
 {
   "name": "graphql-schema-typescript",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Generate TypeScript from GraphQL's schema type definitions",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
