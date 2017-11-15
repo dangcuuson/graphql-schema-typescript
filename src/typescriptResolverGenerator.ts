@@ -156,7 +156,7 @@ export class TSResolverGenerator {
                         argRefName = this.options.typePrefix + argRefName;
                     }
 
-                    const argFieldNameAndType = createFieldRef(field.name, argRefName, argRefField.fieldModifier);
+                    const argFieldNameAndType = createFieldRef(arg.name, argRefName, argRefField.fieldModifier);
                     argsBody.push(argFieldNameAndType);
                 });
 
