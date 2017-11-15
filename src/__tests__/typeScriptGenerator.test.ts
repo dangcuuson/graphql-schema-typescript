@@ -17,7 +17,7 @@ describe('Typescript Generator', () => {
         }
     });
 
-    it('should generate unknown custom scalar type as `any`', async () => {
+    it.only('should generate unknown custom scalar type as `any`', async () => {
         const outputPath = path.join(outputFolder, 'scalarAsAny.ts');
 
         await generateTypeScriptTypes(testSchema, outputPath);

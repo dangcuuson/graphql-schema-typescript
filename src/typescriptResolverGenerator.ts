@@ -59,7 +59,11 @@ export class TSResolverGenerator {
         }
 
         this.resolverObject = [
-            `/** This interface define the shape of your resolver  */`,
+            '/**',
+            ' * This interface define the shape of your resolver',
+            ' * Note that this type is designed to be compatible with graphql-tools resolvers',
+            ' * However, you can still use other generated interfaces to make your resolver type-safed',
+            ' */',
             `export interface ${this.options.typePrefix}Resolver {`
         ];
 
@@ -122,12 +126,8 @@ export class TSResolverGenerator {
         const options = this.options;
 
         const typeResolverName = `${this.options.typePrefix}${objectType.name}TypeResolver`;
-
-        this.resolverObject.push(...[
-            `${objectType.name}?: ${typeResolverName};`
-        ]);
-
-        let typeResolverBody: string[] = [];
+        const typeResolverBody: string[] = [];
+        const fieldResolversTypeDefs: string[] = [];
 
         objectType.fields.forEach(field => {
             // generate args type
@@ -151,7 +151,7 @@ export class TSResolverGenerator {
                     argsBody.push(argFieldNameAndType);
                 });
 
-                this.resolverInterfaces.push(...[
+                fieldResolversTypeDefs.push(...[
                     `export interface ${argsType} {`,
                     ...argsBody,
                     '}'
@@ -161,7 +161,7 @@ export class TSResolverGenerator {
             // generate field type
             const fieldResolverName = `${objectType.name}To${field.name}Resolver`;
 
-            this.resolverInterfaces.push(...[
+            fieldResolversTypeDefs.push(...[
                 `export interface ${fieldResolverName}<TParent = any, TResult = any> {`,
                 // TODO: some strategy to support parent type and return type
                 `(parent: TParent, args: ${argsType}, context: ${this.contextType}, info: GraphQLResolveInfo): TResult;`,
@@ -178,7 +178,13 @@ export class TSResolverGenerator {
             `export interface ${typeResolverName} {`,
             ...typeResolverBody,
             '}',
-            ''
+            '',
+            ...fieldResolversTypeDefs
+        ]);
+
+        // add the type resolver to resolver object
+        this.resolverObject.push(...[
+            `${objectType.name}?: ${typeResolverName};`
         ]);
     }
 }
