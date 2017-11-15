@@ -1,11 +1,10 @@
 import { GenerateTypescriptOptions } from './types';
 import { versionMajorMinor as TSVersion } from 'typescript';
-import { TSResolverGenerator } from './typescriptResolverGenerator';
-import { 
-    introspectSchema, 
-    isBuiltinType, 
-    descriptionToJSDoc, 
-    getFieldRef, 
+import {
+    introspectSchema,
+    isBuiltinType,
+    descriptionToJSDoc,
+    getFieldRef,
     createFieldRef,
     gqlScalarToTS
 } from './utils';
@@ -20,11 +19,8 @@ import {
 } from 'graphql';
 
 export class TypeScriptGenerator {
-    protected resolverGenerator: TSResolverGenerator;
 
-    constructor(protected options: GenerateTypescriptOptions) {
-        this.resolverGenerator = new TSResolverGenerator(options);
-    }
+    constructor(protected options: GenerateTypescriptOptions) { }
 
     public async generate(schema: GraphQLSchema): Promise<string[]> {
 
@@ -146,7 +142,7 @@ export class TypeScriptGenerator {
 
                 if (refKind === 'SCALAR') {
                     refName = gqlScalarToTS(refName, this.options.typePrefix);
-                } else if (!isBuiltinType({ name: refName, kind: refKind })) {
+                } else {
                     refName = this.options.typePrefix + refName;
                 }
 

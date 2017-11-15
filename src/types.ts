@@ -24,8 +24,8 @@ export interface GenerateTypescriptOptions {
         contextType?: string;
 
         /**
-         * You can either make the graphql context type public, or provide an
-         * import statement to be injected via this option
+         * You can either make your graphql context type global, so that the generated file can link to it,
+         * or provide an import statement to be injected via this option
          */
         importContext?: string;
     };

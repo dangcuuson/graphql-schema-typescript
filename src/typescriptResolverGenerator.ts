@@ -1,6 +1,7 @@
-import { isBuiltinType, getFieldRef, gqlScalarToTS, createFieldRef } from './utils';
 import { GenerateTypescriptOptions } from './types';
+import { introspectSchema, isBuiltinType, getFieldRef, gqlScalarToTS, createFieldRef } from './utils';
 import {
+    GraphQLSchema,
     IntrospectionSchema,
     IntrospectionScalarType,
     IntrospectionObjectType,
@@ -23,28 +24,44 @@ const nestedFieldResolver = (contextType: string) => {
     ];
 };
 
+export interface GenerateResolversResult {
+    importHeader: string[];
+    body: string[];
+}
+
 export class TSResolverGenerator {
     protected importHeader: string[] = [];
     protected resolverInterfaces: string[] = [];
-    protected resolverRootObject: string[] = [];
+    protected resolverObject: string[] = [];
     protected contextType: string;
 
     constructor(protected options: GenerateTypescriptOptions) {
-        this.contextType = options.resolver!.contextType;
+        if (options.resolver) {
+            this.contextType = options.resolver.contextType;
+            if (options.resolver.importContext) {
+                this.importHeader.push(options.resolver.importContext);
+            }
+        } else {
+            this.contextType = 'any';
+        }
     }
 
-    public generate(schema: IntrospectionSchema): string[] {
+    public async generate(schema: GraphQLSchema): Promise<GenerateResolversResult> {
 
-        const gqlTypes = schema.types.filter(type => !isBuiltinType(type));
+        const { __schema } = await introspectSchema(schema);
+        const gqlTypes = __schema.types.filter(type => !isBuiltinType(type));
 
         const hasCustomScalar = !!gqlTypes.find(type => type.kind === 'SCALAR');
         if (hasCustomScalar) {
-            this.importHeader.push(`import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql'`);
+            this.importHeader.push(`import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';`);
         } else {
-            this.importHeader.push(`import { GraphQLResolveInfo } from 'graphql'`);
+            this.importHeader.push(`import { GraphQLResolveInfo } from 'graphql;'`);
         }
 
-        this.resolverRootObject = [`export interface ${this.options.typePrefix}Resolver {`];
+        this.resolverObject = [
+            `/** This interface define the shape of your resolver  */`,
+            `export interface ${this.options.typePrefix}Resolver {`
+        ];
 
         gqlTypes.map(type => {
             switch (type.kind) {
@@ -53,106 +70,115 @@ export class TSResolverGenerator {
                     break;
                 }
 
-                case 'OBJECT':
-                case 'INPUT_OBJECT': {
+                case 'OBJECT': {
+                    this.generateObjectResolver(type);
                     break;
                 }
 
                 case 'INTERFACE':
                 case 'UNION': {
+                    this.generateTypeResolver(type);
                     break;
                 }
 
+                case 'INPUT_OBJECT':
                 default: {
                     break;
                 }
             }
         });
 
-        this.resolverRootObject.push('}');
+        this.resolverObject.push('}');
 
-        return [];
+        return {
+            importHeader: this.importHeader,
+            body: [...this.resolverObject, ...this.resolverInterfaces]
+        };
     }
 
     private generateCustomScalarResolver(scalarType: IntrospectionScalarType) {
-        this.resolverRootObject.push(`${this.options.typePrefix}${scalarType.name}: GraphQLScalarType,`);
+        this.resolverObject.push(`${this.options.typePrefix}${scalarType.name}: GraphQLScalarType;`);
     }
 
     private generateTypeResolver(type: IntrospectionUnionType | IntrospectionInterfaceType) {
-        const possbileTypes = type.possibleTypes.map(pt => this.options.typePrefix + pt.name);
+        const possbileTypes = type.possibleTypes.map(pt => `'${pt.name}'`);
         const interfaceName = `${this.options.typePrefix}${type.name}TypeResolver`;
 
         this.resolverInterfaces.push(...[
             `export interface ${interfaceName} {`,
-            `(value: any, context: ${this.contextType}, info: GraphQLResolveInfo): ${possbileTypes.join(' | ')}`,
+            `(value: any, context: ${this.contextType}, info: GraphQLResolveInfo): ${possbileTypes.join(' | ')};`,
             '}'
         ]);
 
-        this.resolverRootObject.push(...[
+        this.resolverObject.push(...[
             `${type.name}: {`,
             `__resolveType: ${interfaceName}`,
-            '},'
+            '};',
+            ''
         ]);
     }
 
     private generateObjectResolver(objectType: IntrospectionObjectType) {
         const options = this.options;
 
-        this.resolverRootObject.push(...[
-            `${objectType.name}?: {`
+        const typeResolverName = `${this.options.typePrefix}${objectType.name}TypeResolver`;
+
+        this.resolverObject.push(...[
+            `${objectType.name}?: ${typeResolverName};`
         ]);
+
+        let typeResolverBody: string[] = [];
 
         objectType.fields.forEach(field => {
             // generate args type
-            const argsName = `${objectType.name}To${field.name}Args`;
-            const argsBody: string[] = [];
-            field.args.forEach(arg => {
-                const argRefField = getFieldRef(arg);
+            let argsType = '{}';
 
-                let argRefName = argRefField.refName;
+            if (field.args.length > 0) {
+                argsType = `${objectType.name}To${field.name}Args`;
+                const argsBody: string[] = [];
+                field.args.forEach(arg => {
+                    const argRefField = getFieldRef(arg);
 
-                if (argRefField.refKind === 'SCALAR') {
-                    argRefName = gqlScalarToTS(argRefName, this.options.typePrefix);
-                } else if (!isBuiltinType({ name: argRefName, kind: argRefField.refKind })) {
-                    argRefName = this.options.typePrefix + refName;
-                }
+                    let argRefName = argRefField.refName;
 
-                const argFieldNameAndType = createFieldRef(field.name, refName, fieldModifier);
-                argsBody.push(argFieldNameAndType);
-            });
+                    if (argRefField.refKind === 'SCALAR') {
+                        argRefName = gqlScalarToTS(argRefName, this.options.typePrefix);
+                    } else if (!isBuiltinType({ name: argRefName, kind: argRefField.refKind })) {
+                        argRefName = this.options.typePrefix + argRefName;
+                    }
 
-            this.resolverInterfaces.push(...[
-                `interface ${argsName} {`,
-                ...argsBody,
-                '}'
-            ]);
-            const argsType = field.args.length === 0 ? '{ }' : argsName;
+                    const argFieldNameAndType = createFieldRef(field.name, argRefName, argRefField.fieldModifier);
+                    argsBody.push(argFieldNameAndType);
+                });
+
+                this.resolverInterfaces.push(...[
+                    `export interface ${argsType} {`,
+                    ...argsBody,
+                    '}'
+                ]);
+            }
 
             // generate field type
             const fieldResolverName = `${objectType.name}To${field.name}Resolver`;
 
-            let { fieldModifier, refKind, refName } = getFieldRef(field);
-            if (refKind === 'SCALAR') {
-                refName = gqlScalarToTS(refName, this.options.typePrefix);
-            } else if (!isBuiltinType({ name: refName, kind: refKind })) {
-                refName = this.options.typePrefix + refName;
-            }
-
-            const fieldNameAndType = createFieldRef(field.name, refName, fieldModifier);
-
             this.resolverInterfaces.push(...[
-                `interface ${fieldResolverName} {`,
-                `(parent: any, args: ${argsType}, context: ${this.contextType}, info: GraphQLResolveInfo): any`,
-                '}'
+                `export interface ${fieldResolverName}<TParent = any, TResult = any> {`,
+                // TODO: some strategy to support parent type and return type
+                `(parent: TParent, args: ${argsType}, context: ${this.contextType}, info: GraphQLResolveInfo): TResult;`,
+                '}',
+                ''
             ]);
 
-            this.resolverRootObject.push(...[
-                `${field.name}?: ${fieldResolverName}`
+            typeResolverBody.push(...[
+                `${field.name}?: ${fieldResolverName};`
             ]);
         });
 
-        this.resolverRootObject.push(...[
-            '},'
+        this.resolverInterfaces.push(...[
+            `export interface ${typeResolverName} {`,
+            ...typeResolverBody,
+            '}',
+            ''
         ]);
     }
 }
