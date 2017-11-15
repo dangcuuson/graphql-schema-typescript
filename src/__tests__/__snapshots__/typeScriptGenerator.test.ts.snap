@@ -8,10 +8,9 @@ exports[`Typescript Generator should generate unknown custom scalar type as \`an
  */
 /*******************************
  *                             *
- *           TYPE DEFS         *
+ *          TYPE DEFS          *
  *                             *
  *******************************/
-
 export interface GQLRootQuery {
   Users: GQLUser[];
   User?: GQLUser;
@@ -99,7 +98,7 @@ export type GQLPossibleSearchResultTypeNames = 'User' | 'ProductA' | 'ProductB';
 /**
  * Try to cover List/Non-null List/Non-null list of non-null items
  */
-export interface GQLProductA {
+export interface GQLProductA extends GQLIProduct {
   id: string;
   name: string;
   
@@ -131,7 +130,7 @@ export interface GQLProductScalar {
   scalarBoolean2: boolean;
 }
 
-export interface GQLProductB {
+export interface GQLProductB extends GQLIProduct {
   id: string;
   name: string;
   
@@ -191,7 +190,6 @@ export type GQLDate = any;
  *         TYPE RESOLVERS        *
  *                               *
  *********************************/
-
 /**
  * This interface define the shape of your resolver
  * Note that this type is designed to be compatible with graphql-tools resolvers
@@ -213,7 +211,7 @@ export interface GQLResolver {
   ProductB?: GQLProductBTypeResolver;
   ProductListScalar?: GQLProductListScalarTypeResolver;
   RootMutation?: GQLRootMutationTypeResolver;
-  GQLDate: GraphQLScalarType;
+  Date?: GraphQLScalarType;
 }
 export interface GQLRootQueryTypeResolver<TParent = any> {
   Users?: RootQueryToUsersResolver<TParent>;
