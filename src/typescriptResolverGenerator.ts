@@ -55,7 +55,7 @@ export class TSResolverGenerator {
         if (hasCustomScalar) {
             this.importHeader.push(`import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';`);
         } else {
-            this.importHeader.push(`import { GraphQLResolveInfo } from 'graphql;'`);
+            this.importHeader.push(`import { GraphQLResolveInfo } from 'graphql';`);
         }
 
         this.resolverObject = [
