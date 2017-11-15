@@ -176,3 +176,7 @@ export const gqlScalarToTS = (scalarName: string, typePrefix: string): string =>
             return typePrefix + scalarName;
     }
 };
+
+export const toUppercaseFirst = (value: string): string => {
+    return value.charAt(0).toUpperCase() + value.slice(1);
+};

@@ -1,5 +1,12 @@
 import { GenerateTypescriptOptions } from './types';
-import { introspectSchema, isBuiltinType, getFieldRef, gqlScalarToTS, createFieldRef } from './utils';
+import { 
+    introspectSchema, 
+    isBuiltinType, 
+    getFieldRef, 
+    gqlScalarToTS, 
+    createFieldRef,
+    toUppercaseFirst
+} from './utils';
 import {
     GraphQLSchema,
     IntrospectionSchema,
@@ -109,13 +116,13 @@ export class TSResolverGenerator {
         const interfaceName = `${this.options.typePrefix}${type.name}TypeResolver`;
 
         this.resolverInterfaces.push(...[
-            `export interface ${interfaceName} {`,
-            `(value: any, context: ${this.contextType}, info: GraphQLResolveInfo): ${possbileTypes.join(' | ')};`,
+            `export interface ${interfaceName}<TParent = any> {`,
+            `(parent: TParent, context: ${this.contextType}, info: GraphQLResolveInfo): ${possbileTypes.join(' | ')};`,
             '}'
         ]);
 
         this.resolverObject.push(...[
-            `${type.name}: {`,
+            `${type.name}?: {`,
             `__resolveType: ${interfaceName}`,
             '};',
             ''
@@ -133,8 +140,10 @@ export class TSResolverGenerator {
             // generate args type
             let argsType = '{}';
 
+            let uppercaseFisrtFieldName = toUppercaseFirst(field.name);
+
             if (field.args.length > 0) {
-                argsType = `${objectType.name}To${field.name}Args`;
+                argsType = `${objectType.name}To${uppercaseFisrtFieldName}Args`;
                 const argsBody: string[] = [];
                 field.args.forEach(arg => {
                     const argRefField = getFieldRef(arg);
@@ -159,7 +168,7 @@ export class TSResolverGenerator {
             }
 
             // generate field type
-            const fieldResolverName = `${objectType.name}To${field.name}Resolver`;
+            const fieldResolverName = `${objectType.name}To${uppercaseFisrtFieldName}Resolver`;
 
             fieldResolversTypeDefs.push(...[
                 `export interface ${fieldResolverName}<TParent = any, TResult = any> {`,
