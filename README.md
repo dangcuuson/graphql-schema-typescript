@@ -91,8 +91,8 @@ export interface RootQueryToUsersResolver<TParent = any, TResult = any> {
 }
 ```
 
-If you are not using [graphql-tools](#https://www.npmjs.com/package/graphql-tools), you can
-still use `RootQueryToUsersResolver` type to make your args type safed.
+In this example, if you are not using [graphql-tools](https://www.npmjs.com/package/graphql-tools), 
+you can still use `RootQueryToUsersResolver` type to make your args type safed.
 
 ## TODO
 - [ ] More detailed API Documentation
