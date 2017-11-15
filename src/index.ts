@@ -14,21 +14,21 @@ const jsDoc =
  * Please note that any changes in this file may be overwritten
  */`;
 
-const typeDefsDecoration = 
-`/*******************************
- *                             *
- *           TYPE DEFS         *
- *                             *
- *******************************/
-`;
+const typeDefsDecoration = [
+    '/*******************************',
+    ' *                             *',
+    ' *          TYPE DEFS          *',
+    ' *                             *',
+    ' *******************************/'
+];
 
-const typeResolversDecoration = 
-`/*********************************
- *                               *
- *         TYPE RESOLVERS        *
- *                               *
- *********************************/
-`;
+const typeResolversDecoration = [
+    '/*********************************',
+    ' *                               *',
+    ' *         TYPE RESOLVERS        *',
+    ' *                               *',
+    ' *********************************/'
+];
 
 export const generateTypeScriptTypes = async (schema: GraphQLSchema, outputPath: string, options: GenerateTypescriptOptions = defaultOptions) => {
     const mergedOptions = { ...defaultOptions, ...options };
@@ -41,9 +41,9 @@ export const generateTypeScriptTypes = async (schema: GraphQLSchema, outputPath:
     let header = [...typeResolvers.importHeader, jsDoc];
 
     let body: string[] = [
-        typeDefsDecoration, 
+        ...typeDefsDecoration, 
         ...typeDefs, 
-        typeResolversDecoration, 
+        ...typeResolversDecoration, 
         ...typeResolvers.body
     ];
 
