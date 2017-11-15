@@ -8,7 +8,7 @@
     "test": "jest --bail",
     "lint": "tslint -p tslint.json && tsc --noEmit",
     "build": "rm -rf ./lib && tsc",
-    "prepack": "npm run build"
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
