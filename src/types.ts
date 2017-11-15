@@ -18,6 +18,16 @@ export interface GenerateTypescriptOptions {
     /** Add types under a namespace */
     namespace?: string;
 
+    /**
+     * By default, GQL types that implement interfaces will copy all interface field
+     * E.g:
+     *  interface A { keyA: String! }
+     *  type B implements interface A { keyA: String! keyB: Int! }
+     * The generated TypeScript of type B will have both keyA and keyB
+     * Set this option to true to ignore the copy of keyA
+     */
+    minimizeInterfaceImplementation?: boolean;
+
     /** Config for generating resolvers */
     resolver?: {
         /** Name of your graphql context type. Default to `any` if not specified */

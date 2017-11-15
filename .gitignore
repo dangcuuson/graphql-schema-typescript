@@ -6,3 +6,4 @@ jest_0/
 lib/
 *.tgz
 generatedTypes/
+coverage/

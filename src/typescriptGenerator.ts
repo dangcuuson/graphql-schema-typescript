@@ -10,6 +10,7 @@ import {
 } from './utils';
 import {
     GraphQLSchema,
+    IntrospectionType,
     IntrospectionScalarType,
     IntrospectionEnumType,
     IntrospectionObjectType,
@@ -47,7 +48,7 @@ export class TypeScriptGenerator {
                     case 'OBJECT':
                     case 'INPUT_OBJECT':
                     case 'INTERFACE': {
-                        typeScriptDefs = typeScriptDefs.concat(this.generateObjectType(gqlType));
+                        typeScriptDefs = typeScriptDefs.concat(this.generateObjectType(gqlType, gqlTypes));
                         break;
                     }
 
@@ -130,11 +131,30 @@ export class TypeScriptGenerator {
         ];
     }
 
-    private generateObjectType(objectType: IntrospectionObjectType | IntrospectionInputObjectType | IntrospectionInterfaceType): string[] {
+    private generateObjectType(
+        objectType: IntrospectionObjectType | IntrospectionInputObjectType | IntrospectionInterfaceType,
+        allGQLTypes: IntrospectionType[]
+    ): string[] {
         let fields = objectType.kind === 'INPUT_OBJECT' ? objectType.inputFields : objectType.fields;
+
+        const extendTypes: string[] = objectType.kind === 'OBJECT'
+            ? objectType.interfaces.map(i => i.name)
+            : [];
+
+        const extendGqlTypes = allGQLTypes.filter(t => extendTypes.indexOf(t.name) !== -1) as IntrospectionInterfaceType[];
+        const extendFields = extendGqlTypes.reduce<string[]>(
+            (prevFieldNames, gqlType) => {
+                return prevFieldNames.concat(gqlType.fields.map(f => f.name));
+            },
+            []
+        );
 
         const objectFields = fields.reduce<string[]>(
             (prevTypescriptDefs, field, index) => {
+
+                if (extendFields.indexOf(field.name) !== -1 && this.options.minimizeInterfaceImplementation) {
+                    return prevTypescriptDefs;
+                }
 
                 let fieldJsDoc = descriptionToJSDoc(field);
 
@@ -171,8 +191,11 @@ export class TypeScriptGenerator {
             ];
         }
 
+        const extendStr = extendTypes.length === 0
+            ? ''
+            : `extends ${extendTypes.map(t => this.options.typePrefix + t).join(', ')} `;
         return [
-            `export interface ${this.options.typePrefix}${objectType.name} {`,
+            `export interface ${this.options.typePrefix}${objectType.name} ${extendStr}{`,
             ...objectFields,
             '}',
             ...possibleTypeNames
