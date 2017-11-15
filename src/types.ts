@@ -17,9 +17,24 @@ export interface GenerateTypescriptOptions {
 
     /** Add types under a namespace */
     namespace?: string;
+
+    /** Config for generating resolvers */
+    resolver?: {
+        /** Name of your graphql context type. Default to `any` if not specified */
+        contextType?: string;
+
+        /**
+         * You can either make your graphql context type global, so that the generated file can link to it,
+         * or provide an import statement to be injected via this option
+         */
+        importContext?: string;
+    };
 }
 
 export const defaultOptions: GenerateTypescriptOptions = {
     tabSpaces: 2,
-    typePrefix: 'GQL'
+    typePrefix: 'GQL',
+    resolver: {
+        contextType: 'any'
+    }
 };

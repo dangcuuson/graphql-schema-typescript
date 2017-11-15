@@ -1,6 +1,7 @@
-import { isBuiltinType } from './utils';
 import { GenerateTypescriptOptions } from './types';
+import { introspectSchema, isBuiltinType, getFieldRef, gqlScalarToTS, createFieldRef } from './utils';
 import {
+    GraphQLSchema,
     IntrospectionSchema,
     IntrospectionScalarType,
     IntrospectionObjectType,
@@ -9,28 +10,62 @@ import {
     IntrospectionUnionType
 } from 'graphql';
 
+const resolveResult = [
+    'type ResolveResult<T> = {',
+    '[K in keyof T]?: T[K] | ResolveResult<T[K]> | NestedFieldResolver<T[K>;',
+    '}'
+];
+
+const nestedFieldResolver = (contextType: string) => {
+    return [
+        'interface NestedFieldResolver<T> {',
+        `(args: any, context: ${contextType}, info: GraphQLResolveInfo): T`,
+        '}'
+    ];
+};
+
+export interface GenerateResolversResult {
+    importHeader: string[];
+    body: string[];
+}
+
 export class TSResolverGenerator {
+    protected importHeader: string[] = [];
+    protected resolverInterfaces: string[] = [];
+    protected resolverObject: string[] = [];
+    protected contextType: string;
 
     constructor(protected options: GenerateTypescriptOptions) {
-
+        if (options.resolver) {
+            this.contextType = options.resolver.contextType;
+            if (options.resolver.importContext) {
+                this.importHeader.push(options.resolver.importContext);
+            }
+        } else {
+            this.contextType = 'any';
+        }
     }
 
-    private importHeader: string[] = [];
-    private resolverInterfaces: string[] = [];
-    private resolverRootObject: string[] = [];
+    public async generate(schema: GraphQLSchema): Promise<GenerateResolversResult> {
 
-    public generate(schema: IntrospectionSchema): string[] {
-
-        const gqlTypes = schema.types.filter(type => !isBuiltinType(type));
+        const { __schema } = await introspectSchema(schema);
+        const gqlTypes = __schema.types.filter(type => !isBuiltinType(type));
 
         const hasCustomScalar = !!gqlTypes.find(type => type.kind === 'SCALAR');
         if (hasCustomScalar) {
-            this.importHeader.push(`import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql'`);
+            this.importHeader.push(`import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';`);
         } else {
-            this.importHeader.push(`import { GraphQLResolveInfo } from 'graphql'`);
+            this.importHeader.push(`import { GraphQLResolveInfo } from 'graphql;'`);
         }
 
-        this.resolverRootObject = [`export interface ${this.options.typePrefix}Resolver {`];
+        this.resolverObject = [
+            '/**',
+            ' * This interface define the shape of your resolver',
+            ' * Note that this type is designed to be compatible with graphql-tools resolvers',
+            ' * However, you can still use other generated interfaces to make your resolver type-safed',
+            ' */',
+            `export interface ${this.options.typePrefix}Resolver {`
+        ];
 
         gqlTypes.map(type => {
             switch (type.kind) {
@@ -39,62 +74,117 @@ export class TSResolverGenerator {
                     break;
                 }
 
-                case 'OBJECT':
-                case 'INPUT_OBJECT': {
+                case 'OBJECT': {
+                    this.generateObjectResolver(type);
                     break;
                 }
 
                 case 'INTERFACE':
                 case 'UNION': {
+                    this.generateTypeResolver(type);
                     break;
                 }
 
+                case 'INPUT_OBJECT':
                 default: {
                     break;
                 }
             }
         });
 
-        this.resolverRootObject.push('}');
+        this.resolverObject.push('}');
 
-        return [];
+        return {
+            importHeader: this.importHeader,
+            body: [...this.resolverObject, ...this.resolverInterfaces]
+        };
     }
 
     private generateCustomScalarResolver(scalarType: IntrospectionScalarType) {
-        this.resolverRootObject.push(' '.repeat(this.options.tabSpaces) + `${this.options.typePrefix}${scalarType.name}: GraphQLScalarType`);
+        this.resolverObject.push(`${this.options.typePrefix}${scalarType.name}: GraphQLScalarType;`);
     }
 
     private generateTypeResolver(type: IntrospectionUnionType | IntrospectionInterfaceType) {
-        const possbileTypes = type.possibleTypes.map(pt => this.options.typePrefix + pt.name);
+        const possbileTypes = type.possibleTypes.map(pt => `'${pt.name}'`);
         const interfaceName = `${this.options.typePrefix}${type.name}TypeResolver`;
 
         this.resolverInterfaces.push(...[
             `export interface ${interfaceName} {`,
-            ' '.repeat(this.options.tabSpaces) + `(value: any, context: any, info: GraphQLResolveInfo): ${possbileTypes.join(' | ')}`,
+            `(value: any, context: ${this.contextType}, info: GraphQLResolveInfo): ${possbileTypes.join(' | ')};`,
             '}'
         ]);
 
-        this.resolverRootObject.push(...[
-            `${this.options.typePrefix}${type.name}: {`,
-            ' '.repeat(this.options.tabSpaces) + `__resolveType: ${interfaceName}`
+        this.resolverObject.push(...[
+            `${type.name}: {`,
+            `__resolveType: ${interfaceName}`,
+            '};',
+            ''
         ]);
     }
 
-    private generateObjectResolver(objectType: IntrospectionObjectType | IntrospectionInputObjectType) {
+    private generateObjectResolver(objectType: IntrospectionObjectType) {
         const options = this.options;
-        const fields = objectType.kind === 'INPUT_OBJECT' ? objectType.inputFields : objectType.fields;
 
-        fields.forEach(field => {
-            const topLevelFieldResolverName = `${options.typePrefix}${objectType.name}${field.name}TopLevelResolver`;
-            const nestedFieldResolverName = `${options.typePrefix}${objectType.name}${field.name}NestedResolver`;
+        const typeResolverName = `${this.options.typePrefix}${objectType.name}TypeResolver`;
+        const typeResolverBody: string[] = [];
+        const fieldResolversTypeDefs: string[] = [];
+
+        objectType.fields.forEach(field => {
+            // generate args type
+            let argsType = '{}';
+
+            if (field.args.length > 0) {
+                argsType = `${objectType.name}To${field.name}Args`;
+                const argsBody: string[] = [];
+                field.args.forEach(arg => {
+                    const argRefField = getFieldRef(arg);
+
+                    let argRefName = argRefField.refName;
+
+                    if (argRefField.refKind === 'SCALAR') {
+                        argRefName = gqlScalarToTS(argRefName, this.options.typePrefix);
+                    } else if (!isBuiltinType({ name: argRefName, kind: argRefField.refKind })) {
+                        argRefName = this.options.typePrefix + argRefName;
+                    }
+
+                    const argFieldNameAndType = createFieldRef(field.name, argRefName, argRefField.fieldModifier);
+                    argsBody.push(argFieldNameAndType);
+                });
+
+                fieldResolversTypeDefs.push(...[
+                    `export interface ${argsType} {`,
+                    ...argsBody,
+                    '}'
+                ]);
+            }
+
+            // generate field type
+            const fieldResolverName = `${objectType.name}To${field.name}Resolver`;
+
+            fieldResolversTypeDefs.push(...[
+                `export interface ${fieldResolverName}<TParent = any, TResult = any> {`,
+                // TODO: some strategy to support parent type and return type
+                `(parent: TParent, args: ${argsType}, context: ${this.contextType}, info: GraphQLResolveInfo): TResult;`,
+                '}',
+                ''
+            ]);
+
+            typeResolverBody.push(...[
+                `${field.name}?: ${fieldResolverName};`
+            ]);
         });
 
         this.resolverInterfaces.push(...[
-            `export int`
+            `export interface ${typeResolverName} {`,
+            ...typeResolverBody,
+            '}',
+            '',
+            ...fieldResolversTypeDefs
         ]);
 
-        this.resolverRootObject.push(...[
-            `${this.options.typePrefix}${objectType.name}?: any`
+        // add the type resolver to resolver object
+        this.resolverObject.push(...[
+            `${objectType.name}?: ${typeResolverName};`
         ]);
     }
 }
