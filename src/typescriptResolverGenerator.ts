@@ -179,12 +179,12 @@ export class TSResolverGenerator {
             ]);
 
             typeResolverBody.push(...[
-                `${field.name}?: ${fieldResolverName};`
+                `${field.name}?: ${fieldResolverName}<TParent>;`
             ]);
         });
 
         this.resolverInterfaces.push(...[
-            `export interface ${typeResolverName} {`,
+            `export interface ${typeResolverName}<TParent = any> {`,
             ...typeResolverBody,
             '}',
             '',
