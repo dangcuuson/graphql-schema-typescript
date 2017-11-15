@@ -42,7 +42,7 @@ or use something like [ts-node](#https://github.com/TypeStrong/ts-node) to execu
 ## Type Resolvers
 The file generated will have some types that can make it type-safed when writing resolver:
 
-* Args type is your resolve function is now type-safed
+* Args type in your resolve function is now type-safed
 * Parent type and resolve result is still `any`, but could be overwritten in your code
 
 For example, if you schema is like this:
