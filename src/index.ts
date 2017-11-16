@@ -6,6 +6,8 @@ import { TSResolverGenerator } from './typescriptResolverGenerator';
 import { TypeScriptGenerator } from './typescriptGenerator';
 import { formatTabSpace } from './utils';
 
+export { GenerateTypescriptOptions } from './types';
+
 const packageJson = require(path.join(__dirname, '../package.json'));
 
 const jsDoc =

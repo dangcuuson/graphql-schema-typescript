@@ -102,7 +102,7 @@ describe('Typescript Generator', () => {
         await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
     });
 
-    it('should minimize interface implementationif configure', async () => {
+    it('should minimize interface implementation if configure', async () => {
         const outputPath = path.join(outputFolder, 'minimizedInterface.ts');
 
         await generateTypeScriptTypes(testSchema, outputPath, {
@@ -112,6 +112,19 @@ describe('Typescript Generator', () => {
         const generated = fsa.readFileSync(outputPath, 'utf-8');
         const occurrence = occurrences(generated, 'relatedProducts: GQLIProduct[];', false);
         expect(occurrence).toBe(1);
+
+        await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
+    });
+
+    it('should generate typename if configure', async () => {
+        const outputPath = path.join(outputFolder, 'addTypeName.ts');
+
+        await generateTypeScriptTypes(testSchema, outputPath, {
+            addTypeName: true
+        });
+
+        const generated = fsa.readFileSync(outputPath, 'utf-8');
+        expect(generated).toContain('__typeName');
 
         await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
     });
