@@ -90,10 +90,21 @@ export interface GQLIProduct {
 /** Use this to resolve interface type IProduct */
 export type GQLPossibleIProductTypeNames = 'ProductA' | 'ProductB';
 
+export interface GQLIProductNameMap {
+  ProductA: GQLProductA;
+  ProductB: GQLProductB;
+}
+
 export type GQLSearchResult = GQLUser | GQLProductA | GQLProductB;
 
 /** Use this to resolve union type SearchResult */
 export type GQLPossibleSearchResultTypeNames = 'User' | 'ProductA' | 'ProductB';
+
+export interface GQLSearchResultNameMap {
+  User: GQLUser;
+  ProductA: GQLProductA;
+  ProductB: GQLProductB;
+}
 
 /**
  * Try to cover List/Non-null List/Non-null list of non-null items

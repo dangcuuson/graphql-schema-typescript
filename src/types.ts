@@ -18,9 +18,6 @@ export interface GenerateTypescriptOptions {
     /** Add types under a namespace */
     namespace?: string;
 
-    /** Add __typeName field to object types */
-    addTypeName?: boolean;
-
     /**
      * By default, GQL types that implement interfaces will copy all interface field
      * E.g:

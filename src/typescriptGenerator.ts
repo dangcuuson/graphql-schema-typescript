@@ -179,24 +179,26 @@ export class TypeScriptGenerator {
             []
         );
 
-        if (this.options.addTypeName) {
-            if (objectType.kind === 'OBJECT' && extendTypes.length > 0) {
-                objectFields.push(`__typeName?: '${objectType.name}';`);
-            } else if (objectType.kind === 'INTERFACE') {
-                objectFields.push(`__typeName?: ${this.options.typePrefix}Possible${objectType.name}TypeNames;`);
-            }
-        }
-
-        let possibleTypeNames: string[] = [];
+        const possibleTypeNames: string[] = [];
+        const possibleTypeNamesMap: string[] = [];
         if (objectType.kind === 'INTERFACE') {
-            possibleTypeNames = [
+            possibleTypeNames.push(...[
                 '',
                 `/** Use this to resolve interface type ${objectType.name} */`,
                 ...this.createUnionType(
                     `Possible${objectType.name}TypeNames`,
                     objectType.possibleTypes.map(pt => `'${pt.name}'`)
                 )
-            ];
+            ]);
+
+            possibleTypeNamesMap.push(...[
+                '',
+                `export interface ${this.options.typePrefix}${objectType.name}NameMap {`,
+                ...objectType.possibleTypes.map(pt => {
+                    return `${pt.name}: ${this.options.typePrefix}${pt.name};`;
+                }),
+                '}'
+            ]);
         }
 
         const extendStr = extendTypes.length === 0
@@ -206,19 +208,28 @@ export class TypeScriptGenerator {
             `export interface ${this.options.typePrefix}${objectType.name} ${extendStr}{`,
             ...objectFields,
             '}',
-            ...possibleTypeNames
+            ...possibleTypeNames,
+            ...possibleTypeNamesMap
         ];
     }
 
     private generateUnionType(unionType: IntrospectionUnionType): string[] {
         const { typePrefix } = this.options;
-        let possibleTypesNames = [
+        const possibleTypesNames = [
             '',
             `/** Use this to resolve union type ${unionType.name} */`,
             ...this.createUnionType(
                 `Possible${unionType.name}TypeNames`,
                 unionType.possibleTypes.map(pt => `'${pt.name}'`)
             )
+        ];
+        const possibleTypeNamesMap = [
+            '',
+            `export interface ${this.options.typePrefix}${unionType.name}NameMap {`,
+            ...unionType.possibleTypes.map(pt => {
+                return `${pt.name}: ${this.options.typePrefix}${pt.name};`;
+            }),
+            '}'
         ];
 
         const unionTypeTSDefs = this.createUnionType(unionType.name, unionType.possibleTypes.map(type => {
@@ -231,7 +242,8 @@ export class TypeScriptGenerator {
 
         return [
             ...unionTypeTSDefs,
-            ...possibleTypesNames
+            ...possibleTypesNames,
+            ...possibleTypeNamesMap
         ];
     }
 
