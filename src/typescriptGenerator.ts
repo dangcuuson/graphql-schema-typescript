@@ -179,8 +179,12 @@ export class TypeScriptGenerator {
             []
         );
 
-        if (this.options.addTypeName && objectType.kind === 'OBJECT') {
-            objectFields.push(`__typeName?: '${objectType.name}'`);
+        if (this.options.addTypeName) {
+            if (objectType.kind === 'OBJECT') {
+                objectFields.push(`__typeName?: '${objectType.name}';`);
+            } else if (objectType.kind === 'INTERFACE') {
+                objectFields.push(`__typeName?: ${this.options.typePrefix}Possible${objectType.name}TypeNames;`);
+            }
         }
 
         let possibleTypeNames: string[] = [];
