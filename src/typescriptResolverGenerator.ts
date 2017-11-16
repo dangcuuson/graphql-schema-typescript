@@ -108,7 +108,7 @@ export class TSResolverGenerator {
     }
 
     private generateCustomScalarResolver(scalarType: IntrospectionScalarType) {
-        this.resolverObject.push(`${this.options.typePrefix}${scalarType.name}: GraphQLScalarType;`);
+        this.resolverObject.push(`${scalarType.name}?: GraphQLScalarType;`);
     }
 
     private generateTypeResolver(type: IntrospectionUnionType | IntrospectionInterfaceType) {
