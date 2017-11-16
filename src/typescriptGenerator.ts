@@ -180,7 +180,7 @@ export class TypeScriptGenerator {
         );
 
         if (this.options.addTypeName) {
-            if (objectType.kind === 'OBJECT') {
+            if (objectType.kind === 'OBJECT' && extendTypes.length > 0) {
                 objectFields.push(`__typeName?: '${objectType.name}';`);
             } else if (objectType.kind === 'INTERFACE') {
                 objectFields.push(`__typeName?: ${this.options.typePrefix}Possible${objectType.name}TypeNames;`);
