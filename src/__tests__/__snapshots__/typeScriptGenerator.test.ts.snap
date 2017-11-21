@@ -91,6 +91,7 @@ export interface GQLIProduct {
 export type GQLPossibleIProductTypeNames = 'ProductA' | 'ProductB';
 
 export interface GQLIProductNameMap {
+  IProduct: GQLIProduct;
   ProductA: GQLProductA;
   ProductB: GQLProductB;
 }
@@ -101,6 +102,7 @@ export type GQLSearchResult = GQLUser | GQLProductA | GQLProductB;
 export type GQLPossibleSearchResultTypeNames = 'User' | 'ProductA' | 'ProductB';
 
 export interface GQLSearchResultNameMap {
+  SearchResult: GQLSearchResult;
   User: GQLUser;
   ProductA: GQLProductA;
   ProductB: GQLProductB;

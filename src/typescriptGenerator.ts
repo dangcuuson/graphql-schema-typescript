@@ -194,6 +194,7 @@ export class TypeScriptGenerator {
             possibleTypeNamesMap.push(...[
                 '',
                 `export interface ${this.options.typePrefix}${objectType.name}NameMap {`,
+                `${objectType.name}: ${this.options.typePrefix}${objectType.name};`,
                 ...objectType.possibleTypes.map(pt => {
                     return `${pt.name}: ${this.options.typePrefix}${pt.name};`;
                 }),
@@ -226,6 +227,7 @@ export class TypeScriptGenerator {
         const possibleTypeNamesMap = [
             '',
             `export interface ${this.options.typePrefix}${unionType.name}NameMap {`,
+            `${unionType.name}: ${this.options.typePrefix}${unionType.name};`,
             ...unionType.possibleTypes.map(pt => {
                 return `${pt.name}: ${this.options.typePrefix}${pt.name};`;
             }),
