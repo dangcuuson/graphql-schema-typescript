@@ -20,7 +20,7 @@ types to make it type-safed when developing GraphQL server (mainly resolvers)
 ```javascript
 import { generateTypeScriptTypes } from 'graphql-schema-typescript';
 
-generateTypeScriptTypes(schema, myGQLSchema, options)
+generateTypeScriptTypes(schema, outputPath, options)
     .then(() => {
         console.log('DONE');
         process.exit(0);
