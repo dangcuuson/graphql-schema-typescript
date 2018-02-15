@@ -16,6 +16,7 @@ import {
     IntrospectionInterfaceType,
     IntrospectionUnionType
 } from 'graphql';
+import { IntrospectionQuery } from 'graphql/utilities/introspectionQuery';
 
 const resolveResult = [
     'type ResolveResult<T> = {',
@@ -53,10 +54,9 @@ export class TSResolverGenerator {
         }
     }
 
-    public async generate(schema: GraphQLSchema): Promise<GenerateResolversResult> {
+    public async generate(introspectionResult: IntrospectionQuery): Promise<GenerateResolversResult> {
 
-        const { __schema } = await introspectSchema(schema);
-        const gqlTypes = __schema.types.filter(type => !isBuiltinType(type));
+        const gqlTypes = introspectionResult.__schema.types.filter(type => !isBuiltinType(type));
 
         const hasCustomScalar = !!gqlTypes.find(type => type.kind === 'SCALAR');
         if (hasCustomScalar) {
