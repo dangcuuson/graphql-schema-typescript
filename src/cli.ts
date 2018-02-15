@@ -6,9 +6,9 @@ import { generateTypeScriptTypes } from './index';
 
 // Make sure unhandled errors in async code are propagated correctly
 process.on('unhandledRejection', (error) => { throw error; });
-process.on('uncaughtException', handleError);
 
-function handleError(error: Error) {
+function handleError(message: string, error: Error = new Error(message)) {
+    console.log('Message: ', message);
     console.log('Error: ', error);
     process.exit(1);
 }
@@ -21,21 +21,24 @@ yargs
         output: {
             demand: true,
             describe: 'Output path for Typescript definitions file',
-            default: 'graphqlTypes.json',
+            default: 'graphqlTypes.d.ts',
             normalize: true,
             coerce: path.resolve,
         }
     },
     async argv => {
-        const { schema, output } = argv;
+        const { folderPath, output } = argv;
 
-        await generateTypeScriptTypes(schema, output);
+        await generateTypeScriptTypes(folderPath, path.resolve(output));
+        console.log(`Typescript generated at: ${output}`);
     }
     )
     .fail(function (message: string, error: Error) {
-        handleError(error);
+        handleError(message, error);
         process.exit(1);
     })
     .help()
     .version()
-    .strict();
+    .strict()
+    // tslint:disable-next-line
+    .argv;
