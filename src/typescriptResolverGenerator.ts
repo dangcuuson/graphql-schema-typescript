@@ -1,36 +1,18 @@
 import { GenerateTypescriptOptions } from './types';
-import { 
-    introspectSchema, 
-    isBuiltinType, 
-    getFieldRef, 
-    gqlScalarToTS, 
+import {
+    isBuiltinType,
+    getFieldRef,
+    gqlScalarToTS,
     createFieldRef,
     toUppercaseFirst
 } from './utils';
 import {
-    GraphQLSchema,
-    IntrospectionSchema,
     IntrospectionScalarType,
     IntrospectionObjectType,
-    IntrospectionInputObjectType,
     IntrospectionInterfaceType,
     IntrospectionUnionType
 } from 'graphql';
 import { IntrospectionQuery } from 'graphql/utilities/introspectionQuery';
-
-const resolveResult = [
-    'type ResolveResult<T> = {',
-    '[K in keyof T]?: T[K] | ResolveResult<T[K]> | NestedFieldResolver<T[K>;',
-    '}'
-];
-
-const nestedFieldResolver = (contextType: string) => {
-    return [
-        'interface NestedFieldResolver<T> {',
-        `(args: any, context: ${contextType}, info: GraphQLResolveInfo): T`,
-        '}'
-    ];
-};
 
 export interface GenerateResolversResult {
     importHeader: string[];
@@ -130,8 +112,6 @@ export class TSResolverGenerator {
     }
 
     private generateObjectResolver(objectType: IntrospectionObjectType) {
-        const options = this.options;
-
         const typeResolverName = `${this.options.typePrefix}${objectType.name}TypeResolver`;
         const typeResolverBody: string[] = [];
         const fieldResolversTypeDefs: string[] = [];

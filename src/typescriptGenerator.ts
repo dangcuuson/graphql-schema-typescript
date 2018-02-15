@@ -1,8 +1,6 @@
 import { GenerateTypescriptOptions } from './types';
 import { versionMajorMinor as TSVersion } from 'typescript';
 import {
-    introspectSchema,
-    introspectSchemaViaLocalFile,
     isBuiltinType,
     descriptionToJSDoc,
     getFieldRef,
@@ -10,7 +8,6 @@ import {
     gqlScalarToTS
 } from './utils';
 import {
-    GraphQLSchema,
     IntrospectionType,
     IntrospectionScalarType,
     IntrospectionEnumType,
@@ -20,7 +17,6 @@ import {
     IntrospectionInterfaceType,
     IntrospectionQuery
 } from 'graphql';
-import { isString } from 'util';
 
 export class TypeScriptGenerator {
 

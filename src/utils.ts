@@ -10,8 +10,7 @@ import {
     IntrospectionField,
     IntrospectionInputValue,
     IntrospectionListTypeRef,
-    IntrospectionNamedTypeRef,
-    ExecutionResult
+    IntrospectionNamedTypeRef
 } from 'graphql';
 
 /**
