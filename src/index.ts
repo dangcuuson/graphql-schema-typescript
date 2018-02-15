@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { GraphQLSchema } from 'graphql';
 import { GenerateTypescriptOptions, defaultOptions } from './types';
-import { TSResolverGenerator } from './typescriptResolverGenerator';
+import { TSResolverGenerator, GenerateResolversResult } from './typescriptResolverGenerator';
 import { TypeScriptGenerator } from './typescriptGenerator';
 import { formatTabSpace } from './utils';
 
@@ -34,18 +34,25 @@ const typeResolversDecoration = [
 
 export const generateTSTypesAsString = async (schema: GraphQLSchema, options: GenerateTypescriptOptions): Promise<string> => {
     const mergedOptions = { ...defaultOptions, ...options };
-    const tsGenerator = new TypeScriptGenerator(mergedOptions);
-    const tsResolverGenerator = new TSResolverGenerator(mergedOptions);
 
+    const tsGenerator = new TypeScriptGenerator(mergedOptions);
     const typeDefs = await tsGenerator.generate(schema);
-    const typeResolvers = await tsResolverGenerator.generate(schema);
+
+    let typeResolvers: GenerateResolversResult = {
+        body: [],
+        importHeader: []
+    };
+    if (!options.noResolver) {
+        const tsResolverGenerator = new TSResolverGenerator(mergedOptions);
+        typeResolvers = await tsResolverGenerator.generate(schema);
+    }
 
     let header = [...typeResolvers.importHeader, jsDoc];
 
     let body: string[] = [
-        ...typeDefsDecoration, 
-        ...typeDefs, 
-        ...typeResolversDecoration, 
+        ...typeDefsDecoration,
+        ...typeDefs,
+        ...typeResolversDecoration,
         ...typeResolvers.body
     ];
 

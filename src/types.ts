@@ -28,6 +28,9 @@ export interface GenerateTypescriptOptions {
      */
     minimizeInterfaceImplementation?: boolean;
 
+    /** Can be used for front-end projects. No resolver types will be generated. */
+    noResolver?: boolean;
+
     /** Config for generating resolvers */
     resolver?: {
         /** Name of your graphql context type. Default to `any` if not specified */
