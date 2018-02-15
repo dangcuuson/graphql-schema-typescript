@@ -43,7 +43,7 @@ function klawSync(path: string, filterRegex: RegExp, fileNames: string[] = []) {
 }
 
 export const introspectSchemaViaLocalFile = async (path: string): Promise<IntrospectionQuery> => {
-    const files = klawSync(path, /\.gql|\.graphql$/);
+    const files = klawSync(path, /\.(graphql|gql)$/);
     const allTypeDefs = files.map(filePath => fs.readFileSync(filePath, 'utf-8')).join('\n');
     return await introspect(allTypeDefs);
 };
