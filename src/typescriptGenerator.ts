@@ -1,7 +1,6 @@
 import { GenerateTypescriptOptions } from './types';
 import { versionMajorMinor as TSVersion } from 'typescript';
 import {
-    introspectSchema,
     isBuiltinType,
     descriptionToJSDoc,
     getFieldRef,
@@ -9,24 +8,22 @@ import {
     gqlScalarToTS
 } from './utils';
 import {
-    GraphQLSchema,
     IntrospectionType,
     IntrospectionScalarType,
     IntrospectionEnumType,
     IntrospectionObjectType,
     IntrospectionUnionType,
     IntrospectionInputObjectType,
-    IntrospectionInterfaceType
+    IntrospectionInterfaceType,
+    IntrospectionQuery
 } from 'graphql';
 
 export class TypeScriptGenerator {
 
     constructor(protected options: GenerateTypescriptOptions) { }
 
-    public async generate(schema: GraphQLSchema): Promise<string[]> {
-
-        const { __schema } = await introspectSchema(schema);
-        const gqlTypes = __schema.types.filter(type => !isBuiltinType(type));
+    public async generate(introspectResult: IntrospectionQuery): Promise<string[]> {
+        const gqlTypes = introspectResult.__schema.types.filter(type => !isBuiltinType(type));
 
         return gqlTypes.reduce<string[]>(
             (prevTypescriptDefs, gqlType) => {

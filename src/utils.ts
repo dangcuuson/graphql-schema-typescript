@@ -1,5 +1,9 @@
+import * as fs from 'fs';
+import { join } from 'path';
 import {
     graphql,
+    buildASTSchema,
+    parse,
     introspectionQuery,
     GraphQLSchema,
     IntrospectionQuery,
@@ -20,6 +24,28 @@ export const introspectSchema = async (schema: GraphQLSchema): Promise<Introspec
     }
 
     return data as IntrospectionQuery;
+};
+
+export async function introspect(schemaContents: string): Promise<IntrospectionQuery> {
+    const schema = buildASTSchema(parse(schemaContents));
+    return introspectSchema(schema);
+}
+
+function klawSync(path: string, filterRegex: RegExp, fileNames: string[] = []) {
+    const fileStat = fs.statSync(path);
+    if (fileStat.isDirectory()) {
+        const directory = fs.readdirSync(path);
+        directory.forEach((f) => klawSync(join(path, f), filterRegex, fileNames));
+    } else if (filterRegex.test(path)) {
+        fileNames.push(path);
+    }
+    return fileNames;
+}
+
+export const introspectSchemaViaLocalFile = async (path: string): Promise<IntrospectionQuery> => {
+    const files = klawSync(path, /\.(graphql|gql)$/);
+    const allTypeDefs = files.map(filePath => fs.readFileSync(filePath, 'utf-8')).join('\n');
+    return await introspect(allTypeDefs);
 };
 
 export interface SimpleTypeDescription {

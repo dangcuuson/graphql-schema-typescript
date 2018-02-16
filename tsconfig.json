@@ -1,6 +1,7 @@
 {
     "include": [
         "src/index.ts",
+        "src/cli.ts"
     ],
     "compilerOptions": {
         "target": "es5",
