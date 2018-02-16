@@ -163,7 +163,7 @@ describe('Typescript Generator', () => {
     });
 
     it('should generate from local file if argument is a string', async () => {
-        const outputPath = path.join(outputFolder, 'relative.ts');
+        const outputPath = path.join(outputFolder, 'localFile.ts');
 
         await generateTypeScriptTypes(__dirname + '/testSchema', outputPath, {
             noResolver: true

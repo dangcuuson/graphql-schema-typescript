@@ -2,7 +2,7 @@
 *
 
 # except these
-!lib/*
+!lib/**/*
 !package-lock.json
 !package.json
 !README.md
