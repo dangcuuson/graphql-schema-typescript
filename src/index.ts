@@ -51,10 +51,8 @@ export const generateTSTypesAsString = async (schema: GraphQLSchema | string, op
         body: [],
         importHeader: []
     };
-    if (!options.noResolver) {
-        const tsResolverGenerator = new TSResolverGenerator(mergedOptions);
-        typeResolvers = await tsResolverGenerator.generate(introspectResult);
-    }
+    const tsResolverGenerator = new TSResolverGenerator(mergedOptions);
+    typeResolvers = await tsResolverGenerator.generate(introspectResult);
 
     let header = [...typeResolvers.importHeader, jsDoc];
 

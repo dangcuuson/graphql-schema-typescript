@@ -165,9 +165,7 @@ describe('Typescript Generator', () => {
     it('should generate from local file if argument is a string', async () => {
         const outputPath = path.join(outputFolder, 'localFile.ts');
 
-        await generateTypeScriptTypes(__dirname + '/testSchema', outputPath, {
-            noResolver: true
-        });
+        await generateTypeScriptTypes(__dirname + '/testSchema', outputPath);
 
         await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
     });
