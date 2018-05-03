@@ -26,13 +26,9 @@ export class TSResolverGenerator {
     protected contextType: string;
 
     constructor(protected options: GenerateTypescriptOptions) {
-        if (options.resolver) {
-            this.contextType = options.resolver.contextType;
-            if (options.resolver.importContext) {
-                this.importHeader.push(options.resolver.importContext);
-            }
-        } else {
-            this.contextType = 'any';
+        this.contextType = options.contextType || 'any';
+        if (options.importStatements) {
+            this.importHeader.push(...options.importStatements);
         }
     }
 

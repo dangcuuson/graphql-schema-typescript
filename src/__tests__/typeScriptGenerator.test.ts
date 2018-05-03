@@ -1,5 +1,4 @@
 import * as path from 'path';
-import * as rimraf from 'rimraf';
 import * as fsa from 'fs-extra';
 import { testSchema } from './testSchema';
 import { executeCommand } from './testUtils';
@@ -102,7 +101,7 @@ describe('Typescript Generator', () => {
         await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
     });
 
-    it('should minimize interface implementation if configure', async () => {
+    it('should minimize interface implementation if configured', async () => {
         const outputPath = path.join(outputFolder, 'minimizedInterface.ts');
 
         await generateTypeScriptTypes(testSchema, outputPath, {
@@ -158,6 +157,20 @@ describe('Typescript Generator', () => {
         const generated = fsa.readFileSync(outputPath, 'utf-8');
         expect(generated).toContain('declare global {');
         expect(generated).toContain('namespace MyNamespace {');
+
+        await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
+    });
+
+    it('should inject import statements', async () => {
+        const outputPath = path.join(outputFolder, 'importStatements.ts');
+
+        const importStatements = [`import * as fs from 'fs';`, `import * as path from 'path';`];
+        await generateTypeScriptTypes(testSchema, outputPath, { importStatements });
+
+        const generated = fsa.readFileSync(outputPath, 'utf-8');
+        const lines = generated.split('\n');
+        expect(lines[0]).toBe(importStatements[0]);
+        expect(lines[1]).toBe(importStatements[1]);
 
         await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
     });

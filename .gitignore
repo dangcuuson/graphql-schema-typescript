@@ -6,4 +6,5 @@ jest_0/
 lib/
 *.tgz
 generatedTypes/
+generatedTypes-CLIs/
 coverage/
