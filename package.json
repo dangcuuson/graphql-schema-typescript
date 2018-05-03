@@ -1,11 +1,12 @@
 {
   "name": "graphql-schema-typescript",
-  "version": "1.0.24",
+  "version": "1.1.0",
   "description": "Generate TypeScript from GraphQL's schema type definitions",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "bin": "./lib/cli.js",
   "scripts": {
+    "pretest": "npm run build",
     "test": "jest --bail",
     "lint": "tslint -p tslint.json && tsc --noEmit",
     "build": "rm -rf ./lib && tsc",
