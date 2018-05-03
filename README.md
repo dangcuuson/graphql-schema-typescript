@@ -39,6 +39,12 @@ or use something like [ts-node](#https://github.com/TypeStrong/ts-node) to execu
 * `outputPath`: where the types is generated
 * `options`: see [GenerateTypescriptOptions](./src/types.ts)
 
+## CLIs
+* You can also use CLIs to generate your TypeScript instead of writing code
+* Instead of providing a schema, you need to provide a folder that contains your type definitions,
+written in .gql or .graphql extensions
+* Use `graphql-schema-typescript generate-ts --help` for more details
+
 ## Type Resolvers
 The file generated will have some types that can make it type-safed when writing resolver:
 
@@ -99,6 +105,8 @@ you can still use `RootQueryToUsersResolver` type to make your args type safed.
 - [ ] Integrate with Travis CI
 
 ## Change log
+* v1.1.0:
+    * Add CLIs support
 * v1.0.6:
     * Generate TypeScript for resolvers. See [Type Resolvers](#type-resolvers)
 * v1.0.4: 
