@@ -1,6 +1,7 @@
 schema {
     query: RootQuery
     mutation: RootMutation
+    subscription: RootSubscription
 }
 
 type RootQuery {
@@ -26,4 +27,9 @@ input CreateUserInput {
     email: String!
     password: String!
     createdAt: Date!
+}
+
+type RootSubscription {
+    userLoggedIn(filter: String): User!
+    saleMade: String!
 }
