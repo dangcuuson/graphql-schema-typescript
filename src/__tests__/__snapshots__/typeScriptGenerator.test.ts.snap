@@ -198,6 +198,11 @@ export interface GQLCreateUserInput {
  */
 export type GQLDate = any;
 
+export interface GQLRootSubscription {
+  userLoggedIn: GQLUser;
+  saleMade: string;
+}
+
 /*********************************
  *                               *
  *         TYPE RESOLVERS        *
@@ -225,6 +230,7 @@ export interface GQLResolver {
   ProductListScalar?: GQLProductListScalarTypeResolver;
   RootMutation?: GQLRootMutationTypeResolver;
   Date?: GraphQLScalarType;
+  RootSubscription?: GQLRootSubscriptionTypeResolver;
 }
 export interface GQLRootQueryTypeResolver<TParent = any> {
   Users?: RootQueryToUsersResolver<TParent>;
@@ -560,6 +566,24 @@ export interface RootMutationToCreateUserArgs {
 }
 export interface RootMutationToCreateUserResolver<TParent = any, TResult = any> {
   (parent: TParent, args: RootMutationToCreateUserArgs, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface GQLRootSubscriptionTypeResolver<TParent = any> {
+  userLoggedIn?: RootSubscriptionToUserLoggedInResolver<TParent>;
+  saleMade?: RootSubscriptionToSaleMadeResolver<TParent>;
+}
+
+export interface RootSubscriptionToUserLoggedInArgs {
+  filter?: string;
+}
+export interface RootSubscriptionToUserLoggedInResolver<TParent = any, TResult = any> {
+  resolve?: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => TResult;
+  subscribe: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => TResult;
+}
+
+export interface RootSubscriptionToSaleMadeResolver<TParent = any, TResult = any> {
+  resolve?: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => TResult;
+  subscribe: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => TResult;
 }
 "
 `;

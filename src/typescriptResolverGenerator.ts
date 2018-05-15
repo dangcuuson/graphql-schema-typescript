@@ -53,6 +53,10 @@ export class TSResolverGenerator {
         ];
 
         gqlTypes.map(type => {
+            const isSubscription = introspectionResult.__schema.subscriptionType ?
+                introspectionResult.__schema.subscriptionType.name === type.name
+                : false;
+
             switch (type.kind) {
                 case 'SCALAR': {
                     this.generateCustomScalarResolver(type);
@@ -60,7 +64,7 @@ export class TSResolverGenerator {
                 }
 
                 case 'OBJECT': {
-                    this.generateObjectResolver(type);
+                    this.generateObjectResolver(type, isSubscription);
                     break;
                 }
 
@@ -107,7 +111,7 @@ export class TSResolverGenerator {
         ]);
     }
 
-    private generateObjectResolver(objectType: IntrospectionObjectType) {
+    private generateObjectResolver(objectType: IntrospectionObjectType, isSubscription: boolean = false) {
         const typeResolverName = `${this.options.typePrefix}${objectType.name}TypeResolver`;
         const typeResolverBody: string[] = [];
         const fieldResolversTypeDefs: string[] = [];
@@ -146,13 +150,23 @@ export class TSResolverGenerator {
             // generate field type
             const fieldResolverName = `${objectType.name}To${uppercaseFisrtFieldName}Resolver`;
 
-            fieldResolversTypeDefs.push(...[
-                `export interface ${fieldResolverName}<TParent = any, TResult = any> {`,
-                // TODO: some strategy to support parent type and return type
-                `(parent: TParent, args: ${argsType}, context: ${this.contextType}, info: GraphQLResolveInfo): TResult;`,
-                '}',
-                ''
-            ]);
+            const fieldResolverTypeDef = !isSubscription
+                ? [
+                    `export interface ${fieldResolverName}<TParent = any, TResult = any> {`,
+                    // TODO: some strategy to support parent type and return type
+                    `(parent: TParent, args: ${argsType}, context: ${this.contextType}, info: GraphQLResolveInfo): TResult;`,
+                    '}',
+                    ''
+                ]
+                : [
+                    `export interface ${fieldResolverName}<TParent = any, TResult = any> {`,
+                    `resolve?: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info: GraphQLResolveInfo) => TResult;`,
+                    `subscribe: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info: GraphQLResolveInfo) => TResult;`,
+                    '}',
+                    ''
+                ];
+
+            fieldResolversTypeDefs.push(...fieldResolverTypeDef);
 
             typeResolverBody.push(...[
                 `${field.name}?: ${fieldResolverName}<TParent>;`
