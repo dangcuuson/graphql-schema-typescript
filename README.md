@@ -105,6 +105,8 @@ you can still use `RootQueryToUsersResolver` type to make your args type safed.
 - [ ] Integrate with Travis CI
 
 ## Change log
+* v1.2.0:
+    * Field resolvers under subscriptions are being generated with resolve and subscribe method
 * v1.1.0:
     * Add CLIs support
 * v1.0.6:
