@@ -109,7 +109,7 @@ describe('Typescript Generator', () => {
         });
 
         const generated = fsa.readFileSync(outputPath, 'utf-8');
-        const occurrence = occurrences(generated, 'relatedProducts: GQLIProduct[];', false);
+        const occurrence = occurrences(generated, 'relatedProducts: Array<GQLIProduct>;', false);
         expect(occurrence).toBe(1);
 
         await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);

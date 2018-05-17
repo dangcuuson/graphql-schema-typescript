@@ -3,7 +3,6 @@ import { versionMajorMinor as TSVersion } from 'typescript';
 import {
     isBuiltinType,
     descriptionToJSDoc,
-    getFieldRef,
     createFieldRef,
     gqlScalarToTS
 } from './utils';
@@ -154,16 +153,8 @@ export class TypeScriptGenerator {
                 }
 
                 let fieldJsDoc = descriptionToJSDoc(field);
+                const fieldNameAndType = createFieldRef(field, this.options.typePrefix, this.options.strictNulls);
 
-                let { refKind, refName, fieldModifier } = getFieldRef(field);
-
-                if (refKind === 'SCALAR') {
-                    refName = gqlScalarToTS(refName, this.options.typePrefix);
-                } else {
-                    refName = this.options.typePrefix + refName;
-                }
-
-                const fieldNameAndType = createFieldRef(field.name, refName, fieldModifier);
                 let typescriptDefs = [...fieldJsDoc, fieldNameAndType];
 
                 if (fieldJsDoc.length > 0) {

@@ -36,10 +36,19 @@ export interface GenerateTypescriptOptions {
      * that import your custom scalar type and context type
      */
     importStatements?: string[];
+
+    /**
+     * Set optional properties as nullable instead of undefined
+     * E.g:
+     * withoutStrict?: string
+     * withStrict: string|null;
+     */
+    strictNulls?: boolean;
 }
 
 export const defaultOptions: GenerateTypescriptOptions = {
     tabSpaces: 2,
     typePrefix: 'GQL',
-    contextType: 'any'
+    contextType: 'any',
+    strictNulls: false,
 };
