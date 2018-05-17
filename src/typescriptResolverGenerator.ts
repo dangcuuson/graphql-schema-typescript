@@ -1,7 +1,6 @@
 import { GenerateTypescriptOptions } from './types';
 import {
     isBuiltinType,
-    getFieldRef,
     gqlScalarToTS,
     createFieldRef,
     toUppercaseFirst
@@ -126,17 +125,7 @@ export class TSResolverGenerator {
                 argsType = `${objectType.name}To${uppercaseFisrtFieldName}Args`;
                 const argsBody: string[] = [];
                 field.args.forEach(arg => {
-                    const argRefField = getFieldRef(arg);
-
-                    let argRefName = argRefField.refName;
-
-                    if (argRefField.refKind === 'SCALAR') {
-                        argRefName = gqlScalarToTS(argRefName, this.options.typePrefix);
-                    } else if (!isBuiltinType({ name: argRefName, kind: argRefField.refKind })) {
-                        argRefName = this.options.typePrefix + argRefName;
-                    }
-
-                    const argFieldNameAndType = createFieldRef(arg.name, argRefName, argRefField.fieldModifier);
+                    const argFieldNameAndType = createFieldRef(arg, this.options.typePrefix, false);
                     argsBody.push(argFieldNameAndType);
                 });
 

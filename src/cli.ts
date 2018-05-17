@@ -20,6 +20,7 @@ const namespaceOpt: keyof GenerateTypescriptOptions = 'namespace';
 const miminizeInterface: keyof GenerateTypescriptOptions = 'minimizeInterfaceImplementation';
 const contextType: keyof GenerateTypescriptOptions = 'contextType';
 const importStatements: keyof GenerateTypescriptOptions = 'importStatements';
+const strictNulls: keyof GenerateTypescriptOptions = 'strictNulls';
 
 yargs
     .option(globalOpt, {
@@ -51,6 +52,10 @@ yargs
         desc: 'Import statements at the top of the generated file that import your custom scalar type and context type',
         array: true
     })
+    .option(strictNulls, {
+        desc: 'Set optional fields as nullable instead of undefined',
+        boolean: true,
+    })
     .option('output', {
         desc: 'Output path for Typescript definitions file',
         string: true,
@@ -73,6 +78,7 @@ yargs
         options[miminizeInterface] = argv[miminizeInterface];
         options[contextType] = argv[contextType];
         options[importStatements] = argv[importStatements];
+        options[strictNulls] = argv[strictNulls];
 
         await generateTypeScriptTypes(folderPath, path.resolve(output), options);
         console.log(`Typescript generated at: ${output}`);

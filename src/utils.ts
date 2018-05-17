@@ -98,26 +98,11 @@ export const descriptionToJSDoc = (description: GraphqlDescription): string[] =>
 };
 
 export interface FieldType {
-    fieldModifier: string;
+    fieldType: any;
     refName: string;
     refKind: string;
+    fieldModifier: string;
 }
-export const getFieldRef = (field: IntrospectionField | IntrospectionInputValue): FieldType => {
-    let fieldModifier: string[] = [];
-
-    let typeRef = field.type;
-
-    while (typeRef.kind === 'NON_NULL' || typeRef.kind === 'LIST') {
-        fieldModifier.push(typeRef.kind);
-        typeRef = (typeRef as IntrospectionListTypeRef).ofType!;
-    }
-
-    return {
-        fieldModifier: fieldModifier.join(' '),
-        refKind: (typeRef as IntrospectionNamedTypeRef).kind,
-        refName: (typeRef as IntrospectionNamedTypeRef).name
-    };
-};
 
 export const formatTabSpace = (lines: string[], tabSpaces: number): string[] => {
     let result: string[] = [];
@@ -143,48 +128,6 @@ export const formatTabSpace = (lines: string[], tabSpaces: number): string[] => 
     return result;
 };
 
-export const createFieldRef = (fieldName: string, refName: string, fieldModifier: string): string => {
-    switch (fieldModifier) {
-        case '': {
-            return `${fieldName}?: ${refName};`;
-        }
-
-        case 'NON_NULL': {
-            return `${fieldName}: ${refName};`;
-        }
-
-        case 'LIST': {
-            return `${fieldName}?: (${refName} | null)[];`;
-        }
-
-        case 'LIST NON_NULL': {
-            return `${fieldName}?: ${refName}[];`;
-        }
-
-        case 'NON_NULL LIST': {
-            return `${fieldName}: (${refName} | null)[];`;
-        }
-
-        case 'NON_NULL LIST NON_NULL': {
-            return `${fieldName}: ${refName}[];`;
-        }
-
-        case 'LIST NON_NULL LIST NON_NULL': {
-            return `${fieldName}?: ${refName}[][];`;
-        }
-
-        case 'NON_NULL LIST NON_NULL LIST NON_NULL': {
-            return `${fieldName}: ${refName}[][];`;
-        }
-
-        // TODO: make it to handle any generic case
-
-        default: {
-            throw new Error(`We are reaching the fieldModifier level that should not exists: ${fieldModifier}`);
-        }
-    }
-};
-
 export const gqlScalarToTS = (scalarName: string, typePrefix: string): string => {
     switch (scalarName) {
         case 'Int':
@@ -201,6 +144,43 @@ export const gqlScalarToTS = (scalarName: string, typePrefix: string): string =>
         default:
             return typePrefix + scalarName;
     }
+};
+
+export const getTypeToTS = (field: any, prefix: string, nonNullable: boolean = false): string => {
+  let tsType = '';
+
+  if (field.kind === 'NON_NULL') {
+    return getTypeToTS(field.ofType, prefix, true);
+  }
+
+  if (field.kind === 'LIST') {
+    tsType = getTypeToTS(field.ofType, prefix, false);
+    tsType = `Array<${tsType}>`;
+  } else {
+    tsType = gqlScalarToTS(field.name, prefix);
+  }
+
+  if (!nonNullable) {
+   tsType = `${tsType} | null`;
+  }
+
+  return tsType;
+};
+
+export const createFieldRef = (field: IntrospectionField | IntrospectionInputValue, prefix: string, strict: boolean): string => {
+  const nullable = field.type.kind !== 'NON_NULL';
+  let fieldName = '';
+  let fieldType = '';
+
+  if (!strict && nullable) {
+    fieldName = `${field.name}?`;
+    fieldType = getTypeToTS(field.type, prefix, true);
+  } else {
+    fieldName = `${field.name}`;
+    fieldType = getTypeToTS(field.type, prefix, false);
+  }
+
+  return `${fieldName}: ${fieldType};`;
 };
 
 export const toUppercaseFirst = (value: string): string => {
