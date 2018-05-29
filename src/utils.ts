@@ -156,6 +156,9 @@ export const getTypeToTS = (field: any, prefix: string, nonNullable: boolean = f
   if (field.kind === 'LIST') {
     tsType = getTypeToTS(field.ofType, prefix, false);
     tsType = `Array<${tsType}>`;
+  } else if (field.kind === 'ENUM') {
+    tsType = gqlScalarToTS(field.name, prefix);
+    tsType = `keyof typeof ${tsType}`;
   } else {
     tsType = gqlScalarToTS(field.name, prefix);
   }

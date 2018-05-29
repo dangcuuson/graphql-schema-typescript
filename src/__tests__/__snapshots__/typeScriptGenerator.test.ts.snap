@@ -35,7 +35,7 @@ export interface GQLUser {
    */
   username: string;
   email: string;
-  role: GQLUserRole;
+  role: keyof typeof GQLUserRole;
 
   /**
    * Url to the image
