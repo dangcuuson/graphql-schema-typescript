@@ -31,6 +31,9 @@ export interface GenerateTypescriptOptions {
     /** Name of your graphql context type. Default to `any` if not specified */
     contextType?: string;
 
+    /** Name of your graphql rootValue type, Default to `undefined` if not specified */
+    rootValueType?: string;
+
     /**
      * Import statements at the top of the generated file
      * that import your custom scalar type and context type
@@ -44,11 +47,52 @@ export interface GenerateTypescriptOptions {
      * withStrict: string|null;
      */
     strictNulls?: boolean;
+
+    /**
+     * This option is for resolvers
+     * If true, the lib will try to guest the most appropriate 
+     * default TResult type of resolvers (instead of default to 'any')
+     * 
+     * e.g: 
+     * schema { query: Query }
+     * type Query { users: [Users!] }
+     * type User { username: String! }
+     * 
+     * =>   interface QueryToUsersResolver<TParent = any, TResult = User[] | null> { ... }
+     *      interface UserToUsernameResolver<TParent = any, TResult = string> { ... }
+     */
+    smartTResult?: boolean;
+
+    /**
+     * This option is for resolvers
+     * If true, the lib will try to guest the most appropriate 
+     * default TParent type of resolvers (instead of default to 'any')
+     * 
+     * e.g: 
+     * schema { query: Query }
+     * type Query { users: [Users!] }
+     * type User { username: String! }
+     * 
+     * =>   interface QueryToUsersResolver<TParent = rootValueType, TResult = any> { ... }
+     *      interface UserToUsernameResolver<TParent = User, TResullt = any> { ... }
+     */
+    smartTParent?: boolean;
+
+    /**
+     * This option is for resolvers
+     * If true, set return type of resolver to `TResult | Promise<TResult>`
+     * 
+     * e.g: interface QueryToUsersResolver<TParent = any, TResult = any> {
+     *  (parent: TParent, args: {}, context: any, info): TResult extends Promise ? TResult : TResult | Promise<TResult>
+     * }
+     */
+    asyncResult?: boolean;
 }
 
 export const defaultOptions: GenerateTypescriptOptions = {
     tabSpaces: 2,
     typePrefix: 'GQL',
     contextType: 'any',
+    rootValueType: 'undefined',
     strictNulls: false,
 };

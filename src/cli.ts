@@ -21,6 +21,9 @@ const miminizeInterface: keyof GenerateTypescriptOptions = 'minimizeInterfaceImp
 const contextType: keyof GenerateTypescriptOptions = 'contextType';
 const importStatements: keyof GenerateTypescriptOptions = 'importStatements';
 const strictNulls: keyof GenerateTypescriptOptions = 'strictNulls';
+const smartTResult: keyof GenerateTypescriptOptions = 'smartTResult';
+const smartTParent: keyof GenerateTypescriptOptions = 'smartTParent';
+const asyncResult: keyof GenerateTypescriptOptions = 'asyncResult';
 
 yargs
     .option(globalOpt, {
@@ -56,6 +59,18 @@ yargs
         desc: 'Set optional fields as nullable instead of undefined',
         boolean: true,
     })
+    .option(smartTResult, {
+        desc: 'Apply appropriate default TResult to resolver',
+        boolean: true
+    })
+    .option(smartTParent, {
+        desc: 'Apply appropriate default TParent to resolver',
+        boolean: true
+    })
+    .option(asyncResult, {
+        desc: 'Set return type of resolver to `TResult | Promise<TResult>`',
+        boolean: true
+    })
     .option('output', {
         desc: 'Output path for Typescript definitions file',
         string: true,
@@ -79,6 +94,9 @@ yargs
         options[contextType] = argv[contextType];
         options[importStatements] = argv[importStatements];
         options[strictNulls] = argv[strictNulls];
+        options[smartTResult] = argv[smartTResult];
+        options[smartTParent] = argv[smartTParent];
+        options[asyncResult] = argv[asyncResult];
 
         await generateTypeScriptTypes(folderPath, path.resolve(output), options);
         console.log(`Typescript generated at: ${output}`);
