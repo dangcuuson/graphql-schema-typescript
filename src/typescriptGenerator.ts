@@ -14,7 +14,9 @@ import {
     IntrospectionUnionType,
     IntrospectionInputObjectType,
     IntrospectionInterfaceType,
-    IntrospectionQuery
+    IntrospectionQuery,
+    IntrospectionField,
+    IntrospectionInputValue
 } from 'graphql';
 
 export class TypeScriptGenerator {
@@ -131,7 +133,8 @@ export class TypeScriptGenerator {
         objectType: IntrospectionObjectType | IntrospectionInputObjectType | IntrospectionInterfaceType,
         allGQLTypes: IntrospectionType[]
     ): string[] {
-        let fields = objectType.kind === 'INPUT_OBJECT' ? objectType.inputFields : objectType.fields;
+        let fields: (IntrospectionInputValue | IntrospectionField)[]
+            = objectType.kind === 'INPUT_OBJECT' ? objectType.inputFields : objectType.fields;
 
         const extendTypes: string[] = objectType.kind === 'OBJECT'
             ? objectType.interfaces.map(i => i.name)

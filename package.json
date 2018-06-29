@@ -33,7 +33,7 @@
     "jest": "22.4.3",
     "ts-jest": "22.4.4",
     "tslint": "5.8.0",
-    "typescript": "2.6.1"
+    "typescript": "2.9.2"
   },
   "dependencies": {
     "yargs": "^11.0.0"
