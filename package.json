@@ -10,8 +10,7 @@
     "test": "jest --bail",
     "lint": "tslint -p tslint.json && tsc --noEmit",
     "build": "rm -rf ./lib && tsc",
-    "prepack": "npm run lint && npm run test",
-    "prepare": "npm run lint && npm run test"
+    "prepack": "npm run lint && npm run test"
   },
   "repository": {
     "type": "git",
