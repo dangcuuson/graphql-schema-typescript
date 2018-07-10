@@ -49,7 +49,7 @@ written in .gql or .graphql extensions
 The file generated will have some types that can make it type-safed when writing resolver:
 
 * Args type in your resolve function is now type-safed
-* Parent type and resolve result is still `any`, but could be overwritten in your code
+* Parent type and resolve result is default to `any`, but could be overwritten in your code
 
 For example, if you schema is like this:
 ```
@@ -100,11 +100,42 @@ export interface RootQueryToUsersResolver<TParent = any, TResult = any> {
 In this example, if you are not using [graphql-tools](https://www.npmjs.com/package/graphql-tools), 
 you can still use `RootQueryToUsersResolver` type to make your args type safed.
 
+## Default TParent & TResult
+
+In version 1.2.2, a strategy for generating default TParent and TResult has been implemented
+by setting `smartTParent` and `smartTResult` options to true.
+
+If both options are set to true, the resolver will be generated as follow:
+```javascript
+// smartTParent: true
+// smartTResult: true
+// TParent is undefined because it uses the value of 'rootValueType' in options
+export interface RootQueryToUsersResolver<TParent = undefined, TResult = Array<GQLUser> {
+  (parent: TParent, args: RootQueryToUsersArgs, context: any, info: GraphQLResolveInfo): TResult;
+}
+```
+
+However, since `RootQueryToUsersResolver` usually will be asynchronous operation,
+the default TResult would not be too helpful, as developers would most likely overwrite it to `Promise<Array<GQLUser>>`. Therefore, another option , `asyncResult`, was implemented. This option
+basically allow resolver to return promises
+
+
+```javascript
+// smartTParent: true
+// smartTResult: true
+// asyncResult: true
+export interface RootQueryToUsersResolver<TParent = undefined, TResult = Array<GQLUser> {
+  (parent: TParent, args: RootQueryToUsersArgs, context: any, info: GraphQLResolveInfo): Promise<TResult> | TResult; // the different is here
+}
+```
+
 ## TODO
 - [ ] More detailed API Documentation
 - [ ] Integrate with Travis CI
 
 ## Change log
+* v1.2.2:
+    * Strategy for guessing TParent & TResult in resolvers
 * v1.2.1:
     * Added strict nulls option for compatibility with apollo-codegen
 * v1.2.0:
