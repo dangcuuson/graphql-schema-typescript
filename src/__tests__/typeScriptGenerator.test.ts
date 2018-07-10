@@ -161,6 +161,20 @@ describe('Typescript Generator', () => {
         await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
     });
 
+    it('should make all fields in resolvers required if requireResolverTypes option is specified', async () => {
+        const outputPath = path.join(outputFolder, 'requireResolverTypes.ts');
+
+        await generateTypeScriptTypes(testSchema, outputPath, {
+            requireResolverTypes: true
+        });
+
+        // const generated = fsa.readFileSync(outputPath, 'utf-8');
+        // expect(generated).toContain('declare global {');
+        // expect(generated).toContain('namespace MyNamespace {');
+
+        await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
+    });
+
     it('should inject import statements', async () => {
         const outputPath = path.join(outputFolder, 'importStatements.ts');
 

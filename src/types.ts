@@ -87,6 +87,12 @@ export interface GenerateTypescriptOptions {
      * }
      */
     asyncResult?: boolean;
+
+    /**
+     * If true, field resolver of each type will be required, instead of optional
+     * Useful if you want to ensure all fields are resolved
+     */
+    requireResolverTypes?: boolean;
 }
 
 export const defaultOptions: GenerateTypescriptOptions = {

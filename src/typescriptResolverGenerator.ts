@@ -51,7 +51,7 @@ export class TSResolverGenerator {
             `export interface ${this.options.typePrefix}Resolver {`
         ];
 
-        gqlTypes.map(type => {
+        gqlTypes.forEach(type => {
             const isSubscription = introspectionResult.__schema.subscriptionType ?
                 introspectionResult.__schema.subscriptionType.name === type.name
                 : false;
@@ -89,7 +89,7 @@ export class TSResolverGenerator {
     }
 
     private generateCustomScalarResolver(scalarType: IntrospectionScalarType) {
-        this.resolverObject.push(`${scalarType.name}?: GraphQLScalarType;`);
+        this.resolverObject.push(`${scalarType.name}${this.getModifier()}: GraphQLScalarType;`);
     }
 
     private generateTypeResolver(type: IntrospectionUnionType | IntrospectionInterfaceType) {
@@ -103,11 +103,16 @@ export class TSResolverGenerator {
         ]);
 
         this.resolverObject.push(...[
-            `${type.name}?: {`,
+            `${type.name}${this.getModifier()}: {`,
             `__resolveType: ${interfaceName}`,
             '};',
             ''
         ]);
+    }
+
+    // optional or required
+    private getModifier() {
+        return this.options.requireResolverTypes ? '' : '?';
     }
 
     private generateObjectResolver(objectType: IntrospectionObjectType, isSubscription: boolean = false) {
@@ -149,7 +154,8 @@ export class TSResolverGenerator {
                 ]
                 : [
                     `export interface ${fieldResolverName}<TParent = any, TResult = any> {`,
-                    `resolve?: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info: GraphQLResolveInfo) => TResult;`,
+                    // tslint:disable-next-line:max-line-length
+                    `resolve${this.getModifier()}: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info: GraphQLResolveInfo) => TResult;`,
                     `subscribe: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info: GraphQLResolveInfo) => TResult;`,
                     '}',
                     ''
@@ -158,7 +164,7 @@ export class TSResolverGenerator {
             fieldResolversTypeDefs.push(...fieldResolverTypeDef);
 
             typeResolverBody.push(...[
-                `${field.name}?: ${fieldResolverName}<TParent>;`
+                `${field.name}${this.getModifier()}: ${fieldResolverName}<TParent>;`
             ]);
         });
 
@@ -172,7 +178,7 @@ export class TSResolverGenerator {
 
         // add the type resolver to resolver object
         this.resolverObject.push(...[
-            `${objectType.name}?: ${typeResolverName};`
+            `${objectType.name}${this.getModifier()}: ${typeResolverName};`
         ]);
     }
 }
