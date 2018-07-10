@@ -24,6 +24,7 @@ const strictNulls: keyof GenerateTypescriptOptions = 'strictNulls';
 const smartTResult: keyof GenerateTypescriptOptions = 'smartTResult';
 const smartTParent: keyof GenerateTypescriptOptions = 'smartTParent';
 const asyncResult: keyof GenerateTypescriptOptions = 'asyncResult';
+const requireResolverTypes: keyof GenerateTypescriptOptions = 'requireResolverTypes';
 
 yargs
     .option(globalOpt, {
@@ -71,6 +72,10 @@ yargs
         desc: 'Set return type of resolver to `TResult | Promise<TResult>`',
         boolean: true
     })
+    .option(requireResolverTypes, {
+        desc: 'Set resolvers to be required. Useful to ensure no resolvers is missing',
+        boolean: true
+    })
     .option('output', {
         desc: 'Output path for Typescript definitions file',
         string: true,
@@ -97,9 +102,12 @@ yargs
         options[smartTResult] = argv[smartTResult];
         options[smartTParent] = argv[smartTParent];
         options[asyncResult] = argv[asyncResult];
+        options[requireResolverTypes] = argv[requireResolverTypes];
 
         await generateTypeScriptTypes(folderPath, path.resolve(output), options);
-        console.log(`Typescript generated at: ${output}`);
+        if (process.env.NODE_ENV !== 'test') {
+            console.log(`Typescript generated at: ${output}`);
+        }
     }
     )
     .fail(function (message: string, error: Error) {

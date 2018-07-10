@@ -4,7 +4,6 @@ import {
     isBuiltinType,
     descriptionToJSDoc,
     createFieldRef,
-    gqlScalarToTS
 } from './utils';
 import {
     IntrospectionType,
@@ -156,8 +155,8 @@ export class TypeScriptGenerator {
                 }
 
                 let fieldJsDoc = descriptionToJSDoc(field);
-                const fieldNameAndType = createFieldRef(field, this.options.typePrefix, this.options.strictNulls);
-
+                const { fieldName, fieldType } = createFieldRef(field, this.options.typePrefix, this.options.strictNulls);
+                const fieldNameAndType = `${fieldName}: ${fieldType};`;
                 let typescriptDefs = [...fieldJsDoc, fieldNameAndType];
 
                 if (fieldJsDoc.length > 0) {

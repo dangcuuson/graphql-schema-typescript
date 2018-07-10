@@ -147,40 +147,43 @@ export const gqlScalarToTS = (scalarName: string, typePrefix: string): string =>
 };
 
 export const getTypeToTS = (field: any, prefix: string, nonNullable: boolean = false): string => {
-  let tsType = '';
+    let tsType = '';
 
-  if (field.kind === 'NON_NULL') {
-    return getTypeToTS(field.ofType, prefix, true);
-  }
+    if (field.kind === 'NON_NULL') {
+        return getTypeToTS(field.ofType, prefix, true);
+    }
 
-  if (field.kind === 'LIST') {
-    tsType = getTypeToTS(field.ofType, prefix, false);
-    tsType = `Array<${tsType}>`;
-  } else {
-    tsType = gqlScalarToTS(field.name, prefix);
-  }
+    if (field.kind === 'LIST') {
+        tsType = getTypeToTS(field.ofType, prefix, false);
+        tsType = `Array<${tsType}>`;
+    } else {
+        tsType = gqlScalarToTS(field.name, prefix);
+    }
 
-  if (!nonNullable) {
-   tsType = `${tsType} | null`;
-  }
+    if (!nonNullable) {
+        tsType = `${tsType} | null`;
+    }
 
-  return tsType;
+    return tsType;
 };
 
-export const createFieldRef = (field: IntrospectionField | IntrospectionInputValue, prefix: string, strict: boolean): string => {
-  const nullable = field.type.kind !== 'NON_NULL';
-  let fieldName = '';
-  let fieldType = '';
+export const createFieldRef = (
+    field: IntrospectionField | IntrospectionInputValue,
+    prefix: string,
+    strict: boolean
+): { fieldName: string; fieldType: string; } => {
+    const nullable = field.type.kind !== 'NON_NULL';
+    let fieldName = '';
+    let fieldType = '';
 
-  if (!strict && nullable) {
-    fieldName = `${field.name}?`;
-    fieldType = getTypeToTS(field.type, prefix, true);
-  } else {
-    fieldName = `${field.name}`;
-    fieldType = getTypeToTS(field.type, prefix, false);
-  }
-
-  return `${fieldName}: ${fieldType};`;
+    if (!strict && nullable) {
+        fieldName = `${field.name}?`;
+        fieldType = getTypeToTS(field.type, prefix, true);
+    } else {
+        fieldName = `${field.name}`;
+        fieldType = getTypeToTS(field.type, prefix, false);
+    }
+    return { fieldName, fieldType };
 };
 
 export const toUppercaseFirst = (value: string): string => {

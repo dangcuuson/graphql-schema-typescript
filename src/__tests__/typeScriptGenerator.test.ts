@@ -168,9 +168,42 @@ describe('Typescript Generator', () => {
             requireResolverTypes: true
         });
 
-        // const generated = fsa.readFileSync(outputPath, 'utf-8');
-        // expect(generated).toContain('declare global {');
-        // expect(generated).toContain('namespace MyNamespace {');
+        await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
+    });
+
+    it('should guess TParent in resolvers correctly', async () => {
+        const outputPath = path.join(outputFolder, 'smartTParent.ts');
+
+        await generateTypeScriptTypes(testSchema, outputPath, {
+            smartTParent: true,
+            rootValueType: 'string'
+        });
+
+        const generated = fsa.readFileSync(outputPath, 'utf-8');
+        expect(generated).not.toContain('TParent = any');
+
+        await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
+    });
+
+    it('should guess TResult in resolvers correctly', async () => {
+        const outputPath = path.join(outputFolder, 'smartTResult.ts');
+
+        await generateTypeScriptTypes(testSchema, outputPath, {
+            smartTResult: true
+        });
+
+        const generated = fsa.readFileSync(outputPath, 'utf-8');
+        expect(generated).not.toContain('TResult = any');
+
+        await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
+    });
+
+    it('should make resolver return TResult or Promise<TResult> if asyncResult is set', async() => {
+        const outputPath = path.join(outputFolder, 'asyncResult.ts');
+
+        await generateTypeScriptTypes(testSchema, outputPath, {
+            asyncResult: true
+        });
 
         await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
     });

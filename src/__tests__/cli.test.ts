@@ -64,4 +64,16 @@ describe('CLIs - generate-ts', () => {
             ]}
         );
     });
+    it('smartTParent', async() => {
+        await executeTest('smartTParent', '--smartTParent', { smartTParent: true });
+    });
+    it('smartTResult', async() => {
+        await executeTest('smartTResult', '--smartTResult', { smartTResult: true });
+    });
+    it('asyncResult', async() => {
+        await executeTest('asyncResult', '--asyncResult', { asyncResult: true });
+    });
+    it('requireResolverTypes', async() => {
+        await executeTest('requireResolverTypes', '--requireResolverTypes', { requireResolverTypes: true });
+    });
 });
