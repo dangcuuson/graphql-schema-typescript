@@ -9,7 +9,7 @@ const baseCmd = 'node ./lib/cli.js generate-ts';
 const schemaFolderPath = './src/__tests__/testSchema';
 const outputFolder = path.join(__dirname, 'generatedTypes-CLIs');
 
-async function executeTest(
+async function executeCLITest(
     testId: string,
     cmdOptions: string = '',
     apiOptions: GenerateTypescriptOptions = {}
@@ -37,25 +37,25 @@ describe('CLIs - generate-ts', () => {
     });
 
     it('no options', async () => {
-        await executeTest('noOption');
+        await executeCLITest('noOption');
     });
     it('global', async () => {
-        await executeTest('global', '--global', { global: true });
+        await executeCLITest('global', '--global', { global: true });
     });
     it('typePrefix', async () => {
-        await executeTest('typePrefix', '--typePrefix MyPrefix', { typePrefix: 'MyPrefix' });
+        await executeCLITest('typePrefix', '--typePrefix MyPrefix', { typePrefix: 'MyPrefix' });
     });
     it('namespace', async () => {
-        await executeTest('namespace', '--namespace MyNS', { namespace: 'MyNS' });
+        await executeCLITest('namespace', '--namespace MyNS', { namespace: 'MyNS' });
     });
     it('minimize interface', async () => {
-        await executeTest('minimizeInterface', '--minimizeInterfaceImplementation', { minimizeInterfaceImplementation: true });
+        await executeCLITest('minimizeInterface', '--minimizeInterfaceImplementation', { minimizeInterfaceImplementation: true });
     });
     it('context type', async () => {
-        await executeTest('ctxType', '--contextType string', { contextType: 'string' });
+        await executeCLITest('ctxType', '--contextType string', { contextType: 'string' });
     });
     it('importStatements', async () => {
-        await executeTest(
+        await executeCLITest(
             'importStatements',
             '--importStatements "import * as fs from \'fs\';" "import * as path from \'path\';" ',
             { importStatements: [
@@ -65,15 +65,15 @@ describe('CLIs - generate-ts', () => {
         );
     });
     it('smartTParent', async() => {
-        await executeTest('smartTParent', '--smartTParent', { smartTParent: true });
+        await executeCLITest('smartTParent', '--smartTParent', { smartTParent: true });
     });
     it('smartTResult', async() => {
-        await executeTest('smartTResult', '--smartTResult', { smartTResult: true });
+        await executeCLITest('smartTResult', '--smartTResult', { smartTResult: true });
     });
     it('asyncResult', async() => {
-        await executeTest('asyncResult', '--asyncResult', { asyncResult: true });
+        await executeCLITest('asyncResult', '--asyncResult', { asyncResult: true });
     });
     it('requireResolverTypes', async() => {
-        await executeTest('requireResolverTypes', '--requireResolverTypes', { requireResolverTypes: true });
+        await executeCLITest('requireResolverTypes', '--requireResolverTypes', { requireResolverTypes: true });
     });
 });
