@@ -7,7 +7,8 @@
         "target": "es5",
         "lib": [
             "es6",
-            "esnext.asynciterable"
+            "esnext.asynciterable",
+            "es2017.object"
         ],
         "module": "commonjs",
         "declaration": true,

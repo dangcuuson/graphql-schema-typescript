@@ -23,6 +23,9 @@ export class TSResolverGenerator {
     protected importHeader: string[] = [];
     protected resolverInterfaces: string[] = [];
     protected resolverObject: string[] = [];
+    protected resolverResult: {
+        [name: string]: string[]
+    };
     protected contextType: string;
 
     protected queryType?: IntrospectionNamedTypeRef;
@@ -92,7 +95,11 @@ export class TSResolverGenerator {
 
         return {
             importHeader: this.importHeader,
-            body: [...this.resolverObject, ...this.resolverInterfaces]
+            body: [
+                ...this.resolverObject,
+                ...this.resolverInterfaces,
+                ...Object.values(this.resolverResult).map(v => v.join('\n'))
+            ]
         };
     }
 
@@ -206,6 +213,16 @@ export class TSResolverGenerator {
         if (!this.options.smartTResult) {
             return 'any';
         }
+
+        // e.g: GQLUserResult
+        const TResultName = `${this.options.typePrefix}${field.name}Result`;
+
+        if (this.resolverResult[TResultName]) {
+            return TResultName;
+        }
+
+        // TODO: build TResult
+        
         // set strict-nulls to always true so that fieldType could possibly null;
         const { fieldType } = createFieldRef(field, this.options.typePrefix, true);
         return fieldType;
