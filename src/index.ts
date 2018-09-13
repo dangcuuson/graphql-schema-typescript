@@ -18,7 +18,7 @@ const jsDoc =
  * Please note that any changes in this file may be overwritten
  */
 
-/* tslint:disable */ `;
+`;
 
 const typeDefsDecoration = [
     '/*******************************',

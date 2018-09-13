@@ -47,10 +47,12 @@ export class TSResolverGenerator {
         this.subscriptionType = introspectionResult.__schema.subscriptionType;
 
         const hasCustomScalar = !!gqlTypes.find(type => type.kind === 'SCALAR');
+
+        const tsIgnorePrefix = '/* tslint:disable */';
         if (hasCustomScalar) {
-            this.importHeader.push(`import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';`);
+            this.importHeader.push(`${tsIgnorePrefix}\nimport { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';`);
         } else {
-            this.importHeader.push(`import { GraphQLResolveInfo } from 'graphql';`);
+            this.importHeader.push(`${tsIgnorePrefix}\nimport { GraphQLResolveInfo } from 'graphql';`);
         }
 
         this.resolverObject = [
@@ -222,7 +224,7 @@ export class TSResolverGenerator {
         }
 
         // TODO: build TResult
-        
+
         // set strict-nulls to always true so that fieldType could possibly null;
         const { fieldType } = createFieldRef(field, this.options.typePrefix, true);
         return fieldType;
