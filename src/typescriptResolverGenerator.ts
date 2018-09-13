@@ -46,13 +46,13 @@ export class TSResolverGenerator {
         this.mutationType = introspectionResult.__schema.mutationType;
         this.subscriptionType = introspectionResult.__schema.subscriptionType;
 
-        const hasCustomScalar = !!gqlTypes.find(type => type.kind === 'SCALAR');
+        this.importHeader.push('/* tslint:disable */');
 
-        const tsIgnorePrefix = '/* tslint:disable */';
+        const hasCustomScalar = !!gqlTypes.find(type => type.kind === 'SCALAR');
         if (hasCustomScalar) {
-            this.importHeader.push(`${tsIgnorePrefix}\nimport { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';`);
+            this.importHeader.push(`import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';`);
         } else {
-            this.importHeader.push(`${tsIgnorePrefix}\nimport { GraphQLResolveInfo } from 'graphql';`);
+            this.importHeader.push(`import { GraphQLResolveInfo } from 'graphql';`);
         }
 
         this.resolverObject = [
