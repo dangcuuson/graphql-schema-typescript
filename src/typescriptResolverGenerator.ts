@@ -224,7 +224,6 @@ export class TSResolverGenerator {
         }
 
         // TODO: build TResult
-
         // set strict-nulls to always true so that fieldType could possibly null;
         const { fieldType } = createFieldRef(field, this.options.typePrefix, true);
         return fieldType;
