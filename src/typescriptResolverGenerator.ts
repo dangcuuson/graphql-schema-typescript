@@ -46,6 +46,8 @@ export class TSResolverGenerator {
         this.mutationType = introspectionResult.__schema.mutationType;
         this.subscriptionType = introspectionResult.__schema.subscriptionType;
 
+        this.importHeader.push('/* tslint:disable */');
+
         const hasCustomScalar = !!gqlTypes.find(type => type.kind === 'SCALAR');
         if (hasCustomScalar) {
             this.importHeader.push(`import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';`);
@@ -222,7 +224,6 @@ export class TSResolverGenerator {
         }
 
         // TODO: build TResult
-        
         // set strict-nulls to always true so that fieldType could possibly null;
         const { fieldType } = createFieldRef(field, this.options.typePrefix, true);
         return fieldType;
