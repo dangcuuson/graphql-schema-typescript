@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { GraphQLSchema } from 'graphql';
+import { GraphQLSchema, buildSchema } from 'graphql';
 import { GenerateTypescriptOptions, defaultOptions } from './types';
 import { TSResolverGenerator, GenerateResolversResult } from './typescriptResolverGenerator';
 import { TypeScriptGenerator } from './typescriptGenerator';
@@ -41,7 +41,14 @@ export const generateTSTypesAsString = async (schema: GraphQLSchema | string, op
 
     let introspectResult: IntrospectionQuery;
     if (isString(schema)) {
-        introspectResult = await introspectSchemaViaLocalFile(path.resolve(schema));
+        // is it a valid schema
+        try {
+            const schemaViaStr = buildSchema(schema);
+            introspectResult = await introspectSchema(schemaViaStr);
+        } catch {
+            // it could be a path to schema folder
+            introspectResult = await introspectSchemaViaLocalFile(path.resolve(schema));
+        }
     } else {
         introspectResult = await introspectSchema(schema);
     }

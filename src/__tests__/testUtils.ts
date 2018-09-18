@@ -4,10 +4,11 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { GenerateTypescriptOptions } from '../types';
 import { testSchema } from './testSchema';
+import { GraphQLSchema } from 'graphql';
 
-export const executeCommand = (command: string, options: childProcess.ExecOptions = {}) => {
+export const executeCommand = (command: string, options?: childProcess.ExecOptions) => {
     return new Promise((resolve, reject) => {
-        const process = childProcess.exec(command);
+        const process = childProcess.exec(command, options);
 
         process.stdout.on('data', console.log);
         process.stderr.on('data', console.error);
@@ -62,7 +63,8 @@ export const occurrences = (str: string, subString: string, allowOverlapping: bo
 export const OUTPUT_FOLDER = path.join(__dirname, 'generatedTypes');
 export const executeApiTest = async (
     outputFile: string,
-    options: GenerateTypescriptOptions
+    options: GenerateTypescriptOptions,
+    schema?: GraphQLSchema | string
 ): Promise<string> => {
     // prepare output folder
     if (!fs.existsSync(OUTPUT_FOLDER)) {
@@ -71,7 +73,7 @@ export const executeApiTest = async (
     const outputPath = path.join(OUTPUT_FOLDER, outputFile);
 
     // run api function
-    await generateTypeScriptTypes(testSchema, outputPath, options);
+    await generateTypeScriptTypes(schema || testSchema, outputPath, options);
 
     // ensure no error on tsc
     const generated = fs.readFileSync(outputPath, 'utf-8');
