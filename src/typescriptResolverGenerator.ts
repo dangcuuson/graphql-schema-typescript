@@ -32,15 +32,18 @@ export class TSResolverGenerator {
     protected mutationType?: IntrospectionNamedTypeRef;
     protected subscriptionType?: IntrospectionNamedTypeRef;
 
-    constructor(protected options: GenerateTypescriptOptions) {
+    constructor(
+        protected options: GenerateTypescriptOptions,
+        protected introspectionResult: IntrospectionQuery
+    ) {
         this.contextType = options.contextType || 'any';
         if (options.importStatements) {
             this.importHeader.push(...options.importStatements);
         }
     }
 
-    public async generate(introspectionResult: IntrospectionQuery): Promise<GenerateResolversResult> {
-
+    public async generate(): Promise<GenerateResolversResult> {
+        const { introspectionResult } = this;
         const gqlTypes = introspectionResult.__schema.types.filter(type => !isBuiltinType(type));
         this.queryType = introspectionResult.__schema.queryType;
         this.mutationType = introspectionResult.__schema.mutationType;

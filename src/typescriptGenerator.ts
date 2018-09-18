@@ -20,9 +20,13 @@ import {
 
 export class TypeScriptGenerator {
 
-    constructor(protected options: GenerateTypescriptOptions) { }
+    constructor(
+        protected options: GenerateTypescriptOptions,
+        protected introspectResult: IntrospectionQuery
+    ) { }
 
-    public async generate(introspectResult: IntrospectionQuery): Promise<string[]> {
+    public async generate(): Promise<string[]> {
+        const { introspectResult } = this;
         const gqlTypes = introspectResult.__schema.types.filter(type => !isBuiltinType(type));
 
         return gqlTypes.reduce<string[]>(
