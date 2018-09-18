@@ -25,7 +25,7 @@ export class TSResolverGenerator {
     protected resolverObject: string[] = [];
     protected resolverResult: {
         [name: string]: string[]
-    };
+    } = {};
     protected contextType: string;
 
     protected queryType?: IntrospectionNamedTypeRef;
