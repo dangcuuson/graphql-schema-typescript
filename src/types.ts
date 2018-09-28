@@ -93,6 +93,11 @@ export interface GenerateTypescriptOptions {
      * Useful if you want to ensure all fields are resolved
      */
     requireResolverTypes?: boolean;
+
+    /**
+     * If true, generate enum type as string union instead of TypeScript's string enum
+     */
+    noStringEnum?: boolean;
 }
 
 export const defaultOptions: GenerateTypescriptOptions = {

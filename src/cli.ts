@@ -25,6 +25,7 @@ const smartTResult: keyof GenerateTypescriptOptions = 'smartTResult';
 const smartTParent: keyof GenerateTypescriptOptions = 'smartTParent';
 const asyncResult: keyof GenerateTypescriptOptions = 'asyncResult';
 const requireResolverTypes: keyof GenerateTypescriptOptions = 'requireResolverTypes';
+const noStringEnum: keyof GenerateTypescriptOptions = 'noStringEnum';
 
 yargs
     .option(globalOpt, {

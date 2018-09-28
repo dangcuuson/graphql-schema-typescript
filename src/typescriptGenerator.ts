@@ -90,7 +90,7 @@ export class TypeScriptGenerator {
     private generateEnumType(enumType: IntrospectionEnumType): string[] {
 
         // if using old typescript, which doesn't support string enum: convert enum to string union
-        if (!this.isStringEnumSupported()) {
+        if (!this.isStringEnumSupported() || this.options.noStringEnum) {
             return this.createUnionType(enumType.name, enumType.enumValues.map(v => `'${v.name}'`));
         }
 
