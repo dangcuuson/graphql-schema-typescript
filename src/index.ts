@@ -41,13 +41,22 @@ export const generateTSTypesAsString = async (schema: GraphQLSchema | string, op
 
     let introspectResult: IntrospectionQuery;
     if (isString(schema)) {
-        // is it a valid schema
+        // is is a path to schema folder?
         try {
+            const schemaPath = path.resolve(schema);
+            const exists = fs.existsSync(schemaPath);
+            if (exists) {
+                introspectResult = await introspectSchemaViaLocalFile(schemaPath);
+            }
+        } catch {
+            // fall-through in case the provided string is a graphql definition,
+            // which can make path.resolve throw error
+        }
+
+        // it's not a folder, maybe it's a schema definition
+        if (!introspectResult) {
             const schemaViaStr = buildSchema(schema);
             introspectResult = await introspectSchema(schemaViaStr);
-        } catch {
-            // it could be a path to schema folder
-            introspectResult = await introspectSchemaViaLocalFile(path.resolve(schema));
         }
     } else {
         introspectResult = await introspectSchema(schema);

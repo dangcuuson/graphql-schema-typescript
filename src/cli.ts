@@ -77,6 +77,10 @@ yargs
         desc: 'Set resolvers to be required. Useful to ensure no resolvers is missing',
         boolean: true
     })
+    .option(noStringEnum, {
+        desc: `Generate enum type as string union instead of TypeScript's string enum`,
+        boolean: true
+    })
     .option('output', {
         desc: 'Output path for Typescript definitions file',
         string: true,
@@ -86,30 +90,31 @@ yargs
         coerce: path.resolve
     })
     .command(
-    'generate-ts <folderPath>',
-    'Generate typescript definitions from a local folder that cointains `.graphql` type definitions',
-    {},
-    async argv => {
-        const { folderPath, output } = argv;
+        'generate-ts <folderPath>',
+        'Generate typescript definitions from a local folder that cointains `.graphql` type definitions',
+        {},
+        async argv => {
+            const { folderPath, output } = argv;
 
-        const options: GenerateTypescriptOptions = {};
-        options[globalOpt] = argv[globalOpt];
-        options[typePrefix] = argv[typePrefix];
-        options[namespaceOpt] = argv[namespaceOpt];
-        options[miminizeInterface] = argv[miminizeInterface];
-        options[contextType] = argv[contextType];
-        options[importStatements] = argv[importStatements];
-        options[strictNulls] = argv[strictNulls];
-        options[smartTResult] = argv[smartTResult];
-        options[smartTParent] = argv[smartTParent];
-        options[asyncResult] = argv[asyncResult];
-        options[requireResolverTypes] = argv[requireResolverTypes];
+            const options: GenerateTypescriptOptions = {};
+            options[globalOpt] = argv[globalOpt];
+            options[typePrefix] = argv[typePrefix];
+            options[namespaceOpt] = argv[namespaceOpt];
+            options[miminizeInterface] = argv[miminizeInterface];
+            options[contextType] = argv[contextType];
+            options[importStatements] = argv[importStatements];
+            options[strictNulls] = argv[strictNulls];
+            options[smartTResult] = argv[smartTResult];
+            options[smartTParent] = argv[smartTParent];
+            options[asyncResult] = argv[asyncResult];
+            options[requireResolverTypes] = argv[requireResolverTypes];
+            options[noStringEnum] = argv[noStringEnum];
 
-        await generateTypeScriptTypes(folderPath, path.resolve(output), options);
-        if (process.env.NODE_ENV !== 'test') {
-            console.log(`Typescript generated at: ${output}`);
+            await generateTypeScriptTypes(folderPath, path.resolve(output), options);
+            if (process.env.NODE_ENV !== 'test') {
+                console.log(`Typescript generated at: ${output}`);
+            }
         }
-    }
     )
     .fail(function (message: string, error: Error) {
         handleError(message, error);

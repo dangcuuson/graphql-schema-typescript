@@ -76,4 +76,7 @@ describe('CLIs - generate-ts', () => {
     it('requireResolverTypes', async() => {
         await executeCLITest('requireResolverTypes', '--requireResolverTypes', { requireResolverTypes: true });
     });
+    it('noStringEnum', async() => {
+        await executeCLITest('noStringEnum', '--noStringEnum', { noStringEnum: true });
+    });
 });
