@@ -161,12 +161,8 @@ export class TSResolverGenerator {
 
             const TParent = this.guessTParent(objectType.name);
             const TResult = this.guessTResult(field);
-            let returnType;
-            if (isSubscription) {
-                returnType = 'AsyncIterator<TResult>';
-            } else {
-                returnType = this.options.asyncResult ? 'TResult | Promise<TResult>' : 'TResult';
-            }
+            const returnType = this.options.asyncResult ? 'TResult | Promise<TResult>' : 'TResult';
+            const subscriptionReturnType = 'AsyncIterator<TResult>';
             const fieldResolverTypeDef = !isSubscription
                 ? [
                     `export interface ${fieldResolverName}<TParent = ${TParent}, TResult = ${TResult}> {`,
@@ -178,7 +174,7 @@ export class TSResolverGenerator {
                     `export interface ${fieldResolverName}<TParent = ${TParent}, TResult = ${TResult}> {`,
                     // tslint:disable-next-line:max-line-length
                     `resolve${this.getModifier()}: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info: GraphQLResolveInfo) => ${returnType};`,
-                    `subscribe: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info: GraphQLResolveInfo) => ${returnType};`,
+                    `subscribe: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info: GraphQLResolveInfo) => ${subscriptionReturnType};`, // tslint:disable-line max-line-length
                     '}',
                     ''
                 ];

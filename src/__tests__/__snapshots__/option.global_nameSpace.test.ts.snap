@@ -563,12 +563,12 @@ declare global {
       filter?: string;
     }
     export interface RootSubscriptionToUserLoggedInResolver<TParent = any, TResult = any> {
-      resolve?: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
+      resolve?: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => TResult;
       subscribe: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
     }
     
     export interface RootSubscriptionToSaleMadeResolver<TParent = any, TResult = any> {
-      resolve?: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
+      resolve?: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => TResult;
       subscribe: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
     }
     
@@ -1138,12 +1138,12 @@ declare global {
     filter?: string;
   }
   export interface RootSubscriptionToUserLoggedInResolver<TParent = any, TResult = any> {
-    resolve?: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
+    resolve?: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => TResult;
     subscribe: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
   }
   
   export interface RootSubscriptionToSaleMadeResolver<TParent = any, TResult = any> {
-    resolve?: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
+    resolve?: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => TResult;
     subscribe: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
   }
   
@@ -1731,12 +1731,12 @@ namespace MyNamespace {
     filter?: string;
   }
   export interface RootSubscriptionToUserLoggedInResolver<TParent = any, TResult = any> {
-    resolve?: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
+    resolve?: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => TResult;
     subscribe: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
   }
   
   export interface RootSubscriptionToSaleMadeResolver<TParent = any, TResult = any> {
-    resolve?: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
+    resolve?: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => TResult;
     subscribe: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
   }
   
