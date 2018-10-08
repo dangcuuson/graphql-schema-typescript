@@ -581,12 +581,12 @@ export interface RootSubscriptionToUserLoggedInArgs {
 }
 export interface RootSubscriptionToUserLoggedInResolver<TParent = string, TResult = any> {
   resolve?: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => TResult;
-  subscribe: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => TResult;
+  subscribe: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
 }
 
 export interface RootSubscriptionToSaleMadeResolver<TParent = string, TResult = any> {
   resolve?: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => TResult;
-  subscribe: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => TResult;
+  subscribe: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
 }
 "
 `;
@@ -1172,12 +1172,12 @@ export interface RootSubscriptionToUserLoggedInArgs {
 }
 export interface RootSubscriptionToUserLoggedInResolver<TParent = any, TResult = GQLUser> {
   resolve?: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => TResult;
-  subscribe: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => TResult;
+  subscribe: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
 }
 
 export interface RootSubscriptionToSaleMadeResolver<TParent = any, TResult = string> {
   resolve?: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => TResult;
-  subscribe: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => TResult;
+  subscribe: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
 }
 "
 `;
@@ -1763,12 +1763,12 @@ export interface RootSubscriptionToUserLoggedInArgs {
 }
 export interface RootSubscriptionToUserLoggedInResolver<TParent = any, TResult = any> {
   resolve: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => TResult;
-  subscribe: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => TResult;
+  subscribe: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
 }
 
 export interface RootSubscriptionToSaleMadeResolver<TParent = any, TResult = any> {
   resolve: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => TResult;
-  subscribe: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => TResult;
+  subscribe: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
 }
 "
 `;
@@ -2354,12 +2354,12 @@ export interface RootSubscriptionToUserLoggedInArgs {
 }
 export interface RootSubscriptionToUserLoggedInResolver<TParent = any, TResult = any> {
   resolve?: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => TResult | Promise<TResult>;
-  subscribe: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => TResult | Promise<TResult>;
+  subscribe: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
 }
 
 export interface RootSubscriptionToSaleMadeResolver<TParent = any, TResult = any> {
   resolve?: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => TResult | Promise<TResult>;
-  subscribe: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => TResult | Promise<TResult>;
+  subscribe: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
 }
 "
 `;

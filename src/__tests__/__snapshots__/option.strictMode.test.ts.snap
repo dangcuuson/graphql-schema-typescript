@@ -581,12 +581,12 @@ export interface RootSubscriptionToUserLoggedInArgs {
 }
 export interface RootSubscriptionToUserLoggedInResolver<TParent = any, TResult = any> {
   resolve?: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => TResult;
-  subscribe: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => TResult;
+  subscribe: (parent: TParent, args: RootSubscriptionToUserLoggedInArgs, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
 }
 
 export interface RootSubscriptionToSaleMadeResolver<TParent = any, TResult = any> {
   resolve?: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => TResult;
-  subscribe: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => TResult;
+  subscribe: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
 }
 "
 `;
