@@ -162,7 +162,8 @@ export class TSResolverGenerator {
             const TParent = this.guessTParent(objectType.name);
             const TResult = this.guessTResult(field);
             const returnType = this.options.asyncResult ? 'TResult | Promise<TResult>' : 'TResult';
-            const subscriptionReturnType = 'AsyncIterator<TResult>';
+            const subscriptionReturnType = 
+                this.options.asyncResult ? 'AsyncIterator<TResult> | Promise<AsyncIterator<TResult>>' : 'AsyncIterator<TResult>';
             const fieldResolverTypeDef = !isSubscription
                 ? [
                     `export interface ${fieldResolverName}<TParent = ${TParent}, TResult = ${TResult}> {`,
