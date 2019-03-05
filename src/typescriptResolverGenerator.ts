@@ -115,10 +115,11 @@ export class TSResolverGenerator {
     private generateTypeResolver(type: IntrospectionUnionType | IntrospectionInterfaceType) {
         const possbileTypes = type.possibleTypes.map(pt => `'${pt.name}'`);
         const interfaceName = `${this.options.typePrefix}${type.name}TypeResolver`;
+        const infoModifier = this.options.optionalResolverInfo ? '?' : ''; 
 
         this.resolverInterfaces.push(...[
             `export interface ${interfaceName}<TParent = ${this.guessTParent(type.name)}> {`,
-            `(parent: TParent, context: ${this.contextType}, info: GraphQLResolveInfo): ${possbileTypes.join(' | ')};`,
+            `(parent: TParent, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo): ${possbileTypes.join(' | ')};`,
             '}'
         ]);
 
@@ -161,21 +162,22 @@ export class TSResolverGenerator {
 
             const TParent = this.guessTParent(objectType.name);
             const TResult = this.guessTResult(field);
+            const infoModifier = this.options.optionalResolverInfo ? '?' : '';
             const returnType = this.options.asyncResult ? 'TResult | Promise<TResult>' : 'TResult';
             const subscriptionReturnType = 
                 this.options.asyncResult ? 'AsyncIterator<TResult> | Promise<AsyncIterator<TResult>>' : 'AsyncIterator<TResult>';
             const fieldResolverTypeDef = !isSubscription
                 ? [
                     `export interface ${fieldResolverName}<TParent = ${TParent}, TResult = ${TResult}> {`,
-                    `(parent: TParent, args: ${argsType}, context: ${this.contextType}, info: GraphQLResolveInfo): ${returnType};`,
+                    `(parent: TParent, args: ${argsType}, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo): ${returnType};`,
                     '}',
                     ''
                 ]
                 : [
                     `export interface ${fieldResolverName}<TParent = ${TParent}, TResult = ${TResult}> {`,
                     // tslint:disable-next-line:max-line-length
-                    `resolve${this.getModifier()}: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info: GraphQLResolveInfo) => ${returnType};`,
-                    `subscribe: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info: GraphQLResolveInfo) => ${subscriptionReturnType};`, // tslint:disable-line max-line-length
+                    `resolve${this.getModifier()}: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo) => ${returnType};`,
+                    `subscribe: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo) => ${subscriptionReturnType};`, // tslint:disable-line max-line-length
                     '}',
                     ''
                 ];
