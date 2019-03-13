@@ -26,6 +26,7 @@ const smartTParent: keyof GenerateTypescriptOptions = 'smartTParent';
 const asyncResult: keyof GenerateTypescriptOptions = 'asyncResult';
 const requireResolverTypes: keyof GenerateTypescriptOptions = 'requireResolverTypes';
 const noStringEnum: keyof GenerateTypescriptOptions = 'noStringEnum';
+const optionalResolverInfo: keyof GenerateTypescriptOptions = 'optionalResolverInfo';
 
 yargs
     .option(globalOpt, {
@@ -81,6 +82,10 @@ yargs
         desc: `Generate enum type as string union instead of TypeScript's string enum`,
         boolean: true
     })
+    .option(optionalResolverInfo, {
+        desc: `Set the info argument of generated resolvers as optional.`,
+        boolean: false
+    })
     .option('output', {
         desc: 'Output path for Typescript definitions file',
         string: true,
@@ -109,6 +114,7 @@ yargs
             options[asyncResult] = argv[asyncResult];
             options[requireResolverTypes] = argv[requireResolverTypes];
             options[noStringEnum] = argv[noStringEnum];
+            options[optionalResolverInfo] = argv[optionalResolverInfo];
 
             await generateTypeScriptTypes(folderPath, path.resolve(output), options);
             if (process.env.NODE_ENV !== 'test') {

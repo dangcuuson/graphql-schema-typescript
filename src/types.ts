@@ -98,6 +98,11 @@ export interface GenerateTypescriptOptions {
      * If true, generate enum type as string union instead of TypeScript's string enum
      */
     noStringEnum?: boolean;
+
+    /**
+     * If true resolver info arguements will be marked as optional
+     */
+    optionalResolverInfo?: boolean;
 }
 
 export const defaultOptions: GenerateTypescriptOptions = {
