@@ -103,6 +103,11 @@ export interface GenerateTypescriptOptions {
      * If true resolver info arguements will be marked as optional
      */
     optionalResolverInfo?: boolean;
+
+    /**
+     * If false resolver types will be omitted from the output
+     */
+    includeResolverTypes?: boolean;
 }
 
 export const defaultOptions: GenerateTypescriptOptions = {
@@ -111,4 +116,5 @@ export const defaultOptions: GenerateTypescriptOptions = {
     contextType: 'any',
     rootValueType: 'undefined',
     strictNulls: false,
+    includeResolverTypes: true,
 };
