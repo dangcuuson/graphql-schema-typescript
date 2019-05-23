@@ -177,7 +177,8 @@ export class TSResolverGenerator {
                     `export interface ${fieldResolverName}<TParent = ${TParent}, TResult = ${TResult}> {`,
                     // tslint:disable-next-line:max-line-length
                     `resolve${this.getModifier()}: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo) => ${returnType};`,
-                    `subscribe: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo) => ${subscriptionReturnType};`, // tslint:disable-line max-line-length
+                    // tslint:disable-next-line:max-line-length
+                    `subscribe: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo) => ${subscriptionReturnType};`, 
                     '}',
                     ''
                 ];
@@ -224,6 +225,8 @@ export class TSResolverGenerator {
         }
 
         // e.g: GQLUserResult
+        // TODO: this is an attempt to implement #8
+        // it's not done yet (this.resolverResult is always empty)
         const TResultName = `${this.options.typePrefix}${field.name}Result`;
 
         if (this.resolverResult[TResultName]) {

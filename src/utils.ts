@@ -8,9 +8,7 @@ import {
     GraphQLSchema,
     IntrospectionQuery,
     IntrospectionField,
-    IntrospectionInputValue,
-    IntrospectionListTypeRef,
-    IntrospectionNamedTypeRef
+    IntrospectionInputValue
 } from 'graphql';
 
 /**
@@ -26,8 +24,8 @@ export const introspectSchema = async (schema: GraphQLSchema): Promise<Introspec
     return data as IntrospectionQuery;
 };
 
-export async function introspect(schemaContents: string): Promise<IntrospectionQuery> {
-    const schema = buildASTSchema(parse(schemaContents));
+async function introspectSchemaStr(schemaStr: string): Promise<IntrospectionQuery> {
+    const schema = buildASTSchema(parse(schemaStr));
     return introspectSchema(schema);
 }
 
@@ -45,7 +43,7 @@ function klawSync(path: string, filterRegex: RegExp, fileNames: string[] = []) {
 export const introspectSchemaViaLocalFile = async (path: string): Promise<IntrospectionQuery> => {
     const files = klawSync(path, /\.(graphql|gql)$/);
     const allTypeDefs = files.map(filePath => fs.readFileSync(filePath, 'utf-8')).join('\n');
-    return await introspect(allTypeDefs);
+    return await introspectSchemaStr(allTypeDefs);
 };
 
 export interface SimpleTypeDescription {
@@ -128,7 +126,7 @@ export const formatTabSpace = (lines: string[], tabSpaces: number): string[] => 
     return result;
 };
 
-export const gqlScalarToTS = (scalarName: string, typePrefix: string): string => {
+const gqlScalarToTS = (scalarName: string, typePrefix: string): string => {
     switch (scalarName) {
         case 'Int':
         case 'Float':
@@ -146,7 +144,7 @@ export const gqlScalarToTS = (scalarName: string, typePrefix: string): string =>
     }
 };
 
-export const getTypeToTS = (field: any, prefix: string, nonNullable: boolean = false): string => {
+const getTypeToTS = (field: any, prefix: string, nonNullable: boolean = false): string => {
     let tsType = '';
 
     if (field.kind === 'NON_NULL') {
