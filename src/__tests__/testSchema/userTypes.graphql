@@ -31,5 +31,13 @@ enum UserRole {
     employee@deprecated(reason: "Use 'clerk' instead")
 }
 
-# Custom scalar type
-scalar Date
+input UserFilter {
+    username: [String]
+}
+
+input CreateUserInput {
+    username: String!
+    email: String!
+    password: String!
+    createdAt: Date!
+}

@@ -16,20 +16,12 @@ type RootMutation {
     createUser(input: CreateUserInput): User
 }
 
-input UserFilter {
-    username: [String]
-}
-
-union SearchResult = User | ProductA | ProductB
-
-input CreateUserInput {
-    username: String!
-    email: String!
-    password: String!
-    createdAt: Date!
-}
-
 type RootSubscription {
     userLoggedIn(filter: String): User!
     saleMade: String!
 }
+
+# Custom scalar type
+scalar Date
+
+union SearchResult = User | ProductA | ProductB
