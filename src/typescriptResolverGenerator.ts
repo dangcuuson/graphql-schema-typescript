@@ -50,6 +50,7 @@ export class TSResolverGenerator {
         this.subscriptionType = introspectionResult.__schema.subscriptionType;
 
         this.importHeader.push('/* tslint:disable */');
+        this.importHeader.push('/* eslint-disable */');
 
         const hasCustomScalar = !!gqlTypes.find(type => type.kind === 'SCALAR');
         if (hasCustomScalar) {
