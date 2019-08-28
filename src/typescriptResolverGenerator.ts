@@ -116,7 +116,7 @@ export class TSResolverGenerator {
     private generateTypeResolver(type: IntrospectionUnionType | IntrospectionInterfaceType) {
         const possbileTypes = type.possibleTypes.map(pt => `'${pt.name}'`);
         const interfaceName = `${this.options.typePrefix}${type.name}TypeResolver`;
-        const infoModifier = this.options.optionalResolverInfo ? '?' : ''; 
+        const infoModifier = this.options.optionalResolverInfo ? '?' : '';
 
         this.resolverInterfaces.push(...[
             `export interface ${interfaceName}<TParent = ${this.guessTParent(type.name)}> {`,
@@ -164,8 +164,13 @@ export class TSResolverGenerator {
             const TParent = this.guessTParent(objectType.name);
             const TResult = this.guessTResult(field);
             const infoModifier = this.options.optionalResolverInfo ? '?' : '';
-            const returnType = this.options.asyncResult ? 'TResult | Promise<TResult>' : 'TResult';
-            const subscriptionReturnType = 
+            const returnType =
+                this.options.asyncResult === 'always'
+                    ? 'Promise<TResult>'
+                    : !!this.options.asyncResult
+                        ? 'TResult | Promise<TResult>'
+                        : 'TResult';
+            const subscriptionReturnType =
                 this.options.asyncResult ? 'AsyncIterator<TResult> | Promise<AsyncIterator<TResult>>' : 'AsyncIterator<TResult>';
             const fieldResolverTypeDef = !isSubscription
                 ? [
@@ -179,7 +184,7 @@ export class TSResolverGenerator {
                     // tslint:disable-next-line:max-line-length
                     `resolve${this.getModifier()}: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo) => ${returnType};`,
                     // tslint:disable-next-line:max-line-length
-                    `subscribe: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo) => ${subscriptionReturnType};`, 
+                    `subscribe: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo) => ${subscriptionReturnType};`,
                     '}',
                     ''
                 ];
