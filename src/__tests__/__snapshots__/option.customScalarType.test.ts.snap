@@ -57,7 +57,7 @@ export interface GQLUser {
  * In the future, this will be changed by having User as interface
  * and implementing multiple User
  */
-export const enum GQLUserRole {
+export enum GQLUserRole {
   
   /**
    * System Administrator
@@ -649,7 +649,7 @@ export interface GQLUser {
  * In the future, this will be changed by having User as interface
  * and implementing multiple User
  */
-export const enum GQLUserRole {
+export enum GQLUserRole {
   
   /**
    * System Administrator

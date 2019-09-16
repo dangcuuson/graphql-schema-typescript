@@ -57,7 +57,7 @@ export interface User {
  * In the future, this will be changed by having User as interface
  * and implementing multiple User
  */
-export const enum UserRole {
+export enum UserRole {
   
   /**
    * System Administrator
@@ -649,7 +649,7 @@ export interface MyCustomPrefixUser {
  * In the future, this will be changed by having User as interface
  * and implementing multiple User
  */
-export const enum MyCustomPrefixUserRole {
+export enum MyCustomPrefixUserRole {
   
   /**
    * System Administrator
