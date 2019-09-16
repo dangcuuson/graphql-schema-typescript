@@ -83,7 +83,8 @@ export const generateTSTypesAsString = async (schema: GraphQLSchema | string, op
 
     if (mergedOptions.namespace) {
         body = [
-            `namespace ${options.namespace} {`,
+            // if namespace is under global, it doesn't need to be declared again
+            `${mergedOptions.global ? '' : 'declare '}namespace ${options.namespace} {`,
             ...body,
             '}'
         ];

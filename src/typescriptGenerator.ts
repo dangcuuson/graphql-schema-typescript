@@ -94,14 +94,6 @@ export class TypeScriptGenerator {
             return this.createUnionType(enumType.name, enumType.enumValues.map(v => `'${v.name}'`));
         }
 
-        // if generate as global, don't generate string enum as it requires import
-        if (this.options.global) {
-            return [
-                ...this.createUnionType(enumType.name, enumType.enumValues.map(v => `'${v.name}'`)),
-                `// NOTE: enum ${enumType.name} is generate as string union instead of string enum because the types is generated under global scope`
-            ];
-        }
-
         let enumBody = enumType.enumValues.reduce<string[]>(
             (prevTypescriptDefs, enumValue, index) => {
                 let typescriptDefs: string[] = [];
@@ -126,7 +118,7 @@ export class TypeScriptGenerator {
         );
 
         return [
-            `export enum ${this.options.typePrefix}${enumType.name} {`,
+            `export const enum ${this.options.typePrefix}${enumType.name} {`,
             ...enumBody,
             '}'
         ];
