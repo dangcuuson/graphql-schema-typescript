@@ -36,7 +36,11 @@ const typeResolversDecoration = [
     ' *********************************/'
 ];
 
-export const generateTSTypesAsString = async (schema: GraphQLSchema | string, options: GenerateTypescriptOptions): Promise<string> => {
+export const generateTSTypesAsString = async (
+    schema: GraphQLSchema | string,
+    outputPath: string,
+    options: GenerateTypescriptOptions
+): Promise<string> => {
     const mergedOptions = { ...defaultOptions, ...options };
 
     let introspectResult: IntrospectionQuery;
@@ -62,7 +66,7 @@ export const generateTSTypesAsString = async (schema: GraphQLSchema | string, op
         introspectResult = await introspectSchema(schema);
     }
 
-    const tsGenerator = new TypeScriptGenerator(mergedOptions, introspectResult);
+    const tsGenerator = new TypeScriptGenerator(mergedOptions, introspectResult, outputPath);
     const typeDefs = await tsGenerator.generate();
 
     let typeResolvers: GenerateResolversResult = {
@@ -83,7 +87,8 @@ export const generateTSTypesAsString = async (schema: GraphQLSchema | string, op
 
     if (mergedOptions.namespace) {
         body = [
-            `namespace ${options.namespace} {`,
+            // if namespace is under global, it doesn't need to be declared again
+            `${mergedOptions.global ? '' : 'declare '}namespace ${options.namespace} {`,
             ...body,
             '}'
         ];
@@ -108,6 +113,6 @@ export async function generateTypeScriptTypes(
     outputPath: string,
     options: GenerateTypescriptOptions = defaultOptions
 ) {
-    const content = await generateTSTypesAsString(schema, options);
+    const content = await generateTSTypesAsString(schema, outputPath, options);
     fs.writeFileSync(outputPath, content, 'utf-8');
 }

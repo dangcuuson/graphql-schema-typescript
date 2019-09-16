@@ -61,8 +61,29 @@ declare global {
      * In the future, this will be changed by having User as interface
      * and implementing multiple User
      */
-    export type GQLUserRole = 'sysAdmin' | 'manager' | 'clerk' | 'employee';
-    // NOTE: enum UserRole is generate as string union instead of string enum because the types is generated under global scope
+    export const enum GQLUserRole {
+      
+      /**
+       * System Administrator
+       */
+      sysAdmin = 'sysAdmin',
+      
+      /**
+       * Manager - Have access to manage functions
+       */
+      manager = 'manager',
+      
+      /**
+       * General Staff
+       */
+      clerk = 'clerk',
+      
+      /**
+       * 
+       * @deprecated Use 'clerk' instead
+       */
+      employee = 'employee'
+    }
     
     export interface GQLIProduct {
       id: string;
@@ -577,7 +598,7 @@ declare global {
 }"
 `;
 
-exports[`global + namespace should wrap types in global and use string union if global is configured 1`] = `
+exports[`global + namespace should wrap types in global and use const enum if global is configured 1`] = `
 "/* tslint:disable */
 /* eslint-disable */
 import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';
@@ -637,8 +658,29 @@ declare global {
    * In the future, this will be changed by having User as interface
    * and implementing multiple User
    */
-  export type GQLUserRole = 'sysAdmin' | 'manager' | 'clerk' | 'employee';
-  // NOTE: enum UserRole is generate as string union instead of string enum because the types is generated under global scope
+  export const enum GQLUserRole {
+    
+    /**
+     * System Administrator
+     */
+    sysAdmin = 'sysAdmin',
+    
+    /**
+     * Manager - Have access to manage functions
+     */
+    manager = 'manager',
+    
+    /**
+     * General Staff
+     */
+    clerk = 'clerk',
+    
+    /**
+     * 
+     * @deprecated Use 'clerk' instead
+     */
+    employee = 'employee'
+  }
   
   export interface GQLIProduct {
     id: string;
@@ -1162,7 +1204,7 @@ import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';
  */
  
 
-namespace MyNamespace {
+declare namespace MyNamespace {
   /*******************************
    *                             *
    *          TYPE DEFS          *
@@ -1210,7 +1252,7 @@ namespace MyNamespace {
    * In the future, this will be changed by having User as interface
    * and implementing multiple User
    */
-  export enum GQLUserRole {
+  export const enum GQLUserRole {
     
     /**
      * System Administrator

@@ -9,11 +9,10 @@ types to make it type-safed when developing GraphQL server (mainly resolvers)
 
 ## Features
 
-### Generate Typescript from Schema Definition
-### Support [Typescript string enum](https://github.com/Microsoft/TypeScript/wiki/What's-new-in-TypeScript#typescript-25) with fallback to string union (fallback not tested yet)
-### Convert GraphQL description into JSDoc
-### Also add deprecated field and reason into JSDoc
+### Generate Typescript from Schema Definition (1-1 mapping from GQL type to TypeScript)
+### Convert GraphQL description into JSDoc, include deprecated directive
 ### [Generate TypeScripts to support writing resolvers](#type-resolvers)
+### [VSCode extension](#https://github.com/liyikun/vscode-graphql-schema-typescript) (credit to [@liyikun](https://github.com/liyikun))
 
 ## Usage
 
@@ -52,7 +51,7 @@ The file generated will have some types that can make it type-safed when writing
 * Parent type and resolve result is default to `any`, but could be overwritten in your code
 
 For example, if you schema is like this:
-```
+```gql
 schema {
     query: RootQuery
 }
@@ -129,24 +128,15 @@ export interface RootQueryToUsersResolver<TParent = undefined, TResult = Array<G
 }
 ```
 
-## TODO
-- [ ] More detailed API Documentation
-- [ ] Integrate with Travis CI
+```javascript
+// in v1.12.11, asyncResult also accept string value 'always', 
+// which will make returns value of resolve functions to be `Promise<TResult>`,
+// due to an issue with VSCode that not showing auto completion when returns is a mix of `T | Promise<T>` (see [#17](https://github.com/dangcuuson/graphql-schema-typescript/issues/17))
 
-## Change log
-* v1.2.2:
-    * Strategy for guessing TParent & TResult in resolvers
-* v1.2.1:
-    * Added strict nulls option for compatibility with apollo-codegen
-* v1.2.0:
-    * Field resolvers under subscriptions are being generated with resolve and subscribe method
-* v1.1.0:
-    * Add CLIs support
-* v1.0.6:
-    * Generate TypeScript for resolvers. See [Type Resolvers](#type-resolvers)
-* v1.0.4: 
-    * If types is generated under global scope, use string union instead of string enum
+// smartTParent: true
+// smartTResult: true
+// asyncResult: 'always'
+export interface RootQueryToUsersResolver<TParent = undefined, TResult = Array<GQLUser> {
+  (parent: TParent, args: RootQueryToUsersArgs, context: any, info: GraphQLResolveInfo): Promise<TResult>; // the different is here
 
-* v1.0.2: 
-    * Change default prefix from `GQL_` to `GQL`
-    * Add config options: allow to generate types under a global or namespace declaration
+```

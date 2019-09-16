@@ -72,7 +72,7 @@ yargs
     })
     .option(asyncResult, {
         desc: 'Set return type of resolver to `TResult | Promise<TResult>`',
-        boolean: true
+        choices: [true, 'always']
     })
     .option(requireResolverTypes, {
         desc: 'Set resolvers to be required. Useful to ensure no resolvers is missing',

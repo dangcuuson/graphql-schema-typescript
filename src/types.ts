@@ -81,12 +81,13 @@ export interface GenerateTypescriptOptions {
     /**
      * This option is for resolvers
      * If true, set return type of resolver to `TResult | Promise<TResult>`
+     * If 'awalys', set return type of resolver to `Promise<TResult>`
      * 
      * e.g: interface QueryToUsersResolver<TParent = any, TResult = any> {
      *  (parent: TParent, args: {}, context: any, info): TResult extends Promise ? TResult : TResult | Promise<TResult>
      * }
      */
-    asyncResult?: boolean;
+    asyncResult?: boolean | 'always';
 
     /**
      * If true, field resolver of each type will be required, instead of optional

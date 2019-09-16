@@ -22,7 +22,8 @@ export class TypeScriptGenerator {
 
     constructor(
         protected options: GenerateTypescriptOptions,
-        protected introspectResult: IntrospectionQuery
+        protected introspectResult: IntrospectionQuery,
+        protected outputPath: string
     ) { }
 
     public async generate(): Promise<string[]> {
@@ -94,14 +95,6 @@ export class TypeScriptGenerator {
             return this.createUnionType(enumType.name, enumType.enumValues.map(v => `'${v.name}'`));
         }
 
-        // if generate as global, don't generate string enum as it requires import
-        if (this.options.global) {
-            return [
-                ...this.createUnionType(enumType.name, enumType.enumValues.map(v => `'${v.name}'`)),
-                `// NOTE: enum ${enumType.name} is generate as string union instead of string enum because the types is generated under global scope`
-            ];
-        }
-
         let enumBody = enumType.enumValues.reduce<string[]>(
             (prevTypescriptDefs, enumValue, index) => {
                 let typescriptDefs: string[] = [];
@@ -125,8 +118,14 @@ export class TypeScriptGenerator {
             []
         );
 
+        // if code is generated as type declaration, better use export const enum instead
+        // of just export enum
+        const isGeneratingDeclaration = this.options.global
+            || !!this.options.namespace
+            || this.outputPath.endsWith('.d.ts');
+        const enumModifier = isGeneratingDeclaration ? ' const ' : ' ';
         return [
-            `export enum ${this.options.typePrefix}${enumType.name} {`,
+            `export${enumModifier}enum ${this.options.typePrefix}${enumType.name} {`,
             ...enumBody,
             '}'
         ];
@@ -136,7 +135,7 @@ export class TypeScriptGenerator {
         objectType: IntrospectionObjectType | IntrospectionInputObjectType | IntrospectionInterfaceType,
         allGQLTypes: IntrospectionType[]
     ): string[] {
-        let fields: (IntrospectionInputValue | IntrospectionField)[]
+        const fields: (IntrospectionInputValue | IntrospectionField)[]
             = objectType.kind === 'INPUT_OBJECT' ? objectType.inputFields : objectType.fields;
 
         const extendTypes: string[] = objectType.kind === 'OBJECT'
@@ -158,7 +157,7 @@ export class TypeScriptGenerator {
                     return prevTypescriptDefs;
                 }
 
-                let fieldJsDoc = descriptionToJSDoc(field);
+                const fieldJsDoc = descriptionToJSDoc(field);
                 const { fieldName, fieldType } = createFieldRef(field, this.options.typePrefix, this.options.strictNulls);
                 const fieldNameAndType = `${fieldName}: ${fieldType};`;
                 let typescriptDefs = [...fieldJsDoc, fieldNameAndType];
@@ -252,12 +251,12 @@ export class TypeScriptGenerator {
      *      | ...
      */
     private createUnionType(typeName: string, possibleTypes: string[]): string[] {
-        let result = `export type ${this.options.typePrefix}${typeName} = ${possibleTypes.join(' | ')};`;
+        const result = `export type ${this.options.typePrefix}${typeName} = ${possibleTypes.join(' | ')};`;
         if (result.length <= 80) {
             return [result];
         }
 
-        let [firstLine, rest] = result.split('=');
+        const [firstLine, rest] = result.split('=');
 
         return [
             firstLine + '=',
