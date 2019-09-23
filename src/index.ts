@@ -76,13 +76,20 @@ export const generateTSTypesAsString = async (
     const tsResolverGenerator = new TSResolverGenerator(mergedOptions, introspectResult);
     typeResolvers = await tsResolverGenerator.generate();
 
-    let header = [...typeResolvers.importHeader, jsDoc];
+    let header = options.includeResolverTypes ? 
+        [...typeResolvers.importHeader, jsDoc] : 
+        [jsDoc];
 
-    let body: string[] = [
+    let body: string[] = options.includeResolverTypes ? 
+    [
         ...typeDefsDecoration,
         ...typeDefs,
         ...typeResolversDecoration,
         ...typeResolvers.body
+    ] :
+    [
+        ...typeDefsDecoration,
+        ...typeDefs
     ];
 
     if (mergedOptions.namespace) {
