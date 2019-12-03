@@ -19,16 +19,16 @@ type User {
 # and implementing multiple User
 enum UserRole {
     # System Administrator
-    sysAdmin
+    SYS_ADMIN
 
     # Manager - Have access to manage functions
-    manager
+    MANAGER
 
     # General Staff
-    clerk
+    CLERK
 
 
-    employee@deprecated(reason: "Use 'clerk' instead")
+    EMPLOYEE@deprecated(reason: "Use 'clerk' instead")
 }
 
 input UserFilter {
