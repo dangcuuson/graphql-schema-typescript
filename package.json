@@ -31,6 +31,7 @@
     "graphql": "0.11.7",
     "graphql-tools": "2.7.2",
     "jest": "22.4.3",
+    "lodash": "^4.17.15",
     "ts-jest": "22.4.4",
     "tslint": "5.8.0",
     "typescript": "2.9.2"

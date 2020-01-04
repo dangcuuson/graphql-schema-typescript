@@ -57,7 +57,7 @@ export interface GQLUser {
  * In the future, this will be changed by having User as interface
  * and implementing multiple User
  */
-export type GQLUserRole = 'sysAdmin' | 'manager' | 'clerk' | 'employee';
+export type GQLUserRole = 'SYS_ADMIN' | 'MANAGER' | 'CLERK' | 'EMPLOYEE';
 
 export interface GQLIProduct {
   id: string;

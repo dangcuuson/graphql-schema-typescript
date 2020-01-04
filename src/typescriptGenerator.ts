@@ -4,6 +4,7 @@ import {
     isBuiltinType,
     descriptionToJSDoc,
     createFieldRef,
+    pascalCase,
 } from './utils';
 import {
     IntrospectionType,
@@ -101,11 +102,13 @@ export class TypeScriptGenerator {
                 const enumValueJsDoc = descriptionToJSDoc(enumValue);
 
                 const isLastEnum = index === enumType.enumValues.length - 1;
+                const graphQlEnumValueName = enumValue.name;
+                const typescriptEnumValueName = this.generateEnumValueName(graphQlEnumValueName);
 
                 if (!isLastEnum) {
-                    typescriptDefs = [...enumValueJsDoc, `${enumValue.name} = '${enumValue.name}',`];
+                    typescriptDefs = [...enumValueJsDoc, `${typescriptEnumValueName} = '${graphQlEnumValueName}',`];
                 } else {
-                    typescriptDefs = [...enumValueJsDoc, `${enumValue.name} = '${enumValue.name}'`];
+                    typescriptDefs = [...enumValueJsDoc, `${typescriptEnumValueName} = '${graphQlEnumValueName}'`];
                 }
 
                 if (enumValueJsDoc.length > 0) {
@@ -129,6 +132,14 @@ export class TypeScriptGenerator {
             ...enumBody,
             '}'
         ];
+    }
+
+    private generateEnumValueName(graphQlName: string): string {
+        if (this.options.enumsAsPascalCase) {
+            return pascalCase(graphQlName);
+        } else {
+            return graphQlName;            
+        }
     }
 
     private generateObjectType(

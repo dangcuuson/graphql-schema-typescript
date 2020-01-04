@@ -66,23 +66,23 @@ declare global {
       /**
        * System Administrator
        */
-      sysAdmin = 'sysAdmin',
+      SYS_ADMIN = 'SYS_ADMIN',
       
       /**
        * Manager - Have access to manage functions
        */
-      manager = 'manager',
+      MANAGER = 'MANAGER',
       
       /**
        * General Staff
        */
-      clerk = 'clerk',
+      CLERK = 'CLERK',
       
       /**
        * 
        * @deprecated Use 'clerk' instead
        */
-      employee = 'employee'
+      EMPLOYEE = 'EMPLOYEE'
     }
     
     export interface GQLIProduct {
@@ -663,23 +663,23 @@ declare global {
     /**
      * System Administrator
      */
-    sysAdmin = 'sysAdmin',
+    SYS_ADMIN = 'SYS_ADMIN',
     
     /**
      * Manager - Have access to manage functions
      */
-    manager = 'manager',
+    MANAGER = 'MANAGER',
     
     /**
      * General Staff
      */
-    clerk = 'clerk',
+    CLERK = 'CLERK',
     
     /**
      * 
      * @deprecated Use 'clerk' instead
      */
-    employee = 'employee'
+    EMPLOYEE = 'EMPLOYEE'
   }
   
   export interface GQLIProduct {
@@ -1257,23 +1257,23 @@ declare namespace MyNamespace {
     /**
      * System Administrator
      */
-    sysAdmin = 'sysAdmin',
+    SYS_ADMIN = 'SYS_ADMIN',
     
     /**
      * Manager - Have access to manage functions
      */
-    manager = 'manager',
+    MANAGER = 'MANAGER',
     
     /**
      * General Staff
      */
-    clerk = 'clerk',
+    CLERK = 'CLERK',
     
     /**
      * 
      * @deprecated Use 'clerk' instead
      */
-    employee = 'employee'
+    EMPLOYEE = 'EMPLOYEE'
   }
   
   export interface GQLIProduct {

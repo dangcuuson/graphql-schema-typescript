@@ -10,6 +10,9 @@ import {
     IntrospectionField,
     IntrospectionInputValue
 } from 'graphql';
+import {
+    camelCase
+} from 'lodash';
 
 /**
  * Send introspection query to a graphql schema
@@ -186,4 +189,8 @@ export const createFieldRef = (
 
 export const toUppercaseFirst = (value: string): string => {
     return value.charAt(0).toUpperCase() + value.slice(1);
+};
+
+export const pascalCase = (value: string): string => {
+    return toUppercaseFirst(camelCase(value));
 };

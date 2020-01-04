@@ -104,6 +104,11 @@ export interface GenerateTypescriptOptions {
      * If true resolver info arguements will be marked as optional
      */
     optionalResolverInfo?: boolean;
+
+    /**
+     * If true, enum values are converted to PascalCase.
+     */
+    enumsAsPascalCase?: boolean;
 }
 
 export const defaultOptions: GenerateTypescriptOptions = {
