@@ -6,11 +6,11 @@
   "types": "./lib/index.d.ts",
   "bin": "./lib/cli.js",
   "scripts": {
-    "pretest": "npm run build",
+    "pretest": "yarn build",
     "test": "jest --bail",
     "lint": "tslint -p tslint.json && tsc --noEmit",
     "build": "del-cli \"./lib/*\" && tsc",
-    "prepack": "npm run lint && npm run test"
+    "prepack": "yarn lint && yarn test"
   },
   "repository": {
     "type": "git",
