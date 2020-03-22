@@ -101,7 +101,7 @@ yargs
         async argv => {
             const { folderPath, output } = argv;
 
-            const options: GenerateTypescriptOptions = {};
+            const options: Partial<GenerateTypescriptOptions> = {};
             options[globalOpt] = argv[globalOpt];
             options[typePrefix] = argv[typePrefix];
             options[namespaceOpt] = argv[namespaceOpt];
@@ -116,7 +116,7 @@ yargs
             options[noStringEnum] = argv[noStringEnum];
             options[optionalResolverInfo] = argv[optionalResolverInfo];
 
-            await generateTypeScriptTypes(folderPath, path.resolve(output), options);
+            generateTypeScriptTypes(folderPath, path.resolve(output), options as GenerateTypescriptOptions);
             if (process.env.NODE_ENV !== 'test') {
                 console.log(`Typescript generated at: ${output}`);
             }

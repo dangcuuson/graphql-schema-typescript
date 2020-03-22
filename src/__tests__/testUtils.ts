@@ -10,8 +10,8 @@ export const executeCommand = (command: string, options?: childProcess.ExecOptio
     return new Promise((resolve, reject) => {
         const process = childProcess.exec(command, options);
 
-        process.stdout.on('data', console.log);
-        process.stderr.on('data', console.error);
+        process.stdout!.on('data', console.log);
+        process.stderr!.on('data', console.error);
 
         process.on('close', (exitCode: number) => {
             if (exitCode !== 0) {
@@ -28,7 +28,7 @@ export const executeCommand = (command: string, options?: childProcess.ExecOptio
 };
 
 /** Function that count occurrences of a substring in a string;
- * @param {String} string               The string
+ * @param {String} str                  The string
  * @param {String} subString            The sub string to search for
  * @param {Boolean} [allowOverlapping]  Optional. (Default:false)
  *
@@ -44,7 +44,7 @@ export const occurrences = (str: string, subString: string, allowOverlapping: bo
         return (str.length + 1);
     }
 
-    var n = 0,
+    let n = 0,
         pos = 0,
         step = allowOverlapping ? 1 : subString.length;
 
@@ -63,7 +63,7 @@ export const occurrences = (str: string, subString: string, allowOverlapping: bo
 export const OUTPUT_FOLDER = path.join(__dirname, 'generatedTypes');
 export const executeApiTest = async (
     outputFile: string,
-    options: GenerateTypescriptOptions,
+    options: Partial<GenerateTypescriptOptions>,
     schema?: GraphQLSchema | string
 ): Promise<string> => {
     // prepare output folder
@@ -73,11 +73,11 @@ export const executeApiTest = async (
     const outputPath = path.join(OUTPUT_FOLDER, outputFile);
 
     // run api function
-    await generateTypeScriptTypes(schema || testSchema, outputPath, options);
+    generateTypeScriptTypes(schema || testSchema, outputPath, options as GenerateTypescriptOptions);
 
     // ensure no error on tsc
     const generated = fs.readFileSync(outputPath, 'utf-8');
-    await executeCommand(`tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
+    await executeCommand(`yarn -s tsc --noEmit --lib es6,esnext.asynciterable --target es5 ${outputPath}`);
 
     // snapshot
     expect(generated).toMatchSnapshot();

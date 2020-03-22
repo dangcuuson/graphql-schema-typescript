@@ -7,10 +7,10 @@ export interface GenerateTypescriptOptions {
     };
 
     /** Tab format, default to 2 */
-    tabSpaces?: number;
+    tabSpaces: number;
 
     /** A prefix to every generated types. Default to GQL */
-    typePrefix?: string;
+    typePrefix: string;
 
     /** Generate types as global */
     global?: boolean;
