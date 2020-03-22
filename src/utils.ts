@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { join } from 'path';
 import {
-    graphql,
+    graphqlSync,
     buildASTSchema,
     parse,
     introspectionQuery,
@@ -17,8 +17,8 @@ import {
 /**
  * Send introspection query to a graphql schema
  */
-export const introspectSchema = async (schema: GraphQLSchema): Promise<IntrospectionQuery> => {
-    const { data, errors } = await graphql(schema, introspectionQuery);
+export const introspectSchema = (schema: GraphQLSchema): IntrospectionQuery => {
+    const { data, errors } = graphqlSync(schema, introspectionQuery);
 
     if (errors) {
         throw errors;
@@ -27,7 +27,7 @@ export const introspectSchema = async (schema: GraphQLSchema): Promise<Introspec
     return data as IntrospectionQuery;
 };
 
-async function introspectSchemaStr(schemaStr: string): Promise<IntrospectionQuery> {
+function introspectSchemaStr(schemaStr: string): IntrospectionQuery {
     const schema = buildASTSchema(parse(schemaStr));
     return introspectSchema(schema);
 }
@@ -43,10 +43,10 @@ function klawSync(path: string, filterRegex: RegExp, fileNames: string[] = []) {
     return fileNames;
 }
 
-export const introspectSchemaViaLocalFile = async (path: string): Promise<IntrospectionQuery> => {
+export const introspectSchemaViaLocalFile = (path: string): IntrospectionQuery => {
     const files = klawSync(path, /\.(graphql|gql|graphqls)$/);
     const allTypeDefs = files.map(filePath => fs.readFileSync(filePath, 'utf-8')).join('\n');
-    return await introspectSchemaStr(allTypeDefs);
+    return introspectSchemaStr(allTypeDefs);
 };
 
 export interface SimpleTypeDescription {
@@ -67,9 +67,9 @@ export const isBuiltinType = (type: SimpleTypeDescription): boolean => {
 };
 
 export interface GraphqlDescription {
-    description?: string;
+    description?: string | null;
     isDeprecated?: boolean;
-    deprecationReason?: string;
+    deprecationReason?: string | null;
 }
 
 /**

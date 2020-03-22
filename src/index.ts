@@ -36,21 +36,21 @@ const typeResolversDecoration = [
     ' *********************************/'
 ];
 
-export const generateTSTypesAsString = async (
+export const generateTSTypesAsString = (
     schema: GraphQLSchema | string,
     outputPath: string,
     options: GenerateTypescriptOptions
-): Promise<string> => {
+): string => {
     const mergedOptions = { ...defaultOptions, ...options };
 
-    let introspectResult: IntrospectionQuery;
-    if (isString(schema)) {
+    let introspectResult: IntrospectionQuery | null = null;
+    if (typeof schema === 'string') {
         // is is a path to schema folder?
         try {
             const schemaPath = path.resolve(schema);
             const exists = fs.existsSync(schemaPath);
             if (exists) {
-                introspectResult = await introspectSchemaViaLocalFile(schemaPath);
+                introspectResult = introspectSchemaViaLocalFile(schemaPath);
             }
         } catch {
             // fall-through in case the provided string is a graphql definition,
@@ -60,21 +60,21 @@ export const generateTSTypesAsString = async (
         // it's not a folder, maybe it's a schema definition
         if (!introspectResult) {
             const schemaViaStr = buildSchema(schema);
-            introspectResult = await introspectSchema(schemaViaStr);
+            introspectResult = introspectSchema(schemaViaStr);
         }
     } else {
-        introspectResult = await introspectSchema(schema);
+        introspectResult = introspectSchema(schema);
     }
 
     const tsGenerator = new TypeScriptGenerator(mergedOptions, introspectResult, outputPath);
-    const typeDefs = await tsGenerator.generate();
+    const typeDefs = tsGenerator.generate();
 
     let typeResolvers: GenerateResolversResult = {
         body: [],
         importHeader: []
     };
     const tsResolverGenerator = new TSResolverGenerator(mergedOptions, introspectResult);
-    typeResolvers = await tsResolverGenerator.generate();
+    typeResolvers = tsResolverGenerator.generate();
 
     let header = [...typeResolvers.importHeader, jsDoc];
 
@@ -108,11 +108,11 @@ export const generateTSTypesAsString = async (
     return formatted.join('\n');
 };
 
-export async function generateTypeScriptTypes(
+export function generateTypeScriptTypes(
     schema: GraphQLSchema | string,
     outputPath: string,
     options: GenerateTypescriptOptions = defaultOptions
 ) {
-    const content = await generateTSTypesAsString(schema, outputPath, options);
+    const content = generateTSTypesAsString(schema, outputPath, options);
     fs.writeFileSync(outputPath, content, 'utf-8');
 }

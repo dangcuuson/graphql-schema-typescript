@@ -4,6 +4,7 @@
         "src/cli.ts"
     ],
     "compilerOptions": {
+        "module": "commonjs",
         "target": "es5",
         "lib": [
             "es6",
@@ -14,7 +15,8 @@
         "declaration": true,
         "declarationMap": true,
         "outDir": "./lib",
-        "noImplicitAny": false,
+        "strict": true,
+        "alwaysStrict": true,
         "forceConsistentCasingInFileNames": true,
         "noUnusedLocals": false
     }

@@ -28,9 +28,9 @@ export class TSResolverGenerator {
     } = {};
     protected contextType: string;
 
-    protected queryType?: IntrospectionNamedTypeRef;
-    protected mutationType?: IntrospectionNamedTypeRef;
-    protected subscriptionType?: IntrospectionNamedTypeRef;
+    protected queryType?: IntrospectionNamedTypeRef<IntrospectionObjectType> | null;
+    protected mutationType?: IntrospectionNamedTypeRef | null;
+    protected subscriptionType?: IntrospectionNamedTypeRef<IntrospectionObjectType> | null;
 
     constructor(
         protected options: GenerateTypescriptOptions,
@@ -42,7 +42,7 @@ export class TSResolverGenerator {
         }
     }
 
-    public async generate(): Promise<GenerateResolversResult> {
+    public generate(): GenerateResolversResult {
         const { introspectionResult } = this;
         const gqlTypes = introspectionResult.__schema.types.filter(type => !isBuiltinType(type));
         this.queryType = introspectionResult.__schema.queryType;

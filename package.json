@@ -22,25 +22,26 @@
   "devDependencies": {
     "@playlyfe/gql": "2.3.2",
     "@types/fs-extra": "4.0.4",
-    "@types/graphql": "0.11.5",
+    "@types/graphql": "^14.5.0",
     "@types/jest": "21.1.5",
-    "@types/node": "8.0.50",
+    "@types/lodash": "^4.14.149",
+    "@types/node": "^13.9.2",
     "@types/yargs": "^11.0.0",
     "del-cli": "^2.0.0",
     "fs-extra": "4.0.2",
-    "graphql": "0.11.7",
-    "graphql-tools": "2.7.2",
+    "graphql": "^14.6.0",
+    "graphql-tools": "^4.0.7",
     "jest": "22.4.3",
-    "lodash": "^4.17.13",
     "ts-jest": "22.4.4",
     "tslint": "5.8.0",
-    "typescript": "2.9.2"
+    "typescript": "^3.8.3"
   },
   "dependencies": {
+    "lodash": "^4.17.15",
     "yargs": "^11.0.0"
   },
   "peerDependencies": {
-    "graphql": "*",
+    "graphql": ">= 0.12",
     "typescript": "*"
   },
   "jest": {
