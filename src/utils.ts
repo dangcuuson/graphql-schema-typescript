@@ -2,17 +2,14 @@ import * as fs from 'fs';
 import { join } from 'path';
 import {
     graphqlSync,
-    buildASTSchema,
-    parse,
     introspectionQuery,
     GraphQLSchema,
     IntrospectionQuery,
     IntrospectionField,
     IntrospectionInputValue
 } from 'graphql';
-import {
-    camelCase
-} from 'lodash';
+import { camelCase } from 'lodash';
+import { makeExecutableSchema } from 'graphql-tools';
 
 /**
  * Send introspection query to a graphql schema
@@ -27,8 +24,8 @@ export const introspectSchema = (schema: GraphQLSchema): IntrospectionQuery => {
     return data as IntrospectionQuery;
 };
 
-function introspectSchemaStr(schemaStr: string): IntrospectionQuery {
-    const schema = buildASTSchema(parse(schemaStr));
+export function introspectSchemaStr(schemaStr: string): IntrospectionQuery {
+    const schema = makeExecutableSchema({typeDefs: schemaStr, resolverValidationOptions: {requireResolversForResolveType: false}});
     return introspectSchema(schema);
 }
 

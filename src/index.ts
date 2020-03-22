@@ -1,11 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { GraphQLSchema, buildSchema } from 'graphql';
+import { GraphQLSchema } from 'graphql';
 import { GenerateTypescriptOptions, defaultOptions } from './types';
 import { TSResolverGenerator, GenerateResolversResult } from './typescriptResolverGenerator';
 import { TypeScriptGenerator } from './typescriptGenerator';
-import { formatTabSpace, introspectSchema, introspectSchemaViaLocalFile } from './utils';
-import { isString } from 'util';
+import { formatTabSpace, introspectSchema, introspectSchemaStr, introspectSchemaViaLocalFile } from './utils';
 import { IntrospectionQuery } from 'graphql/utilities/introspectionQuery';
 
 export { GenerateTypescriptOptions } from './types';
@@ -59,8 +58,7 @@ export const generateTSTypesAsString = (
 
         // it's not a folder, maybe it's a schema definition
         if (!introspectResult) {
-            const schemaViaStr = buildSchema(schema);
-            introspectResult = introspectSchema(schemaViaStr);
+            introspectResult = introspectSchemaStr(schema);
         }
     } else {
         introspectResult = introspectSchema(schema);
@@ -69,12 +67,8 @@ export const generateTSTypesAsString = (
     const tsGenerator = new TypeScriptGenerator(mergedOptions, introspectResult, outputPath);
     const typeDefs = tsGenerator.generate();
 
-    let typeResolvers: GenerateResolversResult = {
-        body: [],
-        importHeader: []
-    };
     const tsResolverGenerator = new TSResolverGenerator(mergedOptions, introspectResult);
-    typeResolvers = tsResolverGenerator.generate();
+    const typeResolvers = tsResolverGenerator.generate();
 
     let header = [...typeResolvers.importHeader, jsDoc];
 
