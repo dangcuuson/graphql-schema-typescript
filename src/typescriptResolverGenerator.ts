@@ -28,7 +28,10 @@ export class TSResolverGenerator {
     protected mutationType?: IntrospectionNamedTypeRef;
     protected subscriptionType?: IntrospectionNamedTypeRef;
 
-    constructor(protected options: GenerateTypescriptOptions, protected introspectionResult: IntrospectionQuery) {
+    constructor(
+        protected options: GenerateTypescriptOptions,
+        protected introspectionResult: IntrospectionQuery
+    ) {
         this.contextType = options.contextType || 'any';
         if (options.importStatements) {
             this.importHeader.push(...options.importStatements);
@@ -37,7 +40,9 @@ export class TSResolverGenerator {
 
     public async generate(): Promise<GenerateResolversResult> {
         const { introspectionResult } = this;
-        const gqlTypes = introspectionResult.__schema.types.filter((type) => !isBuiltinType(type));
+        const gqlTypes = introspectionResult.__schema.types.filter(
+            (type) => !isBuiltinType(type)
+        );
         this.queryType = introspectionResult.__schema.queryType;
         this.mutationType = introspectionResult.__schema.mutationType;
         this.subscriptionType = introspectionResult.__schema.subscriptionType;
@@ -45,11 +50,17 @@ export class TSResolverGenerator {
         this.importHeader.push('/* tslint:disable */');
         this.importHeader.push('/* eslint-disable */');
 
-        const hasCustomScalar = !!gqlTypes.find((type) => type.kind === 'SCALAR');
+        const hasCustomScalar = !!gqlTypes.find(
+            (type) => type.kind === 'SCALAR'
+        );
         if (hasCustomScalar) {
-            this.importHeader.push(`import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';`);
+            this.importHeader.push(
+                `import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';`
+            );
         } else {
-            this.importHeader.push(`import { GraphQLResolveInfo } from 'graphql';`);
+            this.importHeader.push(
+                `import { GraphQLResolveInfo } from 'graphql';`
+            );
         }
 
         this.resolverObject = [
@@ -63,7 +74,8 @@ export class TSResolverGenerator {
 
         gqlTypes.forEach((type) => {
             const isSubscription = introspectionResult.__schema.subscriptionType
-                ? introspectionResult.__schema.subscriptionType.name === type.name
+                ? introspectionResult.__schema.subscriptionType.name ===
+                  type.name
                 : false;
 
             switch (type.kind) {
@@ -103,30 +115,46 @@ export class TSResolverGenerator {
     }
 
     private generateCustomScalarResolver(scalarType: IntrospectionScalarType) {
-        this.resolverObject.push(`${scalarType.name}${this.getModifier()}: GraphQLScalarType;`);
+        this.resolverObject.push(
+            `${scalarType.name}${this.getModifier()}: GraphQLScalarType;`
+        );
     }
 
-    private generateTypeResolver(type: IntrospectionUnionType | IntrospectionInterfaceType) {
+    private generateTypeResolver(
+        type: IntrospectionUnionType | IntrospectionInterfaceType
+    ) {
         const possbileTypes = type.possibleTypes.map((pt) => `'${pt.name}'`);
         const interfaceName = `${this.options.typePrefix}${type.name}TypeResolver`;
         const infoModifier = this.options.optionalResolverInfo ? '?' : '';
 
         this.resolverInterfaces.push(
             ...[
-                `export interface ${interfaceName}<TParent = ${this.guessTParent(type.name)}> {`,
+                `export interface ${interfaceName}<TParent = ${this.guessTParent(
+                    type.name
+                )}> {`,
                 `(parent: TParent, context: ${
                     this.contextType
-                }, info${infoModifier}: GraphQLResolveInfo): ${possbileTypes.join(' | ')};`,
+                }, info${infoModifier}: GraphQLResolveInfo): ${possbileTypes.join(
+                    ' | '
+                )};`,
                 '}'
             ]
         );
 
         this.resolverObject.push(
-            ...[`${type.name}${this.getModifier()}: {`, `__resolveType: ${interfaceName}`, '};', '']
+            ...[
+                `${type.name}${this.getModifier()}: {`,
+                `__resolveType: ${interfaceName}`,
+                '};',
+                ''
+            ]
         );
     }
 
-    private generateObjectResolver(objectType: IntrospectionObjectType, isSubscription: boolean = false) {
+    private generateObjectResolver(
+        objectType: IntrospectionObjectType,
+        isSubscription: boolean = false
+    ) {
         const typeResolverName = `${this.options.typePrefix}${objectType.name}TypeResolver`;
         const typeResolverBody: string[] = [];
         const fieldResolversTypeDefs: string[] = [];
@@ -141,11 +169,17 @@ export class TSResolverGenerator {
                 argsType = `${objectType.name}To${uppercaseFirstFieldName}Args`;
                 const argsBody: string[] = [];
                 field.args.forEach((arg) => {
-                    const { fieldName, fieldType } = createFieldRef(arg, this.options.typePrefix, false);
+                    const { fieldName, fieldType } = createFieldRef(
+                        arg,
+                        this.options.typePrefix,
+                        false
+                    );
                     argsBody.push(`${fieldName}: ${fieldType};`);
                 });
 
-                fieldResolversTypeDefs.push(...[`export interface ${argsType} {`, ...argsBody, '}']);
+                fieldResolversTypeDefs.push(
+                    ...[`export interface ${argsType} {`, ...argsBody, '}']
+                );
             }
 
             // generate field type
@@ -184,12 +218,20 @@ export class TSResolverGenerator {
 
             fieldResolversTypeDefs.push(...fieldResolverTypeDef);
 
-            typeResolverBody.push(...[`${field.name}${this.getModifier()}: ${fieldResolverName}<TParent>;`]);
+            typeResolverBody.push(
+                ...[
+                    `${
+                        field.name
+                    }${this.getModifier()}: ${fieldResolverName}<TParent>;`
+                ]
+            );
         });
 
         this.resolverInterfaces.push(
             ...[
-                `export interface ${typeResolverName}<TParent = ${this.guessTParent(objectType.name)}> {`,
+                `export interface ${typeResolverName}<TParent = ${this.guessTParent(
+                    objectType.name
+                )}> {`,
                 ...typeResolverBody,
                 '}',
                 '',
@@ -198,7 +240,9 @@ export class TSResolverGenerator {
         );
 
         // add the type resolver to resolver object
-        this.resolverObject.push(...[`${objectType.name}${this.getModifier()}: ${typeResolverName};`]);
+        this.resolverObject.push(
+            ...[`${objectType.name}${this.getModifier()}: ${typeResolverName};`]
+        );
     }
 
     // optional or required
@@ -232,13 +276,19 @@ export class TSResolverGenerator {
 
         // TODO: build TResult
         // set strict-nulls to always true so that fieldType could possibly null;
-        const { fieldType } = createFieldRef(field, this.options.typePrefix, true);
+        const { fieldType } = createFieldRef(
+            field,
+            this.options.typePrefix,
+            true
+        );
         return fieldType;
     }
 
     private isRootType(typeName: string) {
-        return !![this.queryType, this.mutationType, this.subscriptionType].find(
-            (type) => !!type && type.name === typeName
-        );
+        return !![
+            this.queryType,
+            this.mutationType,
+            this.subscriptionType
+        ].find((type) => !!type && type.name === typeName);
     }
 }

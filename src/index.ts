@@ -2,9 +2,16 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { GraphQLSchema, buildSchema } from 'graphql';
 import { GenerateTypescriptOptions, defaultOptions } from './types';
-import { TSResolverGenerator, GenerateResolversResult } from './typescriptResolverGenerator';
+import {
+    TSResolverGenerator,
+    GenerateResolversResult
+} from './typescriptResolverGenerator';
 import { TypeScriptGenerator } from './typescriptGenerator';
-import { formatTabSpace, introspectSchema, introspectSchemaViaLocalFile } from './utils';
+import {
+    formatTabSpace,
+    introspectSchema,
+    introspectSchemaViaLocalFile
+} from './utils';
 import { isString } from 'util';
 import { IntrospectionQuery } from 'graphql';
 
@@ -49,7 +56,9 @@ export const generateTSTypesAsString = async (
             const schemaPath = path.resolve(schema);
             const exists = fs.existsSync(schemaPath);
             if (exists) {
-                introspectResult = await introspectSchemaViaLocalFile(schemaPath);
+                introspectResult = await introspectSchemaViaLocalFile(
+                    schemaPath
+                );
             }
         } catch {
             // fall-through in case the provided string is a graphql definition,
@@ -65,24 +74,38 @@ export const generateTSTypesAsString = async (
         introspectResult = await introspectSchema(schema);
     }
 
-    const tsGenerator = new TypeScriptGenerator(mergedOptions, introspectResult, outputPath);
+    const tsGenerator = new TypeScriptGenerator(
+        mergedOptions,
+        introspectResult,
+        outputPath
+    );
     const typeDefs = await tsGenerator.generate();
 
     let typeResolvers: GenerateResolversResult = {
         body: [],
         importHeader: []
     };
-    const tsResolverGenerator = new TSResolverGenerator(mergedOptions, introspectResult);
+    const tsResolverGenerator = new TSResolverGenerator(
+        mergedOptions,
+        introspectResult
+    );
     typeResolvers = await tsResolverGenerator.generate();
 
     let header = [...typeResolvers.importHeader, jsDoc];
 
-    let body: string[] = [...typeDefsDecoration, ...typeDefs, ...typeResolversDecoration, ...typeResolvers.body];
+    let body: string[] = [
+        ...typeDefsDecoration,
+        ...typeDefs,
+        ...typeResolversDecoration,
+        ...typeResolvers.body
+    ];
 
     if (mergedOptions.namespace) {
         body = [
             // if namespace is under global, it doesn't need to be declared again
-            `${mergedOptions.global ? '' : 'declare '}namespace ${options.namespace} {`,
+            `${mergedOptions.global ? '' : 'declare '}namespace ${
+                options.namespace
+            } {`,
             ...body,
             '}'
         ];
@@ -92,7 +115,10 @@ export const generateTSTypesAsString = async (
         body = ['export { };', '', 'declare global {', ...body, '}'];
     }
 
-    const formatted = formatTabSpace([...header, ...body], mergedOptions.tabSpaces);
+    const formatted = formatTabSpace(
+        [...header, ...body],
+        mergedOptions.tabSpaces
+    );
     return formatted.join('\n');
 };
 
