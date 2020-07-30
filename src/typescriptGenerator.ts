@@ -4,7 +4,7 @@ import {
     isBuiltinType,
     descriptionToJSDoc,
     createFieldRef,
-    pascalCase,
+    pascalCase
 } from './utils';
 import {
     IntrospectionType,
@@ -16,7 +16,7 @@ import {
     IntrospectionInterfaceType,
     IntrospectionQuery,
     IntrospectionField,
-    IntrospectionInputValue,
+    IntrospectionInputValue
 } from 'graphql';
 
 export class TypeScriptGenerator {
@@ -34,7 +34,7 @@ export class TypeScriptGenerator {
 
         return gqlTypes.reduce<string[]>((prevTypescriptDefs, gqlType) => {
             const jsDoc = descriptionToJSDoc({
-                description: gqlType.description,
+                description: gqlType.description
             });
             let typeScriptDefs: string[] = [].concat(jsDoc);
 
@@ -90,12 +90,12 @@ export class TypeScriptGenerator {
             return [
                 `export type ${this.options.typePrefix}${scalarType.name} = ${
                     customScalarType[scalarType.name]
-                };`,
+                };`
             ];
         }
 
         return [
-            `export type ${this.options.typePrefix}${scalarType.name} = any;`,
+            `export type ${this.options.typePrefix}${scalarType.name} = any;`
         ];
     }
 
@@ -127,12 +127,12 @@ export class TypeScriptGenerator {
                 if (!isLastEnum) {
                     typescriptDefs = [
                         ...enumValueJsDoc,
-                        `${typescriptEnumValueName} = '${graphQlEnumValueName}',`,
+                        `${typescriptEnumValueName} = '${graphQlEnumValueName}',`
                     ];
                 } else {
                     typescriptDefs = [
                         ...enumValueJsDoc,
-                        `${typescriptEnumValueName} = '${graphQlEnumValueName}'`,
+                        `${typescriptEnumValueName} = '${graphQlEnumValueName}'`
                     ];
                 }
 
@@ -155,7 +155,7 @@ export class TypeScriptGenerator {
         return [
             `export${enumModifier}enum ${this.options.typePrefix}${enumType.name} {`,
             ...enumBody,
-            '}',
+            '}'
         ];
     }
 
@@ -234,7 +234,7 @@ export class TypeScriptGenerator {
                     ...this.createUnionType(
                         `Possible${objectType.name}TypeNames`,
                         objectType.possibleTypes.map((pt) => `'${pt.name}'`)
-                    ),
+                    )
                 ]
             );
 
@@ -246,7 +246,7 @@ export class TypeScriptGenerator {
                     ...objectType.possibleTypes.map((pt) => {
                         return `${pt.name}: ${this.options.typePrefix}${pt.name};`;
                     }),
-                    '}',
+                    '}'
                 ]
             );
         }
@@ -262,7 +262,7 @@ export class TypeScriptGenerator {
             ...objectFields,
             '}',
             ...possibleTypeNames,
-            ...possibleTypeNamesMap,
+            ...possibleTypeNamesMap
         ];
     }
 
@@ -274,7 +274,7 @@ export class TypeScriptGenerator {
             ...this.createUnionType(
                 `Possible${unionType.name}TypeNames`,
                 unionType.possibleTypes.map((pt) => `'${pt.name}'`)
-            ),
+            )
         ];
         const possibleTypeNamesMap = [
             '',
@@ -283,7 +283,7 @@ export class TypeScriptGenerator {
             ...unionType.possibleTypes.map((pt) => {
                 return `${pt.name}: ${this.options.typePrefix}${pt.name};`;
             }),
-            '}',
+            '}'
         ];
 
         const unionTypeTSDefs = this.createUnionType(
@@ -300,7 +300,7 @@ export class TypeScriptGenerator {
         return [
             ...unionTypeTSDefs,
             ...possibleTypesNames,
-            ...possibleTypeNamesMap,
+            ...possibleTypeNamesMap
         ];
     }
 
@@ -330,7 +330,7 @@ export class TypeScriptGenerator {
             ...rest
                 .replace(/ \| /g, ' |\n')
                 .split('\n')
-                .map((line) => line.trim()),
+                .map((line) => line.trim())
         ];
     }
 }

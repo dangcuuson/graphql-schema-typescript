@@ -4,13 +4,13 @@ import { GraphQLSchema, buildSchema } from 'graphql';
 import { GenerateTypescriptOptions, defaultOptions } from './types';
 import {
     TSResolverGenerator,
-    GenerateResolversResult,
+    GenerateResolversResult
 } from './typescriptResolverGenerator';
 import { TypeScriptGenerator } from './typescriptGenerator';
 import {
     formatTabSpace,
     introspectSchema,
-    introspectSchemaViaLocalFile,
+    introspectSchemaViaLocalFile
 } from './utils';
 import { isString } from 'util';
 import { IntrospectionQuery } from 'graphql';
@@ -31,7 +31,7 @@ const typeDefsDecoration = [
     ' *                             *',
     ' *          TYPE DEFS          *',
     ' *                             *',
-    ' *******************************/',
+    ' *******************************/'
 ];
 
 const typeResolversDecoration = [
@@ -39,7 +39,7 @@ const typeResolversDecoration = [
     ' *                               *',
     ' *         TYPE RESOLVERS        *',
     ' *                               *',
-    ' *********************************/',
+    ' *********************************/'
 ];
 
 export const generateTSTypesAsString = async (
@@ -83,7 +83,7 @@ export const generateTSTypesAsString = async (
 
     let typeResolvers: GenerateResolversResult = {
         body: [],
-        importHeader: [],
+        importHeader: []
     };
     const tsResolverGenerator = new TSResolverGenerator(
         mergedOptions,
@@ -97,7 +97,7 @@ export const generateTSTypesAsString = async (
         ...typeDefsDecoration,
         ...typeDefs,
         ...typeResolversDecoration,
-        ...typeResolvers.body,
+        ...typeResolvers.body
     ];
 
     if (mergedOptions.namespace) {
@@ -107,7 +107,7 @@ export const generateTSTypesAsString = async (
                 options.namespace
             } {`,
             ...body,
-            '}',
+            '}'
         ];
     }
 

@@ -1,5 +1,6 @@
 {
-  "singleQuote": true,
-  "align": ["arguments"],
-  "tabWidth": 4
+    "singleQuote": true,
+    "align": ["arguments"],
+    "tabWidth": 4,
+    "trailingComma": "none"
 }

@@ -116,5 +116,5 @@ export const defaultOptions: GenerateTypescriptOptions = {
     typePrefix: 'GQL',
     contextType: 'any',
     rootValueType: 'undefined',
-    strictNulls: false,
+    strictNulls: false
 };

@@ -38,61 +38,61 @@ yargs
     .option(globalOpt, {
         desc: 'Generate types as global',
         boolean: true,
-        default: defaultOptions[globalOpt],
+        default: defaultOptions[globalOpt]
     })
     .option(typePrefix, {
         desc: 'A prefix to every generated types',
         string: true,
-        default: defaultOptions[typePrefix],
+        default: defaultOptions[typePrefix]
     })
     .option(namespaceOpt, {
         desc: 'Add types under a namespace',
         string: true,
-        default: defaultOptions[namespaceOpt],
+        default: defaultOptions[namespaceOpt]
     })
     .option(miminizeInterface, {
         desc: 'Ignore copying of interface keys to type implementation',
         boolean: true,
-        default: defaultOptions[miminizeInterface],
+        default: defaultOptions[miminizeInterface]
     })
     .options(contextType, {
         desc: 'Name of your graphql context type',
         string: true,
-        default: defaultOptions[contextType],
+        default: defaultOptions[contextType]
     })
     .option(importStatements, {
         desc:
             'Import statements at the top of the generated file that import your custom scalar type and context type',
-        array: true,
+        array: true
     })
     .option(strictNulls, {
         desc: 'Set optional fields as nullable instead of undefined',
-        boolean: true,
+        boolean: true
     })
     .option(smartTResult, {
         desc: 'Apply appropriate default TResult to resolver',
-        boolean: true,
+        boolean: true
     })
     .option(smartTParent, {
         desc: 'Apply appropriate default TParent to resolver',
-        boolean: true,
+        boolean: true
     })
     .option(asyncResult, {
         desc: 'Set return type of resolver to `TResult | Promise<TResult>`',
-        choices: [true, 'always'],
+        choices: [true, 'always']
     })
     .option(requireResolverTypes, {
         desc:
             'Set resolvers to be required. Useful to ensure no resolvers is missing',
-        boolean: true,
+        boolean: true
     })
     .option(noStringEnum, {
         desc: `Generate enum type as string union instead of TypeScript's string enum`,
-        boolean: true,
+        boolean: true
     })
     .option(optionalResolverInfo, {
         desc: `Set the info argument of generated resolvers as optional.`,
-        boolean: false,
+        boolean: false
     })
     .option('output', {
         desc: 'Output path for Typescript definitions file',
@@ -100,7 +100,7 @@ yargs
         demand: true,
         default: 'graphqlTypes.d.ts',
         normalize: true,
-        coerce: path.resolve,
+        coerce: path.resolve
     })
     .command(
         'generate-ts <folderPath>',

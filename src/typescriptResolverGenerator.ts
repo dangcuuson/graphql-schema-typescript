@@ -7,7 +7,7 @@ import {
     IntrospectionUnionType,
     IntrospectionNamedTypeRef,
     IntrospectionQuery,
-    IntrospectionField,
+    IntrospectionField
 } from 'graphql';
 
 export interface GenerateResolversResult {
@@ -69,7 +69,7 @@ export class TSResolverGenerator {
             ' * Note that this type is designed to be compatible with graphql-tools resolvers',
             ' * However, you can still use other generated interfaces to make your resolver type-safed',
             ' */',
-            `export interface ${this.options.typePrefix}Resolver {`,
+            `export interface ${this.options.typePrefix}Resolver {`
         ];
 
         gqlTypes.forEach((type) => {
@@ -109,8 +109,8 @@ export class TSResolverGenerator {
             body: [
                 ...this.resolverObject,
                 ...this.resolverInterfaces,
-                ...Object.values(this.resolverResult).map((v) => v.join('\n')),
-            ],
+                ...Object.values(this.resolverResult).map((v) => v.join('\n'))
+            ]
         };
     }
 
@@ -137,7 +137,7 @@ export class TSResolverGenerator {
                 }, info${infoModifier}: GraphQLResolveInfo): ${possbileTypes.join(
                     ' | '
                 )};`,
-                '}',
+                '}'
             ]
         );
 
@@ -146,7 +146,7 @@ export class TSResolverGenerator {
                 `${type.name}${this.getModifier()}: {`,
                 `__resolveType: ${interfaceName}`,
                 '};',
-                '',
+                ''
             ]
         );
     }
@@ -202,7 +202,7 @@ export class TSResolverGenerator {
                       `export interface ${fieldResolverName}<TParent = ${TParent}, TResult = ${TResult}> {`,
                       `(parent: TParent, args: ${argsType}, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo): ${returnType};`,
                       '}',
-                      '',
+                      ''
                   ]
                 : [
                       `export interface ${fieldResolverName}<TParent = ${TParent}, TResult = ${TResult}> {`,
@@ -213,7 +213,7 @@ export class TSResolverGenerator {
                       // tslint:disable-next-line:max-line-length
                       `subscribe: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo) => ${subscriptionReturnType};`,
                       '}',
-                      '',
+                      ''
                   ];
 
             fieldResolversTypeDefs.push(...fieldResolverTypeDef);
@@ -222,7 +222,7 @@ export class TSResolverGenerator {
                 ...[
                     `${
                         field.name
-                    }${this.getModifier()}: ${fieldResolverName}<TParent>;`,
+                    }${this.getModifier()}: ${fieldResolverName}<TParent>;`
                 ]
             );
         });
@@ -235,7 +235,7 @@ export class TSResolverGenerator {
                 ...typeResolverBody,
                 '}',
                 '',
-                ...fieldResolversTypeDefs,
+                ...fieldResolversTypeDefs
             ]
         );
 
@@ -288,7 +288,7 @@ export class TSResolverGenerator {
         return !![
             this.queryType,
             this.mutationType,
-            this.subscriptionType,
+            this.subscriptionType
         ].find((type) => !!type && type.name === typeName);
     }
 }

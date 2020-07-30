@@ -7,7 +7,7 @@ import {
     IntrospectionQuery,
     GraphQLSchema,
     IntrospectionField,
-    IntrospectionInputValue,
+    IntrospectionInputValue
 } from 'graphql';
 import { camelCase } from 'lodash';
 import { getIntrospectionQuery } from 'graphql';
@@ -21,7 +21,7 @@ export const introspectSchema = async (
 ): Promise<IntrospectionQuery> => {
     const { data, errors } = await graphql({
         schema,
-        source: getIntrospectionQuery(),
+        source: getIntrospectionQuery()
     });
 
     if (errors) {
@@ -77,7 +77,7 @@ export const isBuiltinType = (type: SimpleTypeDescription): boolean => {
         '__Field',
         '__InputValue',
         '__Directive',
-        '__EnumValue',
+        '__EnumValue'
     ];
 
     return (
