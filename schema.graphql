@@ -1,0 +1,598 @@
+schema { 
+  query: Query 
+  mutation: Mutation   
+}
+directive @specifiedBy(url: String!) on SCALAR
+"""Activation reason"""
+enum ActiveReason {
+  """user-generated"""
+  USER
+  """sleep duration expired"""
+  WAKEUP
+  """new message came in"""
+  MESSAGE
+}
+union AttachmentBase = ImageAttachment | VideoAttachment
+input AttachmentInput {
+  """Name of file"""
+  name: String!
+  """
+  Encoding of asset - usually same as the extension (e.g. PNG, GIF, MP4). Inferred from asset if omitted
+  """
+  encoding: String
+}
+type Attorney implements IPerson {
+  id: String!
+  url: String!
+  avatar: AWSURL
+  name: String
+  timezone: String
+  firm: Firm
+  role: String
+  isAvailable: Boolean
+  nextNotification: AWSDateTime
+}
+type AttorneyCursor implements Cursor {
+  edges: [AttorneyEdge]
+  pageInfo: PageInfo
+}
+type AttorneyEdge implements Edge {
+  cursor: String
+  node: Attorney
+}
+"""Validated ISO 8601 Date Stamp"""
+scalar AWSDate
+"""Validated ISO 8601 Date/Time Stamp"""
+scalar AWSDateTime
+"""Validated email address"""
+scalar AWSEmail
+"""Validated IPv4 Address"""
+scalar AWSIPAddress
+"""Validated JSON"""
+scalar AWSJSON
+"""Validated Phone Number"""
+scalar AWSPhone
+"""Validated ISO 8601 Time Stamp"""
+scalar AWSTime
+"""Validated URL"""
+scalar AWSURL
+input CalendarEventInput {
+  start: AWSDateTime
+  stop: AWSDateTime
+  calendar: String
+  id: String
+}
+"""Shape of client"""
+type Client implements IPerson {
+  """globally unique identifier"""
+  url: String!
+  """identifier unique within clients"""
+  id: String
+  """name of individual"""
+  name: String
+  """download URI of avatar"""
+  avatar: AWSURL
+}
+"""Fields necessary for creating a new attorney"""
+input CreateAttorneyInput {
+  """Real name of attorney as displayed to clients, co-counsel etc"""
+  name: String!
+  """Email of attorney (must use either email or phone number)"""
+  email: String
+  """Phone number of attorney (must use either email or phone number)"""
+  phoneNumber: String
+  """
+  Preferred username alternative login (often the Clio/Litify/Practice Panther ID)
+  """
+  preferredUserName: String
+  """
+  Initial password for creating the user (will be randomized and inaccessible if omitted)
+  """
+  initialPassword: String
+}
+input CreateInvitationInput {
+  name: String
+  emails: [AWSEmail]
+  phoneNumbers: [AWSPhone]
+  recipientUri: String
+  type: InvitationType
+}
+input CreateMessageInput {
+  id: String
+  body: String
+  isPinned: Boolean
+  """Array of attachments to add to this message"""
+  attachments: [AttachmentInput]
+}
+input CreateScheduledMessageInput {
+  id: String
+  body: String
+  sendDate: AWSDateTime
+  isPinned: Boolean
+  """Array of attachments to add to this message"""
+  attachments: [AttachmentInput]
+}
+interface Cursor {
+  edges: [Edge]
+  pageInfo: PageInfo
+}
+input DeviceInput {
+  token: String!
+  platform: DevicePlatform!
+}
+enum DevicePlatform {
+  IOS
+  ANDROID
+}
+type DeviceStatus {
+  status: String
+  date: AWSDate
+}
+interface Edge {
+  cursor: String
+  node: Node
+}
+"""Institution with a Privilege account"""
+type Firm {
+  """Unique identifier of firm"""
+  id: String
+  """Name as shown in correspondence (e.g. Jane Roe P.C.)"""
+  name: String
+  """Background image of firm"""
+  backgroundUrl: AWSURL
+  """Get all attorneys, paginated with relay-style cursor"""
+  attorneys(lastPage: String): AttorneyCursor
+  """Upload URL for replacing the background image of the firm"""
+  backgroundUploadUrl: AWSURL
+  """Package for server-server communication (for Premium accounts)"""
+  appClient: oAuthClient
+}
+"""Updates to firm"""
+input FirmInput {
+  """Human-readable name of firm (e.g. Jane Smith & Associates LLP)"""
+  name: String
+}
+"""Common fields for asset attachments"""
+interface IAttachment {
+  """URL for attachment"""
+  url: String!
+  """Name of file"""
+  name: String!
+  """URL for uploading asset (null if asset already uploaded)"""
+  uploadUrl: AWSURL
+  """URL for downloading asset (null if asset requires upload)"""
+  downloadUrl: AWSURL
+  """Encoding of asset - usually same as the extension (e.g. PNG, GIF, MP4)"""
+  encoding: String
+}
+type ImageAttachment implements IAttachment {
+  """URL for attachment"""
+  url: String!
+  """Name of file"""
+  name: String!
+  """URL for uploading asset (null if asset already uploaded)"""
+  uploadUrl: AWSURL
+  """URL for downloading asset (null if asset requires upload)"""
+  downloadUrl: AWSURL
+  """Height of image in pixels"""
+  height: Int!
+  """Width of image in pixels"""
+  width: Int!
+  """Encoding of asset - usually same as the extension (e.g. PNG, GIF, MP4)"""
+  encoding: String!
+}
+interface IMessage {
+  id: String!
+  url: String!
+  author: Participant!
+  body: String
+  attachments: [AttachmentBase]
+  room: Room!
+  isPinned: Boolean
+  createDate: AWSDateTime
+}
+union Invitation = SentInvitation | OpenInvitation
+interface InvitationBase {
+  id: String!
+  sender: Person
+}
+input InvitationRefusalInput {
+  body: String
+}
+enum InvitationState {
+  UNSENT
+  SENT
+  EXPIRED
+  ACCEPTED
+}
+enum InvitationType {
+  ATTORNEY
+  CLIENT
+}
+"""Websockets connection information"""
+type IOT {
+  """URI of the websocket host"""
+  host: String
+  """AccessKey for connecting"""
+  accessKeyId: String
+  """Second security token"""
+  sessionToken: String
+  """AWS-specific key for subscribing to the websocket"""
+  region: String
+  """Identifier for information stream"""
+  topic: String
+  """Identifier for connection"""
+  id: String
+  """Third security token"""
+  secretKey: String
+}
+interface IPerson {
+  url: String!
+  name: String
+  avatar: AWSURL
+}
+"""Base message for privileged communications"""
+type Message implements IMessage {
+  id: String!
+  url: String!
+  author: Participant!
+  body: String
+  room: Room!
+  isRead: Boolean
+  isHidden: Boolean
+  isPinned: Boolean
+  createDate: AWSDateTime
+  readers: [Reader]
+  """Array of attachments on this message"""
+  attachments: [AttachmentBase]
+}
+union MessageBase = Message | ScheduledMessage
+type MessageCursor implements Cursor {
+  edges: [MessageEdge]
+  pageInfo: PageInfo
+}
+type MessageEdge implements Edge {
+  cursor: String
+  node: Message
+}
+type Mutation {
+  registerDevice(device: DeviceInput!): DeviceStatus
+  unregisterDevice(device: DeviceInput!): DeviceStatus
+  createInvitation(roomId: String, invitation: CreateInvitationInput!): SentInvitation
+  acceptInvitationCode(code: String!): OpenInvitation
+  acceptInvitation(id: String!): Room
+  refuseInvitation(id: String!, refusal: InvitationRefusalInput): Boolean
+  updateInvitation(id: String!, invitation: UpdateInvitationInput!): SentInvitation
+  rescindInvitation(id: String!): Boolean
+  createMessage(roomId: String!, message: CreateMessageInput): Message
+  pin(roomId: String, id: String!): MessageBase
+  unPin(roomId: String, id: String!): MessageBase
+  markAsRead(roomId: String!, messageIds: [String]!): [Message]
+  removeFromRoom(roomId: String, participantId: String, force: Boolean): Room
+  updateRoom(id: String!, room: RoomInput): Room
+  createRoom(room: RoomInput): Room
+  deleteRoom(id: String!): Boolean
+  requestReport(id: String!): Room
+  snoozeRoom(id: String!, until: AWSDateTime): Room
+  activateRoom(id: String!): Room
+  archiveRoom(id: String!): Room
+  unarchiveRoom(id: String!): Room
+  createScheduledMessage(roomId: String!, message: CreateScheduledMessageInput!): ScheduledMessage
+  updateScheduledMessage(roomId: String!, scheduledMessageId: String!, message: UpdateScheduledMessageInput!): ScheduledMessage
+  deleteScheduledMessage(roomId: String!, scheduledMessageId: String): Boolean
+  acceptEmergency(roomId: String!): Room
+  refuseEmegency(roomId: String!): Room
+  """Make changes to firm"""
+  updateFirm(
+    """Id of firm. If omitted, will return this attorney's firm"""
+    id: String
+    """Updates"""
+    firm: FirmInput!
+  ): Firm
+  """Create a new oAuth app client (for Premium accounts)"""
+  createFirmAppClient: Firm
+  """Delete app client (for Premium acounts)"""
+  deleteFirmAppClient: Firm
+  """Add a new attorney to the firm"""
+  createAttorney(
+    """Shape for new attorney"""
+    attorney: CreateAttorneyInput
+  ): Attorney
+  """Change password for an attorney"""
+  setAttorneyPassword(
+    """Id of attorney"""
+    attorneyId: String
+    """New password (must pass strength requirements)"""
+    newPassword: String
+  ): Attorney
+  markAsHidden(roomId: String!, messageIds: [String]): [Message]
+  markAsUnhidden(roomId: String!, messageIds: [String]): [Message]
+  sendPushNotification(uri: String, text: String!): User
+  sendPushNotificationPayload(payload: AWSJSON!, platform: DevicePlatform!, uri: String, roomId: String): User
+  updateParticipant(roomId: String, data: ParticipantInput!): Participant
+  hideAllInRoom(id: String!): Room
+  showAllInRoom(id: String!): Room
+  updateUser(user: UserInput!): User
+  addCalendar(id: String): User
+  removeCalendar(id: String): User
+  addCalendarEvents(calendarEvents: [CalendarEventInput!]!): User
+  addNotification(notification: NotificationInput!): User
+  addEmergencyNotification(notification: NotificationInput): User
+  removeContact(uri: String!): User
+  requestContact(uri: String!): User
+  confirmContact(code: String!): User
+  permanentlyDisableUser(areYouSure: Boolean!): User
+}
+union Node = Attorney | SentInvitation | OpenInvitation | Message | Participant | Room | ScheduledMessage
+type Notification {
+  type: NotificationType
+  contact: String
+}
+input NotificationInput {
+  type: NotificationType!
+  contact: String
+}
+enum NotificationState {
+  ACTIVE
+  SNOOZED
+}
+enum NotificationType {
+  EMAIL
+  INAPPNOTIFICATION
+  SMS
+  VOICE
+}
+"""
+Fields necessary for ticket-based server-server or CLI use of Privilege API.
+Sample code at https://github.com/Element55/node-gql-client
+"""
+type oAuthClient {
+  """oAuth client ID"""
+  clientId: String!
+  """HTTPS endpoint for making graphQL requests"""
+  graphqlEndpoint: String!
+  """oAuth endpoint for ticket management"""
+  tokenEndpoint: String!
+  """Secret for client. Identifier required."""
+  clientSecret: String!
+}
+type OfficeHour {
+  start: String
+  stop: String
+  label: String
+}
+input OfficeHourInput {
+  start: String
+  stop: String
+  label: String
+}
+type OpenInvitation implements InvitationBase {
+  id: String!
+  sender: Person
+}
+type OpenInvitationCursor implements Cursor {
+  edges: [OpenInvitationEdge]
+  pageInfo: PageInfo
+}
+type OpenInvitationEdge implements Edge {
+  cursor: String
+  node: OpenInvitation
+}
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  firstCursor: String
+  lastCursor: String
+}
+type Participant {
+  id: String
+  person: Person
+  emergencyContact: Boolean
+  pendingNotification: Boolean
+}
+type ParticipantCursor implements Cursor {
+  edges: [ParticipantEdge]
+  pageInfo: PageInfo
+}
+type ParticipantEdge implements Edge {
+  cursor: String
+  node: Participant
+}
+enum ParticipantFilter {
+  CLIENTS
+  ATTORNEYS
+  PENDINGNOTIFICATIONS
+}
+input ParticipantInput {
+  alwaysNotify: Boolean
+  emergencyContact: Boolean
+}
+type ParticipantState {
+  activeMessage: String
+  isParticipant: Boolean
+  unreadMessages: Int
+  snoozeDate: AWSDateTime
+  activateDate: AWSDateTime
+  activeReason: ActiveReason
+  state: NotificationState
+  alwaysNotify: Boolean
+}
+union Person = Attorney | Client
+type Query {
+  getAttorney(id: String!): Attorney
+  """Retrieve client by id"""
+  getClient(
+    """id of client"""
+    id: String!
+  ): Client
+  getSentInvitations(roomId: String, lastPage: String): SentInvitationCursor
+  getOpenInvitations(lastPage: String): OpenInvitationCursor
+  getOpenInvitation(id: String!): OpenInvitation
+  getSentInvitation(id: String!): SentInvitation
+  getMessages(roomId: String!, lastPage: String): MessageCursor
+  getMessage(roomId: String!, id: String!): Message
+  getParticipants(roomId: String, filter: ParticipantFilter, lastPage: String): ParticipantCursor
+  getParticipant(roomid: String, id: String): Participant
+  getRoom(id: String!): Room
+  getRooms(showArchived: Boolean, lastPage: String): RoomCursor
+  getRoomParticipants(roomId: String!, lastPage: String): ParticipantCursor
+  getScheduledMessages(roomId: String!, lastPage: String): ScheduledMessageCursor
+  getScheduledMessage(roomId: String!, id: String!): ScheduledMessage
+  """Retrieve firm"""
+  getFirm(
+    """Id of firm. If omitted, will return this attorney's firm"""
+    id: String
+  ): Firm
+  """Get all attorneys for a firm"""
+  getAttorneys(
+    """Id of firm If omitted, will return this attorney's firm"""
+    id: String
+    """Cursor for start position Will start from beginning if omitted."""
+    lastPage: String
+  ): AttorneyCursor
+  getUser: User
+}
+type Reader {
+  participant: Participant
+  date: AWSDateTime
+}
+type Room {
+  id: String
+  owner: Client
+  name: String
+  emergencyDate: String
+  retention: Float
+  backgroundImageUrl: AWSURL
+  participantState: ParticipantState
+  lastMessage: Message
+  isArchived: Boolean
+  archiveDate: AWSDateTime
+  isOwner: Boolean
+  participants(showClients: Boolean, showAttorneys: Boolean, pendingNotifications: Boolean, lastPage: String): ParticipantCursor
+  invitations(lastPage: String): SentInvitationCursor
+  reportDate: AWSDateTime
+  reportUrl: AWSURL
+  reportRequested: Boolean
+  reportRequestDate: AWSDateTime
+  inEmergency: Boolean
+  messages(lastPage: String): MessageCursor
+  scheduledMessages(lastPage: String): ScheduledMessageCursor
+}
+type RoomCursor implements Cursor {
+  edges: [RoomEdge]
+  pageInfo: PageInfo
+}
+type RoomEdge implements Edge {
+  cursor: String
+  node: Room
+}
+input RoomInput {
+  name: String
+  retention: Float
+}
+type ScheduledMessage implements IMessage {
+  id: String!
+  url: String!
+  author: Participant!
+  body: String
+  room: Room!
+  sendDate: AWSDateTime
+  isPinned: Boolean
+  createDate: AWSDateTime
+  """Array of attachments on this message"""
+  attachments: [AttachmentBase]
+}
+type ScheduledMessageCursor implements Cursor {
+  edges: [ScheduledMessageEdge]
+  pageInfo: PageInfo
+}
+type ScheduledMessageEdge implements Edge {
+  cursor: String
+  node: ScheduledMessage
+}
+type SentInvitation implements InvitationBase {
+  id: String!
+  recipient: Person
+  state: InvitationState
+  emails: [AWSEmail]
+  phoneNumbers: [AWSPhone]
+  type: InvitationType
+  sender: Person
+  room: Room
+  code: String
+}
+type SentInvitationCursor implements Cursor {
+  edges: [SentInvitationEdge]
+  pageInfo: PageInfo
+}
+type SentInvitationEdge implements Edge {
+  cursor: String
+  node: SentInvitation
+}
+type TimelineEvent {
+  start: AWSDateTime
+  stop: AWSDateTime
+  date: AWSDateTime
+  type: String!
+}
+input UpdateInvitationInput {
+  name: String
+  emails: [AWSEmail]
+  phoneNumbers: [AWSPhone]
+  recipientUri: String
+  type: InvitationType
+}
+input UpdateScheduledMessageInput {
+  body: String
+  sendDate: AWSDateTime
+  isPinned: Boolean
+}
+type Url {
+  """Utility type for returning a URL for next-stage use"""
+  url: AWSURL
+}
+type User {
+  id: String
+  avatarUploadUrl: AWSURL
+  avatarDownloadUrl: AWSURL
+  firmBackgroundUrl: AWSURL
+  firmBackgroundUploadUrl: AWSURL
+  name: String
+  availabilityTimeline: [TimelineEvent]
+  officeHours: [OfficeHour]
+  calendars: [String]
+  iot: IOT
+  attorney: Attorney
+  emergencyNotifications: [Notification]
+  notifications: [Notification]
+  contacts: [String]
+  emergencyAgreement: String
+}
+input UserInput {
+  name: String
+  timezone: String
+  events: [CalendarEventInput!]
+  emergencyNotifications: [NotificationInput!]
+  notifications: [NotificationInput!]
+  calendars: [String]
+  officeHours: [OfficeHourInput]
+  emergencyAgreement: String
+}
+type VideoAttachment implements IAttachment {
+  """URL for attachment"""
+  url: String!
+  """Name of file"""
+  name: String!
+  """URL for uploading asset (null if asset already uploaded)"""
+  uploadUrl: AWSURL
+  """URL for downloading asset (null if asset requires upload)"""
+  downloadUrl: AWSURL
+  """Height of video in pixels"""
+  height: Int!
+  """Width of video in pixels"""
+  width: Int!
+  """Duration of video in seconds"""
+  duration: Int!
+  """Encoding of asset - usually same as the extension (e.g. PNG, GIF, MP4)"""
+  encoding: String!
+}
