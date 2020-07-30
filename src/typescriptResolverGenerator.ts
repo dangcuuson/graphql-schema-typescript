@@ -1,9 +1,5 @@
 import { GenerateTypescriptOptions } from './types';
-import {
-    isBuiltinType,
-    createFieldRef,
-    toUppercaseFirst
-} from './utils';
+import { isBuiltinType, createFieldRef, toUppercaseFirst } from './utils';
 import {
     IntrospectionScalarType,
     IntrospectionObjectType,
@@ -11,7 +7,7 @@ import {
     IntrospectionUnionType,
     IntrospectionNamedTypeRef,
     IntrospectionQuery,
-    IntrospectionField
+    IntrospectionField,
 } from 'graphql';
 
 export interface GenerateResolversResult {
@@ -24,7 +20,7 @@ export class TSResolverGenerator {
     protected resolverInterfaces: string[] = [];
     protected resolverObject: string[] = [];
     protected resolverResult: {
-        [name: string]: string[]
+        [name: string]: string[];
     } = {};
     protected contextType: string;
 
@@ -44,7 +40,9 @@ export class TSResolverGenerator {
 
     public async generate(): Promise<GenerateResolversResult> {
         const { introspectionResult } = this;
-        const gqlTypes = introspectionResult.__schema.types.filter(type => !isBuiltinType(type));
+        const gqlTypes = introspectionResult.__schema.types.filter(
+            (type) => !isBuiltinType(type)
+        );
         this.queryType = introspectionResult.__schema.queryType;
         this.mutationType = introspectionResult.__schema.mutationType;
         this.subscriptionType = introspectionResult.__schema.subscriptionType;
@@ -52,11 +50,17 @@ export class TSResolverGenerator {
         this.importHeader.push('/* tslint:disable */');
         this.importHeader.push('/* eslint-disable */');
 
-        const hasCustomScalar = !!gqlTypes.find(type => type.kind === 'SCALAR');
+        const hasCustomScalar = !!gqlTypes.find(
+            (type) => type.kind === 'SCALAR'
+        );
         if (hasCustomScalar) {
-            this.importHeader.push(`import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';`);
+            this.importHeader.push(
+                `import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';`
+            );
         } else {
-            this.importHeader.push(`import { GraphQLResolveInfo } from 'graphql';`);
+            this.importHeader.push(
+                `import { GraphQLResolveInfo } from 'graphql';`
+            );
         }
 
         this.resolverObject = [
@@ -65,12 +69,13 @@ export class TSResolverGenerator {
             ' * Note that this type is designed to be compatible with graphql-tools resolvers',
             ' * However, you can still use other generated interfaces to make your resolver type-safed',
             ' */',
-            `export interface ${this.options.typePrefix}Resolver {`
+            `export interface ${this.options.typePrefix}Resolver {`,
         ];
 
-        gqlTypes.forEach(type => {
-            const isSubscription = introspectionResult.__schema.subscriptionType ?
-                introspectionResult.__schema.subscriptionType.name === type.name
+        gqlTypes.forEach((type) => {
+            const isSubscription = introspectionResult.__schema.subscriptionType
+                ? introspectionResult.__schema.subscriptionType.name ===
+                  type.name
                 : false;
 
             switch (type.kind) {
@@ -104,40 +109,57 @@ export class TSResolverGenerator {
             body: [
                 ...this.resolverObject,
                 ...this.resolverInterfaces,
-                ...Object.values(this.resolverResult).map(v => v.join('\n'))
-            ]
+                ...Object.values(this.resolverResult).map((v) => v.join('\n')),
+            ],
         };
     }
 
     private generateCustomScalarResolver(scalarType: IntrospectionScalarType) {
-        this.resolverObject.push(`${scalarType.name}${this.getModifier()}: GraphQLScalarType;`);
+        this.resolverObject.push(
+            `${scalarType.name}${this.getModifier()}: GraphQLScalarType;`
+        );
     }
 
-    private generateTypeResolver(type: IntrospectionUnionType | IntrospectionInterfaceType) {
-        const possbileTypes = type.possibleTypes.map(pt => `'${pt.name}'`);
+    private generateTypeResolver(
+        type: IntrospectionUnionType | IntrospectionInterfaceType
+    ) {
+        const possbileTypes = type.possibleTypes.map((pt) => `'${pt.name}'`);
         const interfaceName = `${this.options.typePrefix}${type.name}TypeResolver`;
         const infoModifier = this.options.optionalResolverInfo ? '?' : '';
 
-        this.resolverInterfaces.push(...[
-            `export interface ${interfaceName}<TParent = ${this.guessTParent(type.name)}> {`,
-            `(parent: TParent, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo): ${possbileTypes.join(' | ')};`,
-            '}'
-        ]);
+        this.resolverInterfaces.push(
+            ...[
+                `export interface ${interfaceName}<TParent = ${this.guessTParent(
+                    type.name
+                )}> {`,
+                `(parent: TParent, context: ${
+                    this.contextType
+                }, info${infoModifier}: GraphQLResolveInfo): ${possbileTypes.join(
+                    ' | '
+                )};`,
+                '}',
+            ]
+        );
 
-        this.resolverObject.push(...[
-            `${type.name}${this.getModifier()}: {`,
-            `__resolveType: ${interfaceName}`,
-            '};',
-            ''
-        ]);
+        this.resolverObject.push(
+            ...[
+                `${type.name}${this.getModifier()}: {`,
+                `__resolveType: ${interfaceName}`,
+                '};',
+                '',
+            ]
+        );
     }
 
-    private generateObjectResolver(objectType: IntrospectionObjectType, isSubscription: boolean = false) {
+    private generateObjectResolver(
+        objectType: IntrospectionObjectType,
+        isSubscription: boolean = false
+    ) {
         const typeResolverName = `${this.options.typePrefix}${objectType.name}TypeResolver`;
         const typeResolverBody: string[] = [];
         const fieldResolversTypeDefs: string[] = [];
 
-        objectType.fields.forEach(field => {
+        objectType.fields.forEach((field) => {
             // generate args type
             let argsType = '{}';
 
@@ -146,16 +168,18 @@ export class TSResolverGenerator {
             if (field.args.length > 0) {
                 argsType = `${objectType.name}To${uppercaseFirstFieldName}Args`;
                 const argsBody: string[] = [];
-                field.args.forEach(arg => {
-                    const { fieldName, fieldType } = createFieldRef(arg, this.options.typePrefix, false);
+                field.args.forEach((arg) => {
+                    const { fieldName, fieldType } = createFieldRef(
+                        arg,
+                        this.options.typePrefix,
+                        false
+                    );
                     argsBody.push(`${fieldName}: ${fieldType};`);
                 });
 
-                fieldResolversTypeDefs.push(...[
-                    `export interface ${argsType} {`,
-                    ...argsBody,
-                    '}'
-                ]);
+                fieldResolversTypeDefs.push(
+                    ...[`export interface ${argsType} {`, ...argsBody, '}']
+                );
             }
 
             // generate field type
@@ -168,46 +192,57 @@ export class TSResolverGenerator {
                 this.options.asyncResult === 'always'
                     ? 'Promise<TResult>'
                     : !!this.options.asyncResult
-                        ? 'TResult | Promise<TResult>'
-                        : 'TResult';
-            const subscriptionReturnType =
-                this.options.asyncResult ? 'AsyncIterator<TResult> | Promise<AsyncIterator<TResult>>' : 'AsyncIterator<TResult>';
+                    ? 'TResult | Promise<TResult>'
+                    : 'TResult';
+            const subscriptionReturnType = this.options.asyncResult
+                ? 'AsyncIterator<TResult> | Promise<AsyncIterator<TResult>>'
+                : 'AsyncIterator<TResult>';
             const fieldResolverTypeDef = !isSubscription
                 ? [
-                    `export interface ${fieldResolverName}<TParent = ${TParent}, TResult = ${TResult}> {`,
-                    `(parent: TParent, args: ${argsType}, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo): ${returnType};`,
-                    '}',
-                    ''
-                ]
+                      `export interface ${fieldResolverName}<TParent = ${TParent}, TResult = ${TResult}> {`,
+                      `(parent: TParent, args: ${argsType}, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo): ${returnType};`,
+                      '}',
+                      '',
+                  ]
                 : [
-                    `export interface ${fieldResolverName}<TParent = ${TParent}, TResult = ${TResult}> {`,
-                    // tslint:disable-next-line:max-line-length
-                    `resolve${this.getModifier()}: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo) => ${returnType};`,
-                    // tslint:disable-next-line:max-line-length
-                    `subscribe: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo) => ${subscriptionReturnType};`,
-                    '}',
-                    ''
-                ];
+                      `export interface ${fieldResolverName}<TParent = ${TParent}, TResult = ${TResult}> {`,
+                      // tslint:disable-next-line:max-line-length
+                      `resolve${this.getModifier()}: (parent: TParent, args: ${argsType}, context: ${
+                          this.contextType
+                      }, info${infoModifier}: GraphQLResolveInfo) => ${returnType};`,
+                      // tslint:disable-next-line:max-line-length
+                      `subscribe: (parent: TParent, args: ${argsType}, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo) => ${subscriptionReturnType};`,
+                      '}',
+                      '',
+                  ];
 
             fieldResolversTypeDefs.push(...fieldResolverTypeDef);
 
-            typeResolverBody.push(...[
-                `${field.name}${this.getModifier()}: ${fieldResolverName}<TParent>;`
-            ]);
+            typeResolverBody.push(
+                ...[
+                    `${
+                        field.name
+                    }${this.getModifier()}: ${fieldResolverName}<TParent>;`,
+                ]
+            );
         });
 
-        this.resolverInterfaces.push(...[
-            `export interface ${typeResolverName}<TParent = ${this.guessTParent(objectType.name)}> {`,
-            ...typeResolverBody,
-            '}',
-            '',
-            ...fieldResolversTypeDefs
-        ]);
+        this.resolverInterfaces.push(
+            ...[
+                `export interface ${typeResolverName}<TParent = ${this.guessTParent(
+                    objectType.name
+                )}> {`,
+                ...typeResolverBody,
+                '}',
+                '',
+                ...fieldResolversTypeDefs,
+            ]
+        );
 
         // add the type resolver to resolver object
-        this.resolverObject.push(...[
-            `${objectType.name}${this.getModifier()}: ${typeResolverName};`
-        ]);
+        this.resolverObject.push(
+            ...[`${objectType.name}${this.getModifier()}: ${typeResolverName};`]
+        );
     }
 
     // optional or required
@@ -241,13 +276,19 @@ export class TSResolverGenerator {
 
         // TODO: build TResult
         // set strict-nulls to always true so that fieldType could possibly null;
-        const { fieldType } = createFieldRef(field, this.options.typePrefix, true);
+        const { fieldType } = createFieldRef(
+            field,
+            this.options.typePrefix,
+            true
+        );
         return fieldType;
     }
 
     private isRootType(typeName: string) {
         return !![
-            this.queryType, this.mutationType, this.subscriptionType
-        ].find(type => !!type && type.name === typeName);
+            this.queryType,
+            this.mutationType,
+            this.subscriptionType,
+        ].find((type) => !!type && type.name === typeName);
     }
 }

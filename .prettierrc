@@ -1,4 +1,5 @@
 {
   "singleQuote": true,
-  "align": ["arguments"]
+  "align": ["arguments"],
+  "tabWidth": 4
 }

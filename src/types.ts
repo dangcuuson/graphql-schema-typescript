@@ -50,14 +50,14 @@ export interface GenerateTypescriptOptions {
 
     /**
      * This option is for resolvers
-     * If true, the lib will try to guest the most appropriate 
+     * If true, the lib will try to guest the most appropriate
      * default TResult type of resolvers (instead of default to 'any')
-     * 
-     * e.g: 
+     *
+     * e.g:
      * schema { query: Query }
      * type Query { users: [Users!] }
      * type User { username: String! }
-     * 
+     *
      * =>   interface QueryToUsersResolver<TParent = any, TResult = User[] | null> { ... }
      *      interface UserToUsernameResolver<TParent = any, TResult = string> { ... }
      */
@@ -65,14 +65,14 @@ export interface GenerateTypescriptOptions {
 
     /**
      * This option is for resolvers
-     * If true, the lib will try to guest the most appropriate 
+     * If true, the lib will try to guest the most appropriate
      * default TParent type of resolvers (instead of default to 'any')
-     * 
-     * e.g: 
+     *
+     * e.g:
      * schema { query: Query }
      * type Query { users: [Users!] }
      * type User { username: String! }
-     * 
+     *
      * =>   interface QueryToUsersResolver<TParent = rootValueType, TResult = any> { ... }
      *      interface UserToUsernameResolver<TParent = User, TResullt = any> { ... }
      */
@@ -82,7 +82,7 @@ export interface GenerateTypescriptOptions {
      * This option is for resolvers
      * If true, set return type of resolver to `TResult | Promise<TResult>`
      * If 'awalys', set return type of resolver to `Promise<TResult>`
-     * 
+     *
      * e.g: interface QueryToUsersResolver<TParent = any, TResult = any> {
      *  (parent: TParent, args: {}, context: any, info): TResult extends Promise ? TResult : TResult | Promise<TResult>
      * }
