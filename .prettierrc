@@ -3,5 +3,5 @@
     "align": ["arguments"],
     "tabWidth": 4,
     "trailingComma": "none",
-    "printWidth": 80
+    "printWidth": 100
 }
