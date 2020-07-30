@@ -19,19 +19,16 @@ function handleError(message: string, error: Error = new Error(message)) {
 const globalOpt: keyof GenerateTypescriptOptions = 'global';
 const typePrefix: keyof GenerateTypescriptOptions = 'typePrefix';
 const namespaceOpt: keyof GenerateTypescriptOptions = 'namespace';
-const miminizeInterface: keyof GenerateTypescriptOptions =
-    'minimizeInterfaceImplementation';
+const miminizeInterface: keyof GenerateTypescriptOptions = 'minimizeInterfaceImplementation';
 const contextType: keyof GenerateTypescriptOptions = 'contextType';
 const importStatements: keyof GenerateTypescriptOptions = 'importStatements';
 const strictNulls: keyof GenerateTypescriptOptions = 'strictNulls';
 const smartTResult: keyof GenerateTypescriptOptions = 'smartTResult';
 const smartTParent: keyof GenerateTypescriptOptions = 'smartTParent';
 const asyncResult: keyof GenerateTypescriptOptions = 'asyncResult';
-const requireResolverTypes: keyof GenerateTypescriptOptions =
-    'requireResolverTypes';
+const requireResolverTypes: keyof GenerateTypescriptOptions = 'requireResolverTypes';
 const noStringEnum: keyof GenerateTypescriptOptions = 'noStringEnum';
-const optionalResolverInfo: keyof GenerateTypescriptOptions =
-    'optionalResolverInfo';
+const optionalResolverInfo: keyof GenerateTypescriptOptions = 'optionalResolverInfo';
 
 // tslint:disable-next-line
 yargs
@@ -61,8 +58,7 @@ yargs
         default: defaultOptions[contextType]
     })
     .option(importStatements, {
-        desc:
-            'Import statements at the top of the generated file that import your custom scalar type and context type',
+        desc: 'Import statements at the top of the generated file that import your custom scalar type and context type',
         array: true
     })
     .option(strictNulls, {
@@ -82,8 +78,7 @@ yargs
         choices: [true, 'always']
     })
     .option(requireResolverTypes, {
-        desc:
-            'Set resolvers to be required. Useful to ensure no resolvers is missing',
+        desc: 'Set resolvers to be required. Useful to ensure no resolvers is missing',
         boolean: true
     })
     .option(noStringEnum, {
@@ -124,11 +119,7 @@ yargs
             options[noStringEnum] = argv[noStringEnum];
             options[optionalResolverInfo] = argv[optionalResolverInfo];
 
-            await generateTypeScriptTypes(
-                folderPath,
-                path.resolve(output),
-                options
-            );
+            await generateTypeScriptTypes(folderPath, path.resolve(output), options);
             if (process.env.NODE_ENV !== 'test') {
                 console.log(`Typescript generated at: ${output}`);
             }

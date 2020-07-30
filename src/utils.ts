@@ -16,9 +16,7 @@ import { getIntrospectionQuery } from 'graphql';
  * Send introspection query to a graphql schema
  */
 
-export const introspectSchema = async (
-    schema: GraphQLSchema
-): Promise<IntrospectionQuery> => {
+export const introspectSchema = async (schema: GraphQLSchema): Promise<IntrospectionQuery> => {
     const { data, errors } = await graphql({
         schema,
         source: getIntrospectionQuery()
@@ -31,9 +29,7 @@ export const introspectSchema = async (
     return data as IntrospectionQuery;
 };
 
-async function introspectSchemaStr(
-    schemaStr: string
-): Promise<IntrospectionQuery> {
+async function introspectSchemaStr(schemaStr: string): Promise<IntrospectionQuery> {
     const schema = buildASTSchema(parse(schemaStr));
     return introspectSchema(schema);
 }
@@ -42,22 +38,16 @@ function klawSync(path: string, filterRegex: RegExp, fileNames: string[] = []) {
     const fileStat = fs.statSync(path);
     if (fileStat.isDirectory()) {
         const directory = fs.readdirSync(path);
-        directory.forEach((f) =>
-            klawSync(join(path, f), filterRegex, fileNames)
-        );
+        directory.forEach((f) => klawSync(join(path, f), filterRegex, fileNames));
     } else if (filterRegex.test(path)) {
         fileNames.push(path);
     }
     return fileNames;
 }
 
-export const introspectSchemaViaLocalFile = async (
-    path: string
-): Promise<IntrospectionQuery> => {
+export const introspectSchemaViaLocalFile = async (path: string): Promise<IntrospectionQuery> => {
     const files = klawSync(path, /\.(graphql|gql|graphqls)$/);
-    const allTypeDefs = files
-        .map((filePath) => fs.readFileSync(filePath, 'utf-8'))
-        .join('\n');
+    const allTypeDefs = files.map((filePath) => fs.readFileSync(filePath, 'utf-8')).join('\n');
     return await introspectSchemaStr(allTypeDefs);
 };
 
@@ -71,18 +61,10 @@ export interface SimpleTypeDescription {
 export const isBuiltinType = (type: SimpleTypeDescription): boolean => {
     const builtInScalarNames = ['Int', 'Float', 'String', 'Boolean', 'ID'];
     const builtInEnumNames = ['__TypeKind', '__DirectiveLocation'];
-    const builtInObjectNames = [
-        '__Schema',
-        '__Type',
-        '__Field',
-        '__InputValue',
-        '__Directive',
-        '__EnumValue'
-    ];
+    const builtInObjectNames = ['__Schema', '__Type', '__Field', '__InputValue', '__Directive', '__EnumValue'];
 
     return (
-        (type.kind === 'SCALAR' &&
-            builtInScalarNames.indexOf(type.name) !== -1) ||
+        (type.kind === 'SCALAR' && builtInScalarNames.indexOf(type.name) !== -1) ||
         (type.kind === 'ENUM' && builtInEnumNames.indexOf(type.name) !== -1) ||
         (type.kind === 'OBJECT' && builtInObjectNames.indexOf(type.name) !== -1)
     );
@@ -97,9 +79,7 @@ export interface GraphqlDescription {
 /**
  * Convert description and deprecated directives into JSDoc
  */
-export const descriptionToJSDoc = (
-    description: GraphqlDescription
-): string[] => {
+export const descriptionToJSDoc = (description: GraphqlDescription): string[] => {
     let line = description.description || '';
 
     const { isDeprecated, deprecationReason } = description;
@@ -125,10 +105,7 @@ export interface FieldType {
     fieldModifier: string;
 }
 
-export const formatTabSpace = (
-    lines: string[],
-    tabSpaces: number
-): string[] => {
+export const formatTabSpace = (lines: string[], tabSpaces: number): string[] => {
     let result: string[] = [];
 
     let indent = 0;
@@ -170,11 +147,7 @@ const gqlScalarToTS = (scalarName: string, typePrefix: string): string => {
     }
 };
 
-const getTypeToTS = (
-    field: any,
-    prefix: string,
-    nonNullable: boolean = false
-): string => {
+const getTypeToTS = (field: any, prefix: string, nonNullable: boolean = false): string => {
     let tsType = '';
 
     if (field.kind === 'NON_NULL') {
