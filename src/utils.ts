@@ -1,5 +1,5 @@
-import * as fs from "fs";
-import { join } from "path";
+import * as fs from 'fs';
+import { join } from 'path';
 import {
   graphql,
   buildASTSchema,
@@ -8,13 +8,14 @@ import {
   GraphQLSchema,
   IntrospectionField,
   IntrospectionInputValue,
-} from "graphql";
-import { camelCase } from "lodash";
-import { getIntrospectionQuery } from "graphql";
+} from 'graphql';
+import { camelCase } from 'lodash';
+import { getIntrospectionQuery } from 'graphql';
 
 /**
  * Send introspection query to a graphql schema
  */
+
 export const introspectSchema = async (
   schema: GraphQLSchema
 ): Promise<IntrospectionQuery> => {
@@ -53,8 +54,8 @@ export const introspectSchemaViaLocalFile = async (
 ): Promise<IntrospectionQuery> => {
   const files = klawSync(path, /\.(graphql|gql|graphqls)$/);
   const allTypeDefs = files
-    .map((filePath) => fs.readFileSync(filePath, "utf-8"))
-    .join("\n");
+    .map((filePath) => fs.readFileSync(filePath, 'utf-8'))
+    .join('\n');
   return await introspectSchemaStr(allTypeDefs);
 };
 
@@ -66,21 +67,21 @@ export interface SimpleTypeDescription {
  * Check if type is a built-in graphql type
  */
 export const isBuiltinType = (type: SimpleTypeDescription): boolean => {
-  const builtInScalarNames = ["Int", "Float", "String", "Boolean", "ID"];
-  const builtInEnumNames = ["__TypeKind", "__DirectiveLocation"];
+  const builtInScalarNames = ['Int', 'Float', 'String', 'Boolean', 'ID'];
+  const builtInEnumNames = ['__TypeKind', '__DirectiveLocation'];
   const builtInObjectNames = [
-    "__Schema",
-    "__Type",
-    "__Field",
-    "__InputValue",
-    "__Directive",
-    "__EnumValue",
+    '__Schema',
+    '__Type',
+    '__Field',
+    '__InputValue',
+    '__Directive',
+    '__EnumValue',
   ];
 
   return (
-    (type.kind === "SCALAR" && builtInScalarNames.indexOf(type.name) !== -1) ||
-    (type.kind === "ENUM" && builtInEnumNames.indexOf(type.name) !== -1) ||
-    (type.kind === "OBJECT" && builtInObjectNames.indexOf(type.name) !== -1)
+    (type.kind === 'SCALAR' && builtInScalarNames.indexOf(type.name) !== -1) ||
+    (type.kind === 'ENUM' && builtInEnumNames.indexOf(type.name) !== -1) ||
+    (type.kind === 'OBJECT' && builtInObjectNames.indexOf(type.name) !== -1)
   );
 };
 
@@ -96,13 +97,13 @@ export interface GraphqlDescription {
 export const descriptionToJSDoc = (
   description: GraphqlDescription
 ): string[] => {
-  let line = description.description || "";
+  let line = description.description || '';
 
   const { isDeprecated, deprecationReason } = description;
   if (isDeprecated) {
-    line += "\n@deprecated";
+    line += '\n@deprecated';
     if (deprecationReason) {
-      line += " " + deprecationReason;
+      line += ' ' + deprecationReason;
     }
   }
 
@@ -110,8 +111,8 @@ export const descriptionToJSDoc = (
     return [];
   }
 
-  const lines = line.split("\n").map((l) => " * " + l);
-  return ["/**", ...lines, " */"];
+  const lines = line.split('\n').map((l) => ' * ' + l);
+  return ['/**', ...lines, ' */'];
 };
 
 export interface FieldType {
@@ -131,16 +132,16 @@ export const formatTabSpace = (
   for (let line of lines) {
     const trimmed = line.trim();
 
-    if (trimmed.endsWith("}") || trimmed.endsWith("};")) {
+    if (trimmed.endsWith('}') || trimmed.endsWith('};')) {
       indent -= tabSpaces;
       if (indent < 0) {
         indent = 0;
       }
     }
 
-    result.push(" ".repeat(indent) + line);
+    result.push(' '.repeat(indent) + line);
 
-    if (trimmed.endsWith("{")) {
+    if (trimmed.endsWith('{')) {
       indent += tabSpaces;
     }
   }
@@ -150,16 +151,16 @@ export const formatTabSpace = (
 
 const gqlScalarToTS = (scalarName: string, typePrefix: string): string => {
   switch (scalarName) {
-    case "Int":
-    case "Float":
-      return "number";
+    case 'Int':
+    case 'Float':
+      return 'number';
 
-    case "String":
-    case "ID":
-      return "string";
+    case 'String':
+    case 'ID':
+      return 'string';
 
-    case "Boolean":
-      return "boolean";
+    case 'Boolean':
+      return 'boolean';
 
     default:
       return typePrefix + scalarName;
@@ -171,13 +172,13 @@ const getTypeToTS = (
   prefix: string,
   nonNullable: boolean = false
 ): string => {
-  let tsType = "";
+  let tsType = '';
 
-  if (field.kind === "NON_NULL") {
+  if (field.kind === 'NON_NULL') {
     return getTypeToTS(field.ofType, prefix, true);
   }
 
-  if (field.kind === "LIST") {
+  if (field.kind === 'LIST') {
     tsType = getTypeToTS(field.ofType, prefix, false);
     tsType = `Array<${tsType}>`;
   } else {
@@ -196,9 +197,9 @@ export const createFieldRef = (
   prefix: string,
   strict: boolean
 ): { fieldName: string; fieldType: string } => {
-  const nullable = field.type.kind !== "NON_NULL";
-  let fieldName = "";
-  let fieldType = "";
+  const nullable = field.type.kind !== 'NON_NULL';
+  let fieldName = '';
+  let fieldType = '';
 
   if (!strict && nullable) {
     fieldName = `${field.name}?`;

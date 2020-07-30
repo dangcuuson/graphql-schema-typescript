@@ -1,11 +1,11 @@
-import { GenerateTypescriptOptions } from "./types";
-import { versionMajorMinor as TSVersion } from "typescript";
+import { GenerateTypescriptOptions } from './types';
+import { versionMajorMinor as TSVersion } from 'typescript';
 import {
   isBuiltinType,
   descriptionToJSDoc,
   createFieldRef,
   pascalCase,
-} from "./utils";
+} from './utils';
 import {
   IntrospectionType,
   IntrospectionScalarType,
@@ -17,7 +17,7 @@ import {
   IntrospectionQuery,
   IntrospectionField,
   IntrospectionInputValue,
-} from "graphql";
+} from 'graphql';
 
 export class TypeScriptGenerator {
   constructor(
@@ -37,30 +37,30 @@ export class TypeScriptGenerator {
       let typeScriptDefs: string[] = [].concat(jsDoc);
 
       switch (gqlType.kind) {
-        case "SCALAR": {
+        case 'SCALAR': {
           typeScriptDefs = typeScriptDefs.concat(
             this.generateCustomScalarType(gqlType)
           );
           break;
         }
 
-        case "ENUM": {
+        case 'ENUM': {
           typeScriptDefs = typeScriptDefs.concat(
             this.generateEnumType(gqlType)
           );
           break;
         }
 
-        case "OBJECT":
-        case "INPUT_OBJECT":
-        case "INTERFACE": {
+        case 'OBJECT':
+        case 'INPUT_OBJECT':
+        case 'INTERFACE': {
           typeScriptDefs = typeScriptDefs.concat(
             this.generateObjectType(gqlType, gqlTypes)
           );
           break;
         }
 
-        case "UNION": {
+        case 'UNION': {
           typeScriptDefs = typeScriptDefs.concat(
             this.generateUnionType(gqlType)
           );
@@ -72,10 +72,10 @@ export class TypeScriptGenerator {
         }
       }
 
-      typeScriptDefs.push("");
+      typeScriptDefs.push('');
 
       return prevTypescriptDefs.concat(typeScriptDefs);
-    }, []);
+    },                               []);
   }
 
   private generateCustomScalarType(
@@ -94,7 +94,7 @@ export class TypeScriptGenerator {
   }
 
   private isStringEnumSupported(): boolean {
-    const [major, minor] = TSVersion.split(".").map((v) => +v);
+    const [major, minor] = TSVersion.split('.').map((v) => +v);
     return (major === 2 && minor >= 5) || major > 2;
   }
 
@@ -131,7 +131,7 @@ export class TypeScriptGenerator {
         }
 
         if (enumValueJsDoc.length > 0) {
-          typescriptDefs = ["", ...typescriptDefs];
+          typescriptDefs = ['', ...typescriptDefs];
         }
 
         return prevTypescriptDefs.concat(typescriptDefs);
@@ -144,12 +144,12 @@ export class TypeScriptGenerator {
     const isGeneratingDeclaration =
       this.options.global ||
       !!this.options.namespace ||
-      this.outputPath.endsWith(".d.ts");
-    const enumModifier = isGeneratingDeclaration ? " const " : " ";
+      this.outputPath.endsWith('.d.ts');
+    const enumModifier = isGeneratingDeclaration ? ' const ' : ' ';
     return [
       `export${enumModifier}enum ${this.options.typePrefix}${enumType.name} {`,
       ...enumBody,
-      "}",
+      '}',
     ];
   }
 
@@ -169,12 +169,12 @@ export class TypeScriptGenerator {
     allGQLTypes: IntrospectionType[]
   ): string[] {
     const fields: readonly (IntrospectionInputValue | IntrospectionField)[] =
-      objectType.kind === "INPUT_OBJECT"
+      objectType.kind === 'INPUT_OBJECT'
         ? objectType.inputFields
         : objectType.fields;
 
     const extendTypes: string[] =
-      objectType.kind === "OBJECT"
+      objectType.kind === 'OBJECT'
         ? objectType.interfaces.map((i) => i.name)
         : [];
 
@@ -207,7 +207,7 @@ export class TypeScriptGenerator {
         let typescriptDefs = [...fieldJsDoc, fieldNameAndType];
 
         if (fieldJsDoc.length > 0) {
-          typescriptDefs = ["", ...typescriptDefs];
+          typescriptDefs = ['', ...typescriptDefs];
         }
 
         return prevTypescriptDefs.concat(typescriptDefs);
@@ -217,10 +217,10 @@ export class TypeScriptGenerator {
 
     const possibleTypeNames: string[] = [];
     const possibleTypeNamesMap: string[] = [];
-    if (objectType.kind === "INTERFACE") {
+    if (objectType.kind === 'INTERFACE') {
       possibleTypeNames.push(
         ...[
-          "",
+          '',
           `/** Use this to resolve interface type ${objectType.name} */`,
           ...this.createUnionType(
             `Possible${objectType.name}TypeNames`,
@@ -231,27 +231,27 @@ export class TypeScriptGenerator {
 
       possibleTypeNamesMap.push(
         ...[
-          "",
+          '',
           `export interface ${this.options.typePrefix}${objectType.name}NameMap {`,
           `${objectType.name}: ${this.options.typePrefix}${objectType.name};`,
           ...objectType.possibleTypes.map((pt) => {
             return `${pt.name}: ${this.options.typePrefix}${pt.name};`;
           }),
-          "}",
+          '}',
         ]
       );
     }
 
     const extendStr =
       extendTypes.length === 0
-        ? ""
+        ? ''
         : `extends ${extendTypes
             .map((t) => this.options.typePrefix + t)
-            .join(", ")} `;
+            .join(', ')} `;
     return [
       `export interface ${this.options.typePrefix}${objectType.name} ${extendStr}{`,
       ...objectFields,
-      "}",
+      '}',
       ...possibleTypeNames,
       ...possibleTypeNamesMap,
     ];
@@ -260,7 +260,7 @@ export class TypeScriptGenerator {
   private generateUnionType(unionType: IntrospectionUnionType): string[] {
     const { typePrefix } = this.options;
     const possibleTypesNames = [
-      "",
+      '',
       `/** Use this to resolve union type ${unionType.name} */`,
       ...this.createUnionType(
         `Possible${unionType.name}TypeNames`,
@@ -268,13 +268,13 @@ export class TypeScriptGenerator {
       ),
     ];
     const possibleTypeNamesMap = [
-      "",
+      '',
       `export interface ${this.options.typePrefix}${unionType.name}NameMap {`,
       `${unionType.name}: ${this.options.typePrefix}${unionType.name};`,
       ...unionType.possibleTypes.map((pt) => {
         return `${pt.name}: ${this.options.typePrefix}${pt.name};`;
       }),
-      "}",
+      '}',
     ];
 
     const unionTypeTSDefs = this.createUnionType(
@@ -302,18 +302,18 @@ export class TypeScriptGenerator {
   private createUnionType(typeName: string, possibleTypes: string[]): string[] {
     const result = `export type ${
       this.options.typePrefix
-    }${typeName} = ${possibleTypes.join(" | ")};`;
+    }${typeName} = ${possibleTypes.join(' | ')};`;
     if (result.length <= 80) {
       return [result];
     }
 
-    const [firstLine, rest] = result.split("=");
+    const [firstLine, rest] = result.split('=');
 
     return [
-      firstLine + "=",
+      firstLine + '=',
       ...rest
-        .replace(/ \| /g, " |\n")
-        .split("\n")
+        .replace(/ \| /g, ' |\n')
+        .split('\n')
         .map((line) => line.trim()),
     ];
   }
