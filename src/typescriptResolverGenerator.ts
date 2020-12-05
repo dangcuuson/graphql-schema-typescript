@@ -120,7 +120,8 @@ export class TSResolverGenerator {
 
         this.resolverInterfaces.push(...[
             `export interface ${interfaceName}<TParent = ${this.guessTParent(type.name)}> {`,
-            `(parent: TParent, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo): ${possbileTypes.join(' | ')};`,
+            // tslint:disable-next-line:max-line-length
+            `(parent: TParent, context: ${this.contextType}, info${infoModifier}: GraphQLResolveInfo): ${possbileTypes.join(' | ')} | Promise<${possbileTypes.join(' | ')}>;`,
             '}'
         ]);
 
