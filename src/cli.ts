@@ -98,7 +98,7 @@ yargs
         'generate-ts <folderPath>',
         'Generate typescript definitions from a local folder that cointains `.graphql` type definitions',
         {},
-        async argv => {
+        async (argv: any) => {
             const { folderPath, output } = argv;
 
             const options: GenerateTypescriptOptions = {};
