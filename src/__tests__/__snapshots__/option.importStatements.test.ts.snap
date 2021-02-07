@@ -306,10 +306,10 @@ export interface UserToActivatedResolver<TParent = any, TResult = any> {
 }
 
 export interface GQLIProductTypeResolver<TParent = any> {
-  (parent: TParent, context: any, info: GraphQLResolveInfo): 'ProductA' | 'ProductB';
+  (parent: TParent, context: any, info: GraphQLResolveInfo): 'ProductA' | 'ProductB' | Promise<'ProductA' | 'ProductB'>;
 }
 export interface GQLSearchResultTypeResolver<TParent = any> {
-  (parent: TParent, context: any, info: GraphQLResolveInfo): 'User' | 'ProductA' | 'ProductB';
+  (parent: TParent, context: any, info: GraphQLResolveInfo): 'User' | 'ProductA' | 'ProductB' | Promise<'User' | 'ProductA' | 'ProductB'>;
 }
 export interface GQLProductATypeResolver<TParent = any> {
   id?: ProductAToIdResolver<TParent>;

@@ -304,10 +304,10 @@ export interface UserToActivatedResolver<TParent = any, TResult = any> {
 }
 
 export interface IProductTypeResolver<TParent = any> {
-  (parent: TParent, context: any, info: GraphQLResolveInfo): 'ProductA' | 'ProductB';
+  (parent: TParent, context: any, info: GraphQLResolveInfo): 'ProductA' | 'ProductB' | Promise<'ProductA' | 'ProductB'>;
 }
 export interface SearchResultTypeResolver<TParent = any> {
-  (parent: TParent, context: any, info: GraphQLResolveInfo): 'User' | 'ProductA' | 'ProductB';
+  (parent: TParent, context: any, info: GraphQLResolveInfo): 'User' | 'ProductA' | 'ProductB' | Promise<'User' | 'ProductA' | 'ProductB'>;
 }
 export interface ProductATypeResolver<TParent = any> {
   id?: ProductAToIdResolver<TParent>;
@@ -902,10 +902,10 @@ export interface UserToActivatedResolver<TParent = any, TResult = any> {
 }
 
 export interface MyCustomPrefixIProductTypeResolver<TParent = any> {
-  (parent: TParent, context: any, info: GraphQLResolveInfo): 'ProductA' | 'ProductB';
+  (parent: TParent, context: any, info: GraphQLResolveInfo): 'ProductA' | 'ProductB' | Promise<'ProductA' | 'ProductB'>;
 }
 export interface MyCustomPrefixSearchResultTypeResolver<TParent = any> {
-  (parent: TParent, context: any, info: GraphQLResolveInfo): 'User' | 'ProductA' | 'ProductB';
+  (parent: TParent, context: any, info: GraphQLResolveInfo): 'User' | 'ProductA' | 'ProductB' | Promise<'User' | 'ProductA' | 'ProductB'>;
 }
 export interface MyCustomPrefixProductATypeResolver<TParent = any> {
   id?: ProductAToIdResolver<TParent>;
