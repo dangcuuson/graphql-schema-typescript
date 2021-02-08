@@ -10,9 +10,7 @@ import {
     IntrospectionField,
     IntrospectionInputValue
 } from 'graphql';
-import {
-    camelCase
-} from 'lodash';
+const camelCase = require('camelcase');
 
 /**
  * Send introspection query to a graphql schema
