@@ -1,6 +1,6 @@
 {
   "name": "graphql-schema-typescript",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "description": "Generate TypeScript from GraphQL's schema type definitions",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -28,7 +28,7 @@
     "@types/yargs": "^15.0.0",
     "del-cli": "^2.0.0",
     "fs-extra": "4.0.2",
-    "graphql": "0.11.7",
+    "graphql": "15.5.0",
     "graphql-tools": "2.7.2",
     "jest": "^26.0.0",
     "lodash": "^4.17.13",
@@ -40,7 +40,7 @@
     "yargs": "^16.0.0"
   },
   "peerDependencies": {
-    "graphql": "*",
+    "graphql": "^15.0.0",
     "typescript": "*"
   },
   "jest": {

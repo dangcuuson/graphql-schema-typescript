@@ -15,79 +15,9 @@ import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';
  *          TYPE DEFS          *
  *                             *
  *******************************/
-export interface GQLRootQuery {
-  Users: Array<GQLUser>;
-  User?: GQLUser;
-  Products?: Array<GQLIProduct>;
-  Search?: GQLSearchResult;
-}
-
-export interface GQLUserFilter {
-  username?: Array<string | null>;
-}
-
-/**
- * A user of the system
- */
-export interface GQLUser {
-  firstName: string;
-  lastName: string;
-  
-  /**
-   * 
-   * @deprecated Email will replace username. If you are still using username please change it
-   */
-  username: string;
-  email: string;
-  role: GQLUserRole;
-  
-  /**
-   * Url to the image
-   */
-  profilePicture?: string;
-  
-  /**
-   * Account must be activated before using
-   */
-  activated: boolean;
-}
-
-/**
- * Different role will have different access to our functionality
- * In the future, this will be changed by having User as interface
- * and implementing multiple User
- */
-export enum GQLUserRole {
-  
-  /**
-   * System Administrator
-   */
-  SYS_ADMIN = 'SYS_ADMIN',
-  
-  /**
-   * Manager - Have access to manage functions
-   */
-  MANAGER = 'MANAGER',
-  
-  /**
-   * General Staff
-   */
-  CLERK = 'CLERK',
-  
-  /**
-   * 
-   * @deprecated Use 'clerk' instead
-   */
-  EMPLOYEE = 'EMPLOYEE'
-}
-
 export interface GQLIProduct {
   id: string;
   name: string;
-  
-  /**
-   * Customers who buy this will also buy these
-   */
   relatedProducts: Array<GQLIProduct>;
 }
 
@@ -100,28 +30,9 @@ export interface GQLIProductNameMap {
   ProductB: GQLProductB;
 }
 
-export type GQLSearchResult = GQLUser | GQLProductA | GQLProductB;
-
-/** Use this to resolve union type SearchResult */
-export type GQLPossibleSearchResultTypeNames = 'User' | 'ProductA' | 'ProductB';
-
-export interface GQLSearchResultNameMap {
-  SearchResult: GQLSearchResult;
-  User: GQLUser;
-  ProductA: GQLProductA;
-  ProductB: GQLProductB;
-}
-
-/**
- * Try to cover List/Non-null List/Non-null list of non-null items
- */
 export interface GQLProductA extends GQLIProduct {
   id: string;
   name: string;
-  
-  /**
-   * Customers who buy this will also buy these
-   */
   relatedProducts: Array<GQLIProduct>;
   ProductA1?: GQLProductScalar;
   ProductA2: GQLProductScalar;
@@ -131,9 +42,6 @@ export interface GQLProductA extends GQLIProduct {
   ProductA6: Array<GQLProductScalar>;
 }
 
-/**
- * Test with all scalar field
- */
 export interface GQLProductScalar {
   scalarString1?: string;
   scalarString2: string;
@@ -150,10 +58,6 @@ export interface GQLProductScalar {
 export interface GQLProductB extends GQLIProduct {
   id: string;
   name: string;
-  
-  /**
-   * Customers who buy this will also buy these
-   */
   relatedProducts: Array<GQLIProduct>;
   ProductB1?: GQLProductListScalar;
   ProductB2: GQLProductListScalar;
@@ -186,8 +90,65 @@ export interface GQLProductListScalar {
   listBoolean4: Array<boolean>;
 }
 
+export interface GQLRootQuery {
+  Users: Array<GQLUser>;
+  User?: GQLUser;
+  Products?: Array<GQLIProduct>;
+  Search?: GQLSearchResult;
+}
+
 export interface GQLRootMutation {
   createUser?: GQLUser;
+}
+
+export interface GQLRootSubscription {
+  userLoggedIn: GQLUser;
+  saleMade: string;
+}
+
+export type GQLDate = any;
+
+export type GQLSearchResult = GQLUser | GQLProductA | GQLProductB;
+
+/** Use this to resolve union type SearchResult */
+export type GQLPossibleSearchResultTypeNames = 'User' | 'ProductA' | 'ProductB';
+
+export interface GQLSearchResultNameMap {
+  SearchResult: GQLSearchResult;
+  User: GQLUser;
+  ProductA: GQLProductA;
+  ProductB: GQLProductB;
+}
+
+export interface GQLUser {
+  firstName: string;
+  lastName: string;
+  
+  /**
+   * 
+   * @deprecated Email will replace username. If you are still using username please change it
+   */
+  username: string;
+  email: string;
+  role: GQLUserRole;
+  profilePicture?: string;
+  activated: boolean;
+}
+
+export enum GQLUserRole {
+  SYS_ADMIN = 'SYS_ADMIN',
+  MANAGER = 'MANAGER',
+  CLERK = 'CLERK',
+  
+  /**
+   * 
+   * @deprecated Use 'clerk' instead
+   */
+  EMPLOYEE = 'EMPLOYEE'
+}
+
+export interface GQLUserFilter {
+  username?: Array<string | null>;
 }
 
 export interface GQLCreateUserInput {
@@ -195,16 +156,6 @@ export interface GQLCreateUserInput {
   email: string;
   password: string;
   createdAt: GQLDate;
-}
-
-/**
- * Custom scalar type
- */
-export type GQLDate = any;
-
-export interface GQLRootSubscription {
-  userLoggedIn: GQLUser;
-  saleMade: string;
 }
 
 /*********************************
@@ -218,96 +169,26 @@ export interface GQLRootSubscription {
  * However, you can still use other generated interfaces to make your resolver type-safed
  */
 export interface GQLResolver {
-  RootQuery?: GQLRootQueryTypeResolver;
-  User?: GQLUserTypeResolver;
   IProduct?: {
     __resolveType: GQLIProductTypeResolver
-  };
-  
-  SearchResult?: {
-    __resolveType: GQLSearchResultTypeResolver
   };
   
   ProductA?: GQLProductATypeResolver;
   ProductScalar?: GQLProductScalarTypeResolver;
   ProductB?: GQLProductBTypeResolver;
   ProductListScalar?: GQLProductListScalarTypeResolver;
+  RootQuery?: GQLRootQueryTypeResolver;
   RootMutation?: GQLRootMutationTypeResolver;
-  Date?: GraphQLScalarType;
   RootSubscription?: GQLRootSubscriptionTypeResolver;
+  Date?: GraphQLScalarType;
+  SearchResult?: {
+    __resolveType: GQLSearchResultTypeResolver
+  };
+  
+  User?: GQLUserTypeResolver;
 }
-export interface GQLRootQueryTypeResolver<TParent = string> {
-  Users?: RootQueryToUsersResolver<TParent>;
-  User?: RootQueryToUserResolver<TParent>;
-  Products?: RootQueryToProductsResolver<TParent>;
-  Search?: RootQueryToSearchResolver<TParent>;
-}
-
-export interface RootQueryToUsersArgs {
-  input?: GQLUserFilter;
-}
-export interface RootQueryToUsersResolver<TParent = string, TResult = any> {
-  (parent: TParent, args: RootQueryToUsersArgs, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface RootQueryToUserResolver<TParent = string, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface RootQueryToProductsResolver<TParent = string, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface RootQueryToSearchArgs {
-  key?: string;
-}
-export interface RootQueryToSearchResolver<TParent = string, TResult = any> {
-  (parent: TParent, args: RootQueryToSearchArgs, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface GQLUserTypeResolver<TParent = GQLUser> {
-  firstName?: UserToFirstNameResolver<TParent>;
-  lastName?: UserToLastNameResolver<TParent>;
-  username?: UserToUsernameResolver<TParent>;
-  email?: UserToEmailResolver<TParent>;
-  role?: UserToRoleResolver<TParent>;
-  profilePicture?: UserToProfilePictureResolver<TParent>;
-  activated?: UserToActivatedResolver<TParent>;
-}
-
-export interface UserToFirstNameResolver<TParent = GQLUser, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface UserToLastNameResolver<TParent = GQLUser, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface UserToUsernameResolver<TParent = GQLUser, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface UserToEmailResolver<TParent = GQLUser, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface UserToRoleResolver<TParent = GQLUser, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface UserToProfilePictureResolver<TParent = GQLUser, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface UserToActivatedResolver<TParent = GQLUser, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
 export interface GQLIProductTypeResolver<TParent = GQLIProduct> {
   (parent: TParent, context: any, info: GraphQLResolveInfo): 'ProductA' | 'ProductB' | Promise<'ProductA' | 'ProductB'>;
-}
-export interface GQLSearchResultTypeResolver<TParent = GQLSearchResult> {
-  (parent: TParent, context: any, info: GraphQLResolveInfo): 'User' | 'ProductA' | 'ProductB' | Promise<'User' | 'ProductA' | 'ProductB'>;
 }
 export interface GQLProductATypeResolver<TParent = GQLProductA> {
   id?: ProductAToIdResolver<TParent>;
@@ -561,6 +442,35 @@ export interface ProductListScalarToListBoolean4Resolver<TParent = GQLProductLis
   (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
 }
 
+export interface GQLRootQueryTypeResolver<TParent = string> {
+  Users?: RootQueryToUsersResolver<TParent>;
+  User?: RootQueryToUserResolver<TParent>;
+  Products?: RootQueryToProductsResolver<TParent>;
+  Search?: RootQueryToSearchResolver<TParent>;
+}
+
+export interface RootQueryToUsersArgs {
+  input?: GQLUserFilter;
+}
+export interface RootQueryToUsersResolver<TParent = string, TResult = any> {
+  (parent: TParent, args: RootQueryToUsersArgs, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface RootQueryToUserResolver<TParent = string, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface RootQueryToProductsResolver<TParent = string, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface RootQueryToSearchArgs {
+  key?: string;
+}
+export interface RootQueryToSearchResolver<TParent = string, TResult = any> {
+  (parent: TParent, args: RootQueryToSearchArgs, context: any, info: GraphQLResolveInfo): TResult;
+}
+
 export interface GQLRootMutationTypeResolver<TParent = string> {
   createUser?: RootMutationToCreateUserResolver<TParent>;
 }
@@ -589,6 +499,47 @@ export interface RootSubscriptionToSaleMadeResolver<TParent = string, TResult = 
   resolve?: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => TResult;
   subscribe: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
 }
+
+export interface GQLSearchResultTypeResolver<TParent = GQLSearchResult> {
+  (parent: TParent, context: any, info: GraphQLResolveInfo): 'User' | 'ProductA' | 'ProductB' | Promise<'User' | 'ProductA' | 'ProductB'>;
+}
+export interface GQLUserTypeResolver<TParent = GQLUser> {
+  firstName?: UserToFirstNameResolver<TParent>;
+  lastName?: UserToLastNameResolver<TParent>;
+  username?: UserToUsernameResolver<TParent>;
+  email?: UserToEmailResolver<TParent>;
+  role?: UserToRoleResolver<TParent>;
+  profilePicture?: UserToProfilePictureResolver<TParent>;
+  activated?: UserToActivatedResolver<TParent>;
+}
+
+export interface UserToFirstNameResolver<TParent = GQLUser, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface UserToLastNameResolver<TParent = GQLUser, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface UserToUsernameResolver<TParent = GQLUser, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface UserToEmailResolver<TParent = GQLUser, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface UserToRoleResolver<TParent = GQLUser, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface UserToProfilePictureResolver<TParent = GQLUser, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface UserToActivatedResolver<TParent = GQLUser, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
 "
 `;
 
@@ -607,79 +558,9 @@ import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';
  *          TYPE DEFS          *
  *                             *
  *******************************/
-export interface GQLRootQuery {
-  Users: Array<GQLUser>;
-  User?: GQLUser;
-  Products?: Array<GQLIProduct>;
-  Search?: GQLSearchResult;
-}
-
-export interface GQLUserFilter {
-  username?: Array<string | null>;
-}
-
-/**
- * A user of the system
- */
-export interface GQLUser {
-  firstName: string;
-  lastName: string;
-  
-  /**
-   * 
-   * @deprecated Email will replace username. If you are still using username please change it
-   */
-  username: string;
-  email: string;
-  role: GQLUserRole;
-  
-  /**
-   * Url to the image
-   */
-  profilePicture?: string;
-  
-  /**
-   * Account must be activated before using
-   */
-  activated: boolean;
-}
-
-/**
- * Different role will have different access to our functionality
- * In the future, this will be changed by having User as interface
- * and implementing multiple User
- */
-export enum GQLUserRole {
-  
-  /**
-   * System Administrator
-   */
-  SYS_ADMIN = 'SYS_ADMIN',
-  
-  /**
-   * Manager - Have access to manage functions
-   */
-  MANAGER = 'MANAGER',
-  
-  /**
-   * General Staff
-   */
-  CLERK = 'CLERK',
-  
-  /**
-   * 
-   * @deprecated Use 'clerk' instead
-   */
-  EMPLOYEE = 'EMPLOYEE'
-}
-
 export interface GQLIProduct {
   id: string;
   name: string;
-  
-  /**
-   * Customers who buy this will also buy these
-   */
   relatedProducts: Array<GQLIProduct>;
 }
 
@@ -692,28 +573,9 @@ export interface GQLIProductNameMap {
   ProductB: GQLProductB;
 }
 
-export type GQLSearchResult = GQLUser | GQLProductA | GQLProductB;
-
-/** Use this to resolve union type SearchResult */
-export type GQLPossibleSearchResultTypeNames = 'User' | 'ProductA' | 'ProductB';
-
-export interface GQLSearchResultNameMap {
-  SearchResult: GQLSearchResult;
-  User: GQLUser;
-  ProductA: GQLProductA;
-  ProductB: GQLProductB;
-}
-
-/**
- * Try to cover List/Non-null List/Non-null list of non-null items
- */
 export interface GQLProductA extends GQLIProduct {
   id: string;
   name: string;
-  
-  /**
-   * Customers who buy this will also buy these
-   */
   relatedProducts: Array<GQLIProduct>;
   ProductA1?: GQLProductScalar;
   ProductA2: GQLProductScalar;
@@ -723,9 +585,6 @@ export interface GQLProductA extends GQLIProduct {
   ProductA6: Array<GQLProductScalar>;
 }
 
-/**
- * Test with all scalar field
- */
 export interface GQLProductScalar {
   scalarString1?: string;
   scalarString2: string;
@@ -742,10 +601,6 @@ export interface GQLProductScalar {
 export interface GQLProductB extends GQLIProduct {
   id: string;
   name: string;
-  
-  /**
-   * Customers who buy this will also buy these
-   */
   relatedProducts: Array<GQLIProduct>;
   ProductB1?: GQLProductListScalar;
   ProductB2: GQLProductListScalar;
@@ -778,8 +633,65 @@ export interface GQLProductListScalar {
   listBoolean4: Array<boolean>;
 }
 
+export interface GQLRootQuery {
+  Users: Array<GQLUser>;
+  User?: GQLUser;
+  Products?: Array<GQLIProduct>;
+  Search?: GQLSearchResult;
+}
+
 export interface GQLRootMutation {
   createUser?: GQLUser;
+}
+
+export interface GQLRootSubscription {
+  userLoggedIn: GQLUser;
+  saleMade: string;
+}
+
+export type GQLDate = any;
+
+export type GQLSearchResult = GQLUser | GQLProductA | GQLProductB;
+
+/** Use this to resolve union type SearchResult */
+export type GQLPossibleSearchResultTypeNames = 'User' | 'ProductA' | 'ProductB';
+
+export interface GQLSearchResultNameMap {
+  SearchResult: GQLSearchResult;
+  User: GQLUser;
+  ProductA: GQLProductA;
+  ProductB: GQLProductB;
+}
+
+export interface GQLUser {
+  firstName: string;
+  lastName: string;
+  
+  /**
+   * 
+   * @deprecated Email will replace username. If you are still using username please change it
+   */
+  username: string;
+  email: string;
+  role: GQLUserRole;
+  profilePicture?: string;
+  activated: boolean;
+}
+
+export enum GQLUserRole {
+  SYS_ADMIN = 'SYS_ADMIN',
+  MANAGER = 'MANAGER',
+  CLERK = 'CLERK',
+  
+  /**
+   * 
+   * @deprecated Use 'clerk' instead
+   */
+  EMPLOYEE = 'EMPLOYEE'
+}
+
+export interface GQLUserFilter {
+  username?: Array<string | null>;
 }
 
 export interface GQLCreateUserInput {
@@ -787,16 +699,6 @@ export interface GQLCreateUserInput {
   email: string;
   password: string;
   createdAt: GQLDate;
-}
-
-/**
- * Custom scalar type
- */
-export type GQLDate = any;
-
-export interface GQLRootSubscription {
-  userLoggedIn: GQLUser;
-  saleMade: string;
 }
 
 /*********************************
@@ -810,96 +712,26 @@ export interface GQLRootSubscription {
  * However, you can still use other generated interfaces to make your resolver type-safed
  */
 export interface GQLResolver {
-  RootQuery?: GQLRootQueryTypeResolver;
-  User?: GQLUserTypeResolver;
   IProduct?: {
     __resolveType: GQLIProductTypeResolver
-  };
-  
-  SearchResult?: {
-    __resolveType: GQLSearchResultTypeResolver
   };
   
   ProductA?: GQLProductATypeResolver;
   ProductScalar?: GQLProductScalarTypeResolver;
   ProductB?: GQLProductBTypeResolver;
   ProductListScalar?: GQLProductListScalarTypeResolver;
+  RootQuery?: GQLRootQueryTypeResolver;
   RootMutation?: GQLRootMutationTypeResolver;
-  Date?: GraphQLScalarType;
   RootSubscription?: GQLRootSubscriptionTypeResolver;
+  Date?: GraphQLScalarType;
+  SearchResult?: {
+    __resolveType: GQLSearchResultTypeResolver
+  };
+  
+  User?: GQLUserTypeResolver;
 }
-export interface GQLRootQueryTypeResolver<TParent = any> {
-  Users?: RootQueryToUsersResolver<TParent>;
-  User?: RootQueryToUserResolver<TParent>;
-  Products?: RootQueryToProductsResolver<TParent>;
-  Search?: RootQueryToSearchResolver<TParent>;
-}
-
-export interface RootQueryToUsersArgs {
-  input?: GQLUserFilter;
-}
-export interface RootQueryToUsersResolver<TParent = any, TResult = Array<GQLUser>> {
-  (parent: TParent, args: RootQueryToUsersArgs, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface RootQueryToUserResolver<TParent = any, TResult = GQLUser | null> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface RootQueryToProductsResolver<TParent = any, TResult = Array<GQLIProduct> | null> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface RootQueryToSearchArgs {
-  key?: string;
-}
-export interface RootQueryToSearchResolver<TParent = any, TResult = GQLSearchResult | null> {
-  (parent: TParent, args: RootQueryToSearchArgs, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface GQLUserTypeResolver<TParent = any> {
-  firstName?: UserToFirstNameResolver<TParent>;
-  lastName?: UserToLastNameResolver<TParent>;
-  username?: UserToUsernameResolver<TParent>;
-  email?: UserToEmailResolver<TParent>;
-  role?: UserToRoleResolver<TParent>;
-  profilePicture?: UserToProfilePictureResolver<TParent>;
-  activated?: UserToActivatedResolver<TParent>;
-}
-
-export interface UserToFirstNameResolver<TParent = any, TResult = string> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface UserToLastNameResolver<TParent = any, TResult = string> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface UserToUsernameResolver<TParent = any, TResult = string> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface UserToEmailResolver<TParent = any, TResult = string> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface UserToRoleResolver<TParent = any, TResult = GQLUserRole> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface UserToProfilePictureResolver<TParent = any, TResult = string | null> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface UserToActivatedResolver<TParent = any, TResult = boolean> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
 export interface GQLIProductTypeResolver<TParent = any> {
   (parent: TParent, context: any, info: GraphQLResolveInfo): 'ProductA' | 'ProductB' | Promise<'ProductA' | 'ProductB'>;
-}
-export interface GQLSearchResultTypeResolver<TParent = any> {
-  (parent: TParent, context: any, info: GraphQLResolveInfo): 'User' | 'ProductA' | 'ProductB' | Promise<'User' | 'ProductA' | 'ProductB'>;
 }
 export interface GQLProductATypeResolver<TParent = any> {
   id?: ProductAToIdResolver<TParent>;
@@ -1153,6 +985,35 @@ export interface ProductListScalarToListBoolean4Resolver<TParent = any, TResult 
   (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
 }
 
+export interface GQLRootQueryTypeResolver<TParent = any> {
+  Users?: RootQueryToUsersResolver<TParent>;
+  User?: RootQueryToUserResolver<TParent>;
+  Products?: RootQueryToProductsResolver<TParent>;
+  Search?: RootQueryToSearchResolver<TParent>;
+}
+
+export interface RootQueryToUsersArgs {
+  input?: GQLUserFilter;
+}
+export interface RootQueryToUsersResolver<TParent = any, TResult = Array<GQLUser>> {
+  (parent: TParent, args: RootQueryToUsersArgs, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface RootQueryToUserResolver<TParent = any, TResult = GQLUser | null> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface RootQueryToProductsResolver<TParent = any, TResult = Array<GQLIProduct> | null> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface RootQueryToSearchArgs {
+  key?: string;
+}
+export interface RootQueryToSearchResolver<TParent = any, TResult = GQLSearchResult | null> {
+  (parent: TParent, args: RootQueryToSearchArgs, context: any, info: GraphQLResolveInfo): TResult;
+}
+
 export interface GQLRootMutationTypeResolver<TParent = any> {
   createUser?: RootMutationToCreateUserResolver<TParent>;
 }
@@ -1181,6 +1042,47 @@ export interface RootSubscriptionToSaleMadeResolver<TParent = any, TResult = str
   resolve?: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => TResult;
   subscribe: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
 }
+
+export interface GQLSearchResultTypeResolver<TParent = any> {
+  (parent: TParent, context: any, info: GraphQLResolveInfo): 'User' | 'ProductA' | 'ProductB' | Promise<'User' | 'ProductA' | 'ProductB'>;
+}
+export interface GQLUserTypeResolver<TParent = any> {
+  firstName?: UserToFirstNameResolver<TParent>;
+  lastName?: UserToLastNameResolver<TParent>;
+  username?: UserToUsernameResolver<TParent>;
+  email?: UserToEmailResolver<TParent>;
+  role?: UserToRoleResolver<TParent>;
+  profilePicture?: UserToProfilePictureResolver<TParent>;
+  activated?: UserToActivatedResolver<TParent>;
+}
+
+export interface UserToFirstNameResolver<TParent = any, TResult = string> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface UserToLastNameResolver<TParent = any, TResult = string> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface UserToUsernameResolver<TParent = any, TResult = string> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface UserToEmailResolver<TParent = any, TResult = string> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface UserToRoleResolver<TParent = any, TResult = GQLUserRole> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface UserToProfilePictureResolver<TParent = any, TResult = string | null> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface UserToActivatedResolver<TParent = any, TResult = boolean> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
 "
 `;
 
@@ -1199,79 +1101,9 @@ import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';
  *          TYPE DEFS          *
  *                             *
  *******************************/
-export interface GQLRootQuery {
-  Users: Array<GQLUser>;
-  User?: GQLUser;
-  Products?: Array<GQLIProduct>;
-  Search?: GQLSearchResult;
-}
-
-export interface GQLUserFilter {
-  username?: Array<string | null>;
-}
-
-/**
- * A user of the system
- */
-export interface GQLUser {
-  firstName: string;
-  lastName: string;
-  
-  /**
-   * 
-   * @deprecated Email will replace username. If you are still using username please change it
-   */
-  username: string;
-  email: string;
-  role: GQLUserRole;
-  
-  /**
-   * Url to the image
-   */
-  profilePicture?: string;
-  
-  /**
-   * Account must be activated before using
-   */
-  activated: boolean;
-}
-
-/**
- * Different role will have different access to our functionality
- * In the future, this will be changed by having User as interface
- * and implementing multiple User
- */
-export enum GQLUserRole {
-  
-  /**
-   * System Administrator
-   */
-  SYS_ADMIN = 'SYS_ADMIN',
-  
-  /**
-   * Manager - Have access to manage functions
-   */
-  MANAGER = 'MANAGER',
-  
-  /**
-   * General Staff
-   */
-  CLERK = 'CLERK',
-  
-  /**
-   * 
-   * @deprecated Use 'clerk' instead
-   */
-  EMPLOYEE = 'EMPLOYEE'
-}
-
 export interface GQLIProduct {
   id: string;
   name: string;
-  
-  /**
-   * Customers who buy this will also buy these
-   */
   relatedProducts: Array<GQLIProduct>;
 }
 
@@ -1284,28 +1116,9 @@ export interface GQLIProductNameMap {
   ProductB: GQLProductB;
 }
 
-export type GQLSearchResult = GQLUser | GQLProductA | GQLProductB;
-
-/** Use this to resolve union type SearchResult */
-export type GQLPossibleSearchResultTypeNames = 'User' | 'ProductA' | 'ProductB';
-
-export interface GQLSearchResultNameMap {
-  SearchResult: GQLSearchResult;
-  User: GQLUser;
-  ProductA: GQLProductA;
-  ProductB: GQLProductB;
-}
-
-/**
- * Try to cover List/Non-null List/Non-null list of non-null items
- */
 export interface GQLProductA extends GQLIProduct {
   id: string;
   name: string;
-  
-  /**
-   * Customers who buy this will also buy these
-   */
   relatedProducts: Array<GQLIProduct>;
   ProductA1?: GQLProductScalar;
   ProductA2: GQLProductScalar;
@@ -1315,9 +1128,6 @@ export interface GQLProductA extends GQLIProduct {
   ProductA6: Array<GQLProductScalar>;
 }
 
-/**
- * Test with all scalar field
- */
 export interface GQLProductScalar {
   scalarString1?: string;
   scalarString2: string;
@@ -1334,10 +1144,6 @@ export interface GQLProductScalar {
 export interface GQLProductB extends GQLIProduct {
   id: string;
   name: string;
-  
-  /**
-   * Customers who buy this will also buy these
-   */
   relatedProducts: Array<GQLIProduct>;
   ProductB1?: GQLProductListScalar;
   ProductB2: GQLProductListScalar;
@@ -1370,8 +1176,65 @@ export interface GQLProductListScalar {
   listBoolean4: Array<boolean>;
 }
 
+export interface GQLRootQuery {
+  Users: Array<GQLUser>;
+  User?: GQLUser;
+  Products?: Array<GQLIProduct>;
+  Search?: GQLSearchResult;
+}
+
 export interface GQLRootMutation {
   createUser?: GQLUser;
+}
+
+export interface GQLRootSubscription {
+  userLoggedIn: GQLUser;
+  saleMade: string;
+}
+
+export type GQLDate = any;
+
+export type GQLSearchResult = GQLUser | GQLProductA | GQLProductB;
+
+/** Use this to resolve union type SearchResult */
+export type GQLPossibleSearchResultTypeNames = 'User' | 'ProductA' | 'ProductB';
+
+export interface GQLSearchResultNameMap {
+  SearchResult: GQLSearchResult;
+  User: GQLUser;
+  ProductA: GQLProductA;
+  ProductB: GQLProductB;
+}
+
+export interface GQLUser {
+  firstName: string;
+  lastName: string;
+  
+  /**
+   * 
+   * @deprecated Email will replace username. If you are still using username please change it
+   */
+  username: string;
+  email: string;
+  role: GQLUserRole;
+  profilePicture?: string;
+  activated: boolean;
+}
+
+export enum GQLUserRole {
+  SYS_ADMIN = 'SYS_ADMIN',
+  MANAGER = 'MANAGER',
+  CLERK = 'CLERK',
+  
+  /**
+   * 
+   * @deprecated Use 'clerk' instead
+   */
+  EMPLOYEE = 'EMPLOYEE'
+}
+
+export interface GQLUserFilter {
+  username?: Array<string | null>;
 }
 
 export interface GQLCreateUserInput {
@@ -1379,16 +1242,6 @@ export interface GQLCreateUserInput {
   email: string;
   password: string;
   createdAt: GQLDate;
-}
-
-/**
- * Custom scalar type
- */
-export type GQLDate = any;
-
-export interface GQLRootSubscription {
-  userLoggedIn: GQLUser;
-  saleMade: string;
 }
 
 /*********************************
@@ -1402,96 +1255,26 @@ export interface GQLRootSubscription {
  * However, you can still use other generated interfaces to make your resolver type-safed
  */
 export interface GQLResolver {
-  RootQuery: GQLRootQueryTypeResolver;
-  User: GQLUserTypeResolver;
   IProduct: {
     __resolveType: GQLIProductTypeResolver
-  };
-  
-  SearchResult: {
-    __resolveType: GQLSearchResultTypeResolver
   };
   
   ProductA: GQLProductATypeResolver;
   ProductScalar: GQLProductScalarTypeResolver;
   ProductB: GQLProductBTypeResolver;
   ProductListScalar: GQLProductListScalarTypeResolver;
+  RootQuery: GQLRootQueryTypeResolver;
   RootMutation: GQLRootMutationTypeResolver;
-  Date: GraphQLScalarType;
   RootSubscription: GQLRootSubscriptionTypeResolver;
+  Date: GraphQLScalarType;
+  SearchResult: {
+    __resolveType: GQLSearchResultTypeResolver
+  };
+  
+  User: GQLUserTypeResolver;
 }
-export interface GQLRootQueryTypeResolver<TParent = any> {
-  Users: RootQueryToUsersResolver<TParent>;
-  User: RootQueryToUserResolver<TParent>;
-  Products: RootQueryToProductsResolver<TParent>;
-  Search: RootQueryToSearchResolver<TParent>;
-}
-
-export interface RootQueryToUsersArgs {
-  input?: GQLUserFilter;
-}
-export interface RootQueryToUsersResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: RootQueryToUsersArgs, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface RootQueryToUserResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface RootQueryToProductsResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface RootQueryToSearchArgs {
-  key?: string;
-}
-export interface RootQueryToSearchResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: RootQueryToSearchArgs, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface GQLUserTypeResolver<TParent = any> {
-  firstName: UserToFirstNameResolver<TParent>;
-  lastName: UserToLastNameResolver<TParent>;
-  username: UserToUsernameResolver<TParent>;
-  email: UserToEmailResolver<TParent>;
-  role: UserToRoleResolver<TParent>;
-  profilePicture: UserToProfilePictureResolver<TParent>;
-  activated: UserToActivatedResolver<TParent>;
-}
-
-export interface UserToFirstNameResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface UserToLastNameResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface UserToUsernameResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface UserToEmailResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface UserToRoleResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface UserToProfilePictureResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface UserToActivatedResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
 export interface GQLIProductTypeResolver<TParent = any> {
   (parent: TParent, context: any, info: GraphQLResolveInfo): 'ProductA' | 'ProductB' | Promise<'ProductA' | 'ProductB'>;
-}
-export interface GQLSearchResultTypeResolver<TParent = any> {
-  (parent: TParent, context: any, info: GraphQLResolveInfo): 'User' | 'ProductA' | 'ProductB' | Promise<'User' | 'ProductA' | 'ProductB'>;
 }
 export interface GQLProductATypeResolver<TParent = any> {
   id: ProductAToIdResolver<TParent>;
@@ -1745,6 +1528,35 @@ export interface ProductListScalarToListBoolean4Resolver<TParent = any, TResult 
   (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
 }
 
+export interface GQLRootQueryTypeResolver<TParent = any> {
+  Users: RootQueryToUsersResolver<TParent>;
+  User: RootQueryToUserResolver<TParent>;
+  Products: RootQueryToProductsResolver<TParent>;
+  Search: RootQueryToSearchResolver<TParent>;
+}
+
+export interface RootQueryToUsersArgs {
+  input?: GQLUserFilter;
+}
+export interface RootQueryToUsersResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: RootQueryToUsersArgs, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface RootQueryToUserResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface RootQueryToProductsResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface RootQueryToSearchArgs {
+  key?: string;
+}
+export interface RootQueryToSearchResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: RootQueryToSearchArgs, context: any, info: GraphQLResolveInfo): TResult;
+}
+
 export interface GQLRootMutationTypeResolver<TParent = any> {
   createUser: RootMutationToCreateUserResolver<TParent>;
 }
@@ -1773,6 +1585,47 @@ export interface RootSubscriptionToSaleMadeResolver<TParent = any, TResult = any
   resolve: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => TResult;
   subscribe: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult>;
 }
+
+export interface GQLSearchResultTypeResolver<TParent = any> {
+  (parent: TParent, context: any, info: GraphQLResolveInfo): 'User' | 'ProductA' | 'ProductB' | Promise<'User' | 'ProductA' | 'ProductB'>;
+}
+export interface GQLUserTypeResolver<TParent = any> {
+  firstName: UserToFirstNameResolver<TParent>;
+  lastName: UserToLastNameResolver<TParent>;
+  username: UserToUsernameResolver<TParent>;
+  email: UserToEmailResolver<TParent>;
+  role: UserToRoleResolver<TParent>;
+  profilePicture: UserToProfilePictureResolver<TParent>;
+  activated: UserToActivatedResolver<TParent>;
+}
+
+export interface UserToFirstNameResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface UserToLastNameResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface UserToUsernameResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface UserToEmailResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface UserToRoleResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface UserToProfilePictureResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
+
+export interface UserToActivatedResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
+}
 "
 `;
 
@@ -1791,79 +1644,9 @@ import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql';
  *          TYPE DEFS          *
  *                             *
  *******************************/
-export interface GQLRootQuery {
-  Users: Array<GQLUser>;
-  User?: GQLUser;
-  Products?: Array<GQLIProduct>;
-  Search?: GQLSearchResult;
-}
-
-export interface GQLUserFilter {
-  username?: Array<string | null>;
-}
-
-/**
- * A user of the system
- */
-export interface GQLUser {
-  firstName: string;
-  lastName: string;
-  
-  /**
-   * 
-   * @deprecated Email will replace username. If you are still using username please change it
-   */
-  username: string;
-  email: string;
-  role: GQLUserRole;
-  
-  /**
-   * Url to the image
-   */
-  profilePicture?: string;
-  
-  /**
-   * Account must be activated before using
-   */
-  activated: boolean;
-}
-
-/**
- * Different role will have different access to our functionality
- * In the future, this will be changed by having User as interface
- * and implementing multiple User
- */
-export enum GQLUserRole {
-  
-  /**
-   * System Administrator
-   */
-  SYS_ADMIN = 'SYS_ADMIN',
-  
-  /**
-   * Manager - Have access to manage functions
-   */
-  MANAGER = 'MANAGER',
-  
-  /**
-   * General Staff
-   */
-  CLERK = 'CLERK',
-  
-  /**
-   * 
-   * @deprecated Use 'clerk' instead
-   */
-  EMPLOYEE = 'EMPLOYEE'
-}
-
 export interface GQLIProduct {
   id: string;
   name: string;
-  
-  /**
-   * Customers who buy this will also buy these
-   */
   relatedProducts: Array<GQLIProduct>;
 }
 
@@ -1876,28 +1659,9 @@ export interface GQLIProductNameMap {
   ProductB: GQLProductB;
 }
 
-export type GQLSearchResult = GQLUser | GQLProductA | GQLProductB;
-
-/** Use this to resolve union type SearchResult */
-export type GQLPossibleSearchResultTypeNames = 'User' | 'ProductA' | 'ProductB';
-
-export interface GQLSearchResultNameMap {
-  SearchResult: GQLSearchResult;
-  User: GQLUser;
-  ProductA: GQLProductA;
-  ProductB: GQLProductB;
-}
-
-/**
- * Try to cover List/Non-null List/Non-null list of non-null items
- */
 export interface GQLProductA extends GQLIProduct {
   id: string;
   name: string;
-  
-  /**
-   * Customers who buy this will also buy these
-   */
   relatedProducts: Array<GQLIProduct>;
   ProductA1?: GQLProductScalar;
   ProductA2: GQLProductScalar;
@@ -1907,9 +1671,6 @@ export interface GQLProductA extends GQLIProduct {
   ProductA6: Array<GQLProductScalar>;
 }
 
-/**
- * Test with all scalar field
- */
 export interface GQLProductScalar {
   scalarString1?: string;
   scalarString2: string;
@@ -1926,10 +1687,6 @@ export interface GQLProductScalar {
 export interface GQLProductB extends GQLIProduct {
   id: string;
   name: string;
-  
-  /**
-   * Customers who buy this will also buy these
-   */
   relatedProducts: Array<GQLIProduct>;
   ProductB1?: GQLProductListScalar;
   ProductB2: GQLProductListScalar;
@@ -1962,8 +1719,65 @@ export interface GQLProductListScalar {
   listBoolean4: Array<boolean>;
 }
 
+export interface GQLRootQuery {
+  Users: Array<GQLUser>;
+  User?: GQLUser;
+  Products?: Array<GQLIProduct>;
+  Search?: GQLSearchResult;
+}
+
 export interface GQLRootMutation {
   createUser?: GQLUser;
+}
+
+export interface GQLRootSubscription {
+  userLoggedIn: GQLUser;
+  saleMade: string;
+}
+
+export type GQLDate = any;
+
+export type GQLSearchResult = GQLUser | GQLProductA | GQLProductB;
+
+/** Use this to resolve union type SearchResult */
+export type GQLPossibleSearchResultTypeNames = 'User' | 'ProductA' | 'ProductB';
+
+export interface GQLSearchResultNameMap {
+  SearchResult: GQLSearchResult;
+  User: GQLUser;
+  ProductA: GQLProductA;
+  ProductB: GQLProductB;
+}
+
+export interface GQLUser {
+  firstName: string;
+  lastName: string;
+  
+  /**
+   * 
+   * @deprecated Email will replace username. If you are still using username please change it
+   */
+  username: string;
+  email: string;
+  role: GQLUserRole;
+  profilePicture?: string;
+  activated: boolean;
+}
+
+export enum GQLUserRole {
+  SYS_ADMIN = 'SYS_ADMIN',
+  MANAGER = 'MANAGER',
+  CLERK = 'CLERK',
+  
+  /**
+   * 
+   * @deprecated Use 'clerk' instead
+   */
+  EMPLOYEE = 'EMPLOYEE'
+}
+
+export interface GQLUserFilter {
+  username?: Array<string | null>;
 }
 
 export interface GQLCreateUserInput {
@@ -1971,16 +1785,6 @@ export interface GQLCreateUserInput {
   email: string;
   password: string;
   createdAt: GQLDate;
-}
-
-/**
- * Custom scalar type
- */
-export type GQLDate = any;
-
-export interface GQLRootSubscription {
-  userLoggedIn: GQLUser;
-  saleMade: string;
 }
 
 /*********************************
@@ -1994,96 +1798,26 @@ export interface GQLRootSubscription {
  * However, you can still use other generated interfaces to make your resolver type-safed
  */
 export interface GQLResolver {
-  RootQuery?: GQLRootQueryTypeResolver;
-  User?: GQLUserTypeResolver;
   IProduct?: {
     __resolveType: GQLIProductTypeResolver
-  };
-  
-  SearchResult?: {
-    __resolveType: GQLSearchResultTypeResolver
   };
   
   ProductA?: GQLProductATypeResolver;
   ProductScalar?: GQLProductScalarTypeResolver;
   ProductB?: GQLProductBTypeResolver;
   ProductListScalar?: GQLProductListScalarTypeResolver;
+  RootQuery?: GQLRootQueryTypeResolver;
   RootMutation?: GQLRootMutationTypeResolver;
-  Date?: GraphQLScalarType;
   RootSubscription?: GQLRootSubscriptionTypeResolver;
+  Date?: GraphQLScalarType;
+  SearchResult?: {
+    __resolveType: GQLSearchResultTypeResolver
+  };
+  
+  User?: GQLUserTypeResolver;
 }
-export interface GQLRootQueryTypeResolver<TParent = any> {
-  Users?: RootQueryToUsersResolver<TParent>;
-  User?: RootQueryToUserResolver<TParent>;
-  Products?: RootQueryToProductsResolver<TParent>;
-  Search?: RootQueryToSearchResolver<TParent>;
-}
-
-export interface RootQueryToUsersArgs {
-  input?: GQLUserFilter;
-}
-export interface RootQueryToUsersResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: RootQueryToUsersArgs, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
-}
-
-export interface RootQueryToUserResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
-}
-
-export interface RootQueryToProductsResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
-}
-
-export interface RootQueryToSearchArgs {
-  key?: string;
-}
-export interface RootQueryToSearchResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: RootQueryToSearchArgs, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
-}
-
-export interface GQLUserTypeResolver<TParent = any> {
-  firstName?: UserToFirstNameResolver<TParent>;
-  lastName?: UserToLastNameResolver<TParent>;
-  username?: UserToUsernameResolver<TParent>;
-  email?: UserToEmailResolver<TParent>;
-  role?: UserToRoleResolver<TParent>;
-  profilePicture?: UserToProfilePictureResolver<TParent>;
-  activated?: UserToActivatedResolver<TParent>;
-}
-
-export interface UserToFirstNameResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
-}
-
-export interface UserToLastNameResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
-}
-
-export interface UserToUsernameResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
-}
-
-export interface UserToEmailResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
-}
-
-export interface UserToRoleResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
-}
-
-export interface UserToProfilePictureResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
-}
-
-export interface UserToActivatedResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
-}
-
 export interface GQLIProductTypeResolver<TParent = any> {
   (parent: TParent, context: any, info: GraphQLResolveInfo): 'ProductA' | 'ProductB' | Promise<'ProductA' | 'ProductB'>;
-}
-export interface GQLSearchResultTypeResolver<TParent = any> {
-  (parent: TParent, context: any, info: GraphQLResolveInfo): 'User' | 'ProductA' | 'ProductB' | Promise<'User' | 'ProductA' | 'ProductB'>;
 }
 export interface GQLProductATypeResolver<TParent = any> {
   id?: ProductAToIdResolver<TParent>;
@@ -2337,6 +2071,35 @@ export interface ProductListScalarToListBoolean4Resolver<TParent = any, TResult 
   (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
 }
 
+export interface GQLRootQueryTypeResolver<TParent = any> {
+  Users?: RootQueryToUsersResolver<TParent>;
+  User?: RootQueryToUserResolver<TParent>;
+  Products?: RootQueryToProductsResolver<TParent>;
+  Search?: RootQueryToSearchResolver<TParent>;
+}
+
+export interface RootQueryToUsersArgs {
+  input?: GQLUserFilter;
+}
+export interface RootQueryToUsersResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: RootQueryToUsersArgs, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
+}
+
+export interface RootQueryToUserResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
+}
+
+export interface RootQueryToProductsResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
+}
+
+export interface RootQueryToSearchArgs {
+  key?: string;
+}
+export interface RootQueryToSearchResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: RootQueryToSearchArgs, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
+}
+
 export interface GQLRootMutationTypeResolver<TParent = any> {
   createUser?: RootMutationToCreateUserResolver<TParent>;
 }
@@ -2364,6 +2127,47 @@ export interface RootSubscriptionToUserLoggedInResolver<TParent = any, TResult =
 export interface RootSubscriptionToSaleMadeResolver<TParent = any, TResult = any> {
   resolve?: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => TResult | Promise<TResult>;
   subscribe: (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo) => AsyncIterator<TResult> | Promise<AsyncIterator<TResult>>;
+}
+
+export interface GQLSearchResultTypeResolver<TParent = any> {
+  (parent: TParent, context: any, info: GraphQLResolveInfo): 'User' | 'ProductA' | 'ProductB' | Promise<'User' | 'ProductA' | 'ProductB'>;
+}
+export interface GQLUserTypeResolver<TParent = any> {
+  firstName?: UserToFirstNameResolver<TParent>;
+  lastName?: UserToLastNameResolver<TParent>;
+  username?: UserToUsernameResolver<TParent>;
+  email?: UserToEmailResolver<TParent>;
+  role?: UserToRoleResolver<TParent>;
+  profilePicture?: UserToProfilePictureResolver<TParent>;
+  activated?: UserToActivatedResolver<TParent>;
+}
+
+export interface UserToFirstNameResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
+}
+
+export interface UserToLastNameResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
+}
+
+export interface UserToUsernameResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
+}
+
+export interface UserToEmailResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
+}
+
+export interface UserToRoleResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
+}
+
+export interface UserToProfilePictureResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
+}
+
+export interface UserToActivatedResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult | Promise<TResult>;
 }
 "
 `;

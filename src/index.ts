@@ -1,12 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { GraphQLSchema, buildSchema } from 'graphql';
+import { GraphQLSchema, buildSchema, IntrospectionQuery } from 'graphql';
 import { GenerateTypescriptOptions, defaultOptions } from './types';
 import { TSResolverGenerator, GenerateResolversResult } from './typescriptResolverGenerator';
 import { TypeScriptGenerator } from './typescriptGenerator';
 import { formatTabSpace, introspectSchema, introspectSchemaViaLocalFile } from './utils';
-import { isString } from 'util';
-import { IntrospectionQuery } from 'graphql/utilities/introspectionQuery';
 
 export { GenerateTypescriptOptions } from './types';
 
@@ -43,28 +41,27 @@ export const generateTSTypesAsString = async (
 ): Promise<string> => {
     const mergedOptions = { ...defaultOptions, ...options };
 
-    let introspectResult: IntrospectionQuery;
-    if (isString(schema)) {
+    const getIntrospectResult = async (): Promise<IntrospectionQuery> => {
+        if (typeof schema !== 'string') {
+            return introspectSchema(schema);
+        }
+
         // is is a path to schema folder?
         try {
             const schemaPath = path.resolve(schema);
             const exists = fs.existsSync(schemaPath);
             if (exists) {
-                introspectResult = await introspectSchemaViaLocalFile(schemaPath);
+                return introspectSchemaViaLocalFile(schemaPath);
             }
         } catch {
             // fall-through in case the provided string is a graphql definition,
             // which can make path.resolve throw error
         }
 
-        // it's not a folder, maybe it's a schema definition
-        if (!introspectResult) {
-            const schemaViaStr = buildSchema(schema);
-            introspectResult = await introspectSchema(schemaViaStr);
-        }
-    } else {
-        introspectResult = await introspectSchema(schema);
-    }
+        const schemaViaStr = buildSchema(schema);
+        return introspectSchema(schemaViaStr);
+    };
+    const introspectResult = await getIntrospectResult();
 
     const tsGenerator = new TypeScriptGenerator(mergedOptions, introspectResult, outputPath);
     const typeDefs = await tsGenerator.generate();

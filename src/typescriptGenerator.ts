@@ -146,7 +146,7 @@ export class TypeScriptGenerator {
         objectType: IntrospectionObjectType | IntrospectionInputObjectType | IntrospectionInterfaceType,
         allGQLTypes: IntrospectionType[]
     ): string[] {
-        const fields: (IntrospectionInputValue | IntrospectionField)[]
+        const fields: readonly (IntrospectionInputValue | IntrospectionField)[]
             = objectType.kind === 'INPUT_OBJECT' ? objectType.inputFields : objectType.fields;
 
         const extendTypes: string[] = objectType.kind === 'OBJECT'

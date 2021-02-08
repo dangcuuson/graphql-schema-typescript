@@ -4,7 +4,7 @@ import {
     graphql,
     buildASTSchema,
     parse,
-    introspectionQuery,
+    getIntrospectionQuery,
     GraphQLSchema,
     IntrospectionQuery,
     IntrospectionField,
@@ -18,7 +18,7 @@ import {
  * Send introspection query to a graphql schema
  */
 export const introspectSchema = async (schema: GraphQLSchema): Promise<IntrospectionQuery> => {
-    const { data, errors } = await graphql(schema, introspectionQuery);
+    const { data, errors } = await graphql(schema, getIntrospectionQuery());
 
     if (errors) {
         throw errors;
