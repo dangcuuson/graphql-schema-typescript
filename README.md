@@ -7,6 +7,12 @@ The shape of the generated type is based on the client's query strings.
 This module aim to do the Server counterpart: from a Schema Definition, generate the 
 types to make it type-safed when developing GraphQL server (mainly resolvers)
 
+## Compatibility
+| graphql-schema-typescript |  graphql  |
+|---------------------------|-----------|
+|1.5                        |  ^14.0.0  |
+|1.4                        | 0.11~0.13 |
+
 ## Features
 
 ### Generate Typescript from Schema Definition (1-1 mapping from GQL type to TypeScript)
