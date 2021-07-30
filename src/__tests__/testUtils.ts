@@ -17,7 +17,7 @@ export const executeCommand = (command: string, options?: childProcess.ExecOptio
             if (exitCode !== 0) {
                 reject(`Command: ${command} return non-0 exit code: ${exitCode}`);
             } else {
-                resolve();
+                resolve(undefined);
             }
         });
         process.on('error', err => {
