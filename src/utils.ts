@@ -16,13 +16,15 @@ const camelCase = require('camelcase');
  * Send introspection query to a graphql schema
  */
 export const introspectSchema = async (schema: GraphQLSchema): Promise<IntrospectionQuery> => {
-    const { data, errors } = await graphql(schema, getIntrospectionQuery());
+    const { data, errors } = await graphql({
+        schema: schema, source: getIntrospectionQuery()
+    });
 
     if (errors) {
         throw errors;
     }
 
-    return data as IntrospectionQuery;
+    return data as unknown as IntrospectionQuery;
 };
 
 async function introspectSchemaStr(schemaStr: string): Promise<IntrospectionQuery> {

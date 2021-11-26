@@ -8,10 +8,11 @@ This module aim to do the Server counterpart: from a Schema Definition, generate
 types to make it type-safed when developing GraphQL server (mainly resolvers)
 
 ## Compatibility
-| graphql-schema-typescript |  graphql  |
-|---------------------------|-----------|
-|1.5                        |  ^14.0.0  |
-|1.4                        | 0.11~0.13 |
+| graphql-schema-typescript |  graphql         |
+|---------------------------|------------------|
+|1.6                        | ^16.0.0          |
+|1.5                        | ^14.0.0, ^15.0.0 |
+|1.4                        | 0.11~0.13        |
 
 ## Features
 
