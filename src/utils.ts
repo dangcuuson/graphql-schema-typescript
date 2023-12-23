@@ -8,7 +8,8 @@ import {
     GraphQLSchema,
     IntrospectionQuery,
     IntrospectionField,
-    IntrospectionInputValue
+    IntrospectionInputValue,
+    BuildSchemaOptions
 } from 'graphql';
 const camelCase = require('camelcase');
 
@@ -27,11 +28,6 @@ export const introspectSchema = async (schema: GraphQLSchema): Promise<Introspec
     return data as unknown as IntrospectionQuery;
 };
 
-async function introspectSchemaStr(schemaStr: string): Promise<IntrospectionQuery> {
-    const schema = buildASTSchema(parse(schemaStr));
-    return introspectSchema(schema);
-}
-
 function klawSync(path: string, filterRegex: RegExp, fileNames: string[] = []) {
     const fileStat = fs.statSync(path);
     if (fileStat.isDirectory()) {
@@ -43,10 +39,10 @@ function klawSync(path: string, filterRegex: RegExp, fileNames: string[] = []) {
     return fileNames;
 }
 
-export const introspectSchemaViaLocalFile = async (path: string): Promise<IntrospectionQuery> => {
+export const introspectSchemaViaLocalFile = async (path: string, buildOptions?: BuildSchemaOptions): Promise<IntrospectionQuery> => {
     const files = klawSync(path, /\.(graphql|gql|graphqls)$/);
     const allTypeDefs = files.map(filePath => fs.readFileSync(filePath, 'utf-8')).join('\n');
-    return await introspectSchemaStr(allTypeDefs);
+    return introspectSchema(buildASTSchema(parse(allTypeDefs), buildOptions));
 };
 
 export interface SimpleTypeDescription {

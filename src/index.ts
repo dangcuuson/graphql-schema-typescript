@@ -52,7 +52,7 @@ export const generateTSTypesAsString = async (
             const schemaPath = path.resolve(schema);
             const exists = fs.existsSync(schemaPath);
             if (exists) {
-                return introspectSchemaViaLocalFile(schemaPath);
+                return introspectSchemaViaLocalFile(schemaPath, buildOptions);
             }
         } catch {
             // fall-through in case the provided string is a graphql definition,
