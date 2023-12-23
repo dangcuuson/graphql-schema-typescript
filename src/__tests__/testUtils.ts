@@ -68,7 +68,11 @@ export const executeApiTest = async (
 ): Promise<string> => {
     // prepare output folder
     if (!fs.existsSync(OUTPUT_FOLDER)) {
-        fs.mkdirSync(OUTPUT_FOLDER);
+        try {
+            fs.mkdirSync(OUTPUT_FOLDER);
+        } catch(err) {
+            // test can be run in parallel so it could throw error due to race condition
+        }
     }
     const outputPath = path.join(OUTPUT_FOLDER, outputFile);
 
