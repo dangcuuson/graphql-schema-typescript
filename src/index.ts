@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { GraphQLSchema, buildSchema, IntrospectionQuery } from 'graphql';
+import { GraphQLSchema, buildSchema, IntrospectionQuery, BuildSchemaOptions } from 'graphql';
 import { GenerateTypescriptOptions, defaultOptions } from './types';
 import { TSResolverGenerator, GenerateResolversResult } from './typescriptResolverGenerator';
 import { TypeScriptGenerator } from './typescriptGenerator';
@@ -37,7 +37,8 @@ const typeResolversDecoration = [
 export const generateTSTypesAsString = async (
     schema: GraphQLSchema | string,
     outputPath: string,
-    options: GenerateTypescriptOptions
+    options: GenerateTypescriptOptions,
+    buildOptions?: BuildSchemaOptions
 ): Promise<string> => {
     const mergedOptions = { ...defaultOptions, ...options };
 
@@ -58,7 +59,7 @@ export const generateTSTypesAsString = async (
             // which can make path.resolve throw error
         }
 
-        const schemaViaStr = buildSchema(schema);
+        const schemaViaStr = buildSchema(schema, buildOptions);
         return introspectSchema(schemaViaStr);
     };
     const introspectResult = await getIntrospectResult();
@@ -108,8 +109,9 @@ export const generateTSTypesAsString = async (
 export async function generateTypeScriptTypes(
     schema: GraphQLSchema | string,
     outputPath: string,
-    options: GenerateTypescriptOptions = defaultOptions
+    options: GenerateTypescriptOptions = defaultOptions,
+    buildOptions?: BuildSchemaOptions
 ) {
-    const content = await generateTSTypesAsString(schema, outputPath, options);
+    const content = await generateTSTypesAsString(schema, outputPath, options, buildOptions);
     fs.writeFileSync(outputPath, content, 'utf-8');
 }

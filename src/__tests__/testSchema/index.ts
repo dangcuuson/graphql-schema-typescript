@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { GraphQLSchema, getIntrospectionQuery, graphql } from 'graphql';
+import { GraphQLSchema } from 'graphql';
 
 const gqlFiles = fs.readdirSync(__dirname).filter(f => f.endsWith('.gql') || f.endsWith('.graphql'));
 
