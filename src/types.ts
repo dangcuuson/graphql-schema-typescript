@@ -101,7 +101,7 @@ export interface GenerateTypescriptOptions {
     noStringEnum?: boolean;
 
     /**
-     * If true resolver info arguements will be marked as optional
+     * If true resolver info arguments will be marked as optional
      */
     optionalResolverInfo?: boolean;
 
