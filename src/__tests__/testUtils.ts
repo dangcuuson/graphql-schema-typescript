@@ -70,7 +70,7 @@ export const executeApiTest = async (
     if (!fs.existsSync(OUTPUT_FOLDER)) {
         try {
             fs.mkdirSync(OUTPUT_FOLDER);
-        } catch(err) {
+        } catch (err) {
             // test can be run in parallel so it could throw error due to race condition
         }
     }
